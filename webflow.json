@@ -1,9 +1,11 @@
 {
   "cloud": {
-    "framework": "nextjs"
+    "framework": "nextjs",
+    "project_id": "63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f"
   },
   "devlink": {
     "siteId": "609dfa12a141dd6e70976d48",
+    "rootDir": "src/components",
     "components": [
       "PropertyCard",
       "SearchFilters",
@@ -12,5 +14,12 @@
     "pages": [
       "search-properties"
     ]
+  },
+  "telemetry": {
+    "global": {
+      "allowTelemetry": true,
+      "lastPrompted": 1757524699371,
+      "version": "1.8.41"
+    }
   }
 }
