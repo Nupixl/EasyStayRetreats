@@ -1,0 +1,16 @@
+{
+  "cloud": {
+    "framework": "nextjs"
+  },
+  "devlink": {
+    "siteId": "609dfa12a141dd6e70976d48",
+    "components": [
+      "PropertyCard",
+      "SearchFilters",
+      "SearchResults"
+    ],
+    "pages": [
+      "search-properties"
+    ]
+  }
+}
