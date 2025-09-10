@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// This ensures the API route runs on the Edge runtime
-export const runtime = 'edge';
-
 export async function GET(request: NextRequest) {
   const retreats = [
     {
