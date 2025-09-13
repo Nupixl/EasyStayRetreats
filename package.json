@@ -9,7 +9,14 @@
     "lint": "next lint",
     "preview": "npm run build && wrangler dev",
     "devlink:sync": "webflow devlink sync",
-    "devlink:watch": "webflow devlink watch"
+    "devlink:watch": "webflow devlink watch",
+    "deploy": "webflow cloud deploy",
+    "workflow:sync": "./scripts/webflow-workflow.sh sync",
+    "workflow:dev": "./scripts/webflow-workflow.sh dev",
+    "workflow:build": "./scripts/webflow-workflow.sh build",
+    "workflow:deploy": "./scripts/webflow-workflow.sh deploy",
+    "workflow:watch": "./scripts/webflow-workflow.sh watch",
+    "workflow:full": "./scripts/webflow-workflow.sh full"
   },
   "dependencies": {
     "next": "^15.0.0",

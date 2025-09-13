@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { Navigation } from '@/components/navigation'
+import { DevLinkProvider } from '@/components/DevLinkProvider'
 import './globals.css'
+import '@/components/global.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,12 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="page-wrapper">
-          <Navigation />
-          <main className="main-wrapper">
+        <DevLinkProvider>
+          <div className="page-wrapper">
             {children}
-          </main>
-        </div>
+          </div>
+        </DevLinkProvider>
       </body>
     </html>
   )

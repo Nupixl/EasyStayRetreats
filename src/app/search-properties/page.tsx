@@ -1,323 +1,244 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PropertyCard } from '@/components/property-card';
-import { SearchFilters } from '@/components/search-filters';
-import { SearchHeader } from '@/components/search-header';
-
-interface Property {
-  id: number;
-  title: string;
-  location: string;
-  price: number;
-  pricePerNight: number;
-  rating: number;
-  reviewCount: number;
-  images: string[];
-  type: 'retreat' | 'cabin' | 'villa' | 'apartment';
-  amenities: string[];
-  maxGuests: number;
-  bedrooms: number;
-  bathrooms: number;
-  isAvailable: boolean;
-  host: {
-    name: string;
-    avatar: string;
-    isSuperhost: boolean;
-  };
-}
+import { NavbarWrapper, NavbarContainer, NavbarBrand, NavbarMenu, NavbarLink, NavbarButton } from '@/components/_Builtin/Navbar';
+import { EnhancedSearchFilters } from '@/components/EnhancedSearchFilters';
+import { PropertyCard } from '@/components/PropertyCard';
+import { Footer } from '@/components/Footer';
+import { useEffect, useState } from 'react';
+import { properties as sampleProperties } from '@/data/properties';
 
 export default function SearchPropertiesPage() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     location: '',
-    checkIn: '',
-    checkOut: '',
+    checkInDate: '',
+    checkOutDate: '',
     guests: 1,
-    priceRange: [0, 1000] as [number, number],
-    propertyType: 'all',
-    amenities: [] as string[],
-    rating: 0
+    priceRange: [50, 1000] as [number, number],
+    propertyType: 'Any',
+    amenities: [] as string[]
   });
 
-  // Mock data - in a real app, this would come from an API
+  const [filteredProperties, setFilteredProperties] = useState<any[]>(sampleProperties);
+
+  const handleFiltersChange = (newFilters: any) => {
+    setFilters(newFilters);
+    // Filter logic will be implemented when we connect to CMS
+  };
+
+  const handleBookNow = (propertyId: string) => {
+    console.log('Book now:', propertyId);
+  };
+
+  const handleViewDetails = (propertyId: string) => {
+    console.log('View details:', propertyId);
+  };
+
+  // Minimal native Google Maps init for local testing
   useEffect(() => {
-    const mockProperties: Property[] = [
-      {
-        id: 1,
-        title: "Mountain Zen Retreat",
-        location: "Swiss Alps, Switzerland",
-        price: 2499,
-        pricePerNight: 357,
-        rating: 4.9,
-        reviewCount: 127,
-        images: ["/images/retreat-mountain.jpg", "/images/retreat-mountain-2.jpg"],
-        type: "retreat",
-        amenities: ["WiFi", "Kitchen", "Parking", "Hot Tub", "Mountain View"],
-        maxGuests: 8,
-        bedrooms: 4,
-        bathrooms: 3,
-        isAvailable: true,
-        host: {
-          name: "Sarah Johnson",
-          avatar: "/images/host-1.jpg",
-          isSuperhost: true
-        }
-      },
-      {
-        id: 2,
-        title: "Coastal Mindfulness Villa",
-        location: "Big Sur, California",
-        price: 1899,
-        pricePerNight: 380,
-        rating: 4.8,
-        reviewCount: 89,
-        images: ["/images/retreat-coastal.jpg", "/images/retreat-coastal-2.jpg"],
-        type: "villa",
-        amenities: ["WiFi", "Ocean View", "Beach Access", "Yoga Studio", "Organic Garden"],
-        maxGuests: 6,
-        bedrooms: 3,
-        bathrooms: 2,
-        isAvailable: true,
-        host: {
-          name: "Michael Chen",
-          avatar: "/images/host-2.jpg",
-          isSuperhost: true
-        }
-      },
-      {
-        id: 3,
-        title: "Forest Sanctuary Cabin",
-        location: "Costa Rica",
-        price: 3299,
-        pricePerNight: 330,
-        rating: 4.9,
-        reviewCount: 156,
-        images: ["/images/retreat-forest.jpg", "/images/retreat-forest-2.jpg"],
-        type: "cabin",
-        amenities: ["WiFi", "Jungle View", "Wildlife Spotting", "Waterfall Access", "Eco-Friendly"],
-        maxGuests: 4,
-        bedrooms: 2,
-        bathrooms: 2,
-        isAvailable: true,
-        host: {
-          name: "Emma Rodriguez",
-          avatar: "/images/host-3.jpg",
-          isSuperhost: true
-        }
-      },
-      {
-        id: 4,
-        title: "Desert Oasis Retreat",
-        location: "Sedona, Arizona",
-        price: 1599,
-        pricePerNight: 320,
-        rating: 4.7,
-        reviewCount: 73,
-        images: ["/images/retreat-desert.jpg"],
-        type: "retreat",
-        amenities: ["WiFi", "Desert View", "Meditation Garden", "Spa Services", "Hiking Trails"],
-        maxGuests: 6,
-        bedrooms: 3,
-        bathrooms: 2,
-        isAvailable: true,
-        host: {
-          name: "David Thompson",
-          avatar: "/images/host-4.jpg",
-          isSuperhost: false
-        }
-      },
-      {
-        id: 5,
-        title: "Lakeside Wellness Cabin",
-        location: "Lake Tahoe, California",
-        price: 2199,
-        pricePerNight: 440,
-        rating: 4.8,
-        reviewCount: 94,
-        images: ["/images/retreat-lake.jpg"],
-        type: "cabin",
-        amenities: ["WiFi", "Lake View", "Private Dock", "Fireplace", "Kayaking"],
-        maxGuests: 8,
-        bedrooms: 4,
-        bathrooms: 3,
-        isAvailable: true,
-        host: {
-          name: "Lisa Anderson",
-          avatar: "/images/host-5.jpg",
-          isSuperhost: true
-        }
-      },
-      {
-        id: 6,
-        title: "Tropical Paradise Villa",
-        location: "Bali, Indonesia",
-        price: 2799,
-        pricePerNight: 400,
-        rating: 4.9,
-        reviewCount: 201,
-        images: ["/images/retreat-bali.jpg"],
-        type: "villa",
-        amenities: ["WiFi", "Private Pool", "Beach Access", "Spa", "Cultural Tours"],
-        maxGuests: 10,
-        bedrooms: 5,
-        bathrooms: 4,
-        isAvailable: true,
-        host: {
-          name: "Ayu Putri",
-          avatar: "/images/host-6.jpg",
-          isSuperhost: true
+    function ensureMapEl() {
+      const el = document.getElementById('search-map');
+      if (el && !el.getAttribute('data-ready')) {
+        el.setAttribute('data-ready', 'true');
+        if (!/height:\s*\d|vh|%/.test(el.getAttribute('style') || '')) {
+          (el as HTMLDivElement).style.minHeight = '60vh';
+          (el as HTMLDivElement).style.width = '100%';
         }
       }
-    ];
-
-    setProperties(mockProperties);
-    setFilteredProperties(mockProperties);
-    setLoading(false);
-  }, []);
-
-  // Filter properties based on search criteria
-  useEffect(() => {
-    let filtered = properties;
-
-    // Location filter
-    if (filters.location) {
-      filtered = filtered.filter(property =>
-        property.location.toLowerCase().includes(filters.location.toLowerCase()) ||
-        property.title.toLowerCase().includes(filters.location.toLowerCase())
-      );
+      return el as HTMLDivElement | null;
     }
 
-    // Price range filter
-    filtered = filtered.filter(property =>
-      property.pricePerNight >= filters.priceRange[0] &&
-      property.pricePerNight <= filters.priceRange[1]
-    );
-
-    // Property type filter
-    if (filters.propertyType !== 'all') {
-      filtered = filtered.filter(property => property.type === filters.propertyType);
+    function loadGoogle(cb: () => void) {
+      if ((window as any).google && (window as any).google.maps) { cb(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD8v_6yM27IK1EqjrA9zQKsl5XyoQmA92Q&libraries=places';
+      s.async = true; s.defer = true; s.onload = cb; document.head.appendChild(s);
     }
 
-    // Rating filter
-    if (filters.rating > 0) {
-      filtered = filtered.filter(property => property.rating >= filters.rating);
+    function render() {
+      const el = ensureMapEl(); if (!el) return;
+      const googleAny = (window as any).google;
+      const map = new googleAny.maps.Map(el, { center: { lat: 34.0522, lng: -118.2437 }, zoom: 5 });
+      const info = new googleAny.maps.InfoWindow();
+      const bounds = new googleAny.maps.LatLngBounds();
+
+      filteredProperties.forEach((p) => {
+        if (isNaN(p.lat) || isNaN(p.lng)) return;
+        const marker = new googleAny.maps.Marker({ position: { lat: p.lat, lng: p.lng }, map, title: p.title });
+        bounds.extend(marker.getPosition());
+        marker.addListener('click', () => {
+          info.setContent(`<div><strong>${p.title}</strong><div>${p.location}</div></div>`);
+          info.open({ anchor: marker, map });
+          const card = document.querySelector(`[data-property-id="${p.id}"]`) as HTMLElement | null;
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.add('is-active');
+            setTimeout(() => card.classList.remove('is-active'), 800);
+          }
+        });
+      });
+      if (!bounds.isEmpty()) { map.fitBounds(bounds); }
     }
 
-    // Amenities filter
-    if (filters.amenities.length > 0) {
-      filtered = filtered.filter(property =>
-        filters.amenities.every(amenity => property.amenities.includes(amenity))
-      );
-    }
-
-    setFilteredProperties(filtered);
-  }, [properties, filters]);
-
-  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      location: '',
-      checkIn: '',
-      checkOut: '',
-      guests: 1,
-      priceRange: [0, 1000] as [number, number],
-      propertyType: 'all',
-      amenities: [],
-      rating: 0
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="search_loading">
-        <div className="container-large padding-global padding-section-large">
-          <div className="search_loading-content text-align-center">
-            <div className="search_loading-spinner"></div>
-            <p className="text-size-large margin-top-medium">Loading properties...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    loadGoogle(render);
+  }, [filteredProperties]);
 
   return (
-    <div className="search_properties-page">
-      <SearchHeader 
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        resultCount={filteredProperties.length}
-      />
-      
-      <div className="search_properties-content">
-        <div className="container-large padding-global">
-          <div className="search_properties-layout">
-            <aside className="search_filters-sidebar">
-              <SearchFilters
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onClearFilters={clearFilters}
-              />
-            </aside>
-            
-            <main className="search_properties-main">
-              <div className="search_results-header">
-                <h1 className="heading-style-h2">
-                  {filteredProperties.length} properties found
-                </h1>
-                <div className="search_results-sort">
-                  <select className="search_sort-select">
-                    <option value="relevance">Sort by relevance</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Highest rated</option>
-                    <option value="newest">Newest first</option>
-                  </select>
+    <>
+      {/* Navigation */}
+      <NavbarWrapper
+        tag="nav"
+        className="navbar"
+        config={{
+          animation: "over-right",
+          collapse: "medium",
+          docHeight: false,
+          duration: 400,
+          easing: "ease",
+          easing2: "ease",
+          noScroll: true,
+        }}
+      >
+        <NavbarContainer className="container-large" tag="div" {...({} as any)}>
+          <NavbarBrand
+            options={{ href: "/" }}
+            className="nav-brand"
+          >
+            Easy Stay Retreats
+          </NavbarBrand>
+          <NavbarButton className="nav-menu-button">
+            <div className="w-icon-nav-menu"></div>
+          </NavbarButton>
+          <NavbarMenu className="nav-menu">
+            <NavbarLink options={{ href: "/" }} className="nav-link">Home</NavbarLink>
+            <NavbarLink options={{ href: "/search-properties" }} className="nav-link">Retreats</NavbarLink>
+            <NavbarLink options={{ href: "/about-us" }} className="nav-link">About</NavbarLink>
+            <NavbarLink options={{ href: "/contact" }} className="nav-link">Contact</NavbarLink>
+          </NavbarMenu>
+        </NavbarContainer>
+      </NavbarWrapper>
+
+      <main className="main-wrapper">
+        {/* Map Section (local) */}
+        <section className="section">
+          <div className="container-large">
+            <div id="search-map" style={{ minHeight: '60vh', width: '100%' }} />
+          </div>
+        </section>
+        {/* Search Header */}
+        <section className="section">
+          <div className="container-large">
+            <div className="text-center">
+              <h1 className="heading-style-h1">Find Your Perfect Retreat</h1>
+              <p className="body-display large">Discover transformative wellness retreats in stunning locations around the world</p>
+            </div>
+
+            {/* Search Filters */}
+            {/* @ts-ignore */}
+            <EnhancedSearchFilters
+              location={filters.location}
+              checkInDate={filters.checkInDate}
+              checkOutDate={filters.checkOutDate}
+              guests={filters.guests}
+              priceRange={filters.priceRange}
+              propertyType={filters.propertyType}
+              amenities={filters.amenities}
+              onLocationChange={(value: string) => handleFiltersChange({ ...filters, location: value })}
+              onCheckInChange={(value: string) => handleFiltersChange({ ...filters, checkInDate: value })}
+              onCheckOutChange={(value: string) => handleFiltersChange({ ...filters, checkOutDate: value })}
+              onGuestsChange={(value: number) => handleFiltersChange({ ...filters, guests: value })}
+              onPriceRangeChange={(value: [number, number]) => handleFiltersChange({ ...filters, priceRange: value })}
+              onPropertyTypeChange={(value: string) => handleFiltersChange({ ...filters, propertyType: value })}
+              onAmenitiesChange={(value: string[]) => handleFiltersChange({ ...filters, amenities: value })}
+              onSearch={() => {
+                console.log('Search triggered with filters:', filters);
+              }}
+              onReset={() => {
+                setFilters({
+                  location: '',
+                  checkInDate: '',
+                  checkOutDate: '',
+                  guests: 1,
+                  priceRange: [50, 1000],
+                  propertyType: 'Any',
+                  amenities: []
+                });
+                setFilteredProperties([]);
+              }}
+              isLoading={false}
+              propertyTypes={["Any", "Cabin", "Villa", "Treehouse", "Lodge", "Retreat", "Desert Retreat", "Mountain Lodge", "Modern Villa", "Tropical Villa"]}
+              availableAmenities={["WiFi", "Pool", "Spa", "Kitchen", "Gym", "Parking", "Pet Friendly", "Ocean View", "Mountain View", "Desert Views", "Stargazing", "Lake Access", "Kayaking", "Firepit", "Yoga Studio", "Rice Paddy Views"]}
+            />
+          </div>
+        </section>
+
+        {/* Search Results */}
+        <section className="section">
+          <div className="container-large">
+            <h2 className="heading-style-h2">{filteredProperties.length} Retreats Found</h2>
+              
+            {filteredProperties.length === 0 ? (
+              <div className="text-center">
+                <div className="body-display">
+                  No properties found matching your criteria. Try adjusting your filters.
                 </div>
               </div>
-              
-              <div className="search_results-grid">
-                {filteredProperties.map((property) => (
-                  <PropertyCard
+            ) : (
+              <div className="grid grid-cols-3 gap-lg">
+                {filteredProperties.map((property: any) => (
+                  <div
                     key={property.id}
-                    property={property}
-                    onBookNow={(propertyId) => {
-                      // Handle booking logic
-                      console.log('Book now:', propertyId);
-                    }}
-                    onViewDetails={(propertyId) => {
-                      // Handle view details logic
-                      console.log('View details:', propertyId);
-                    }}
-                  />
+                    data-property-id={property.id}
+                    data-title={property.title}
+                    data-lat={property.lat}
+                    data-lng={property.lng}
+                  >
+                    {/* @ts-ignore */}
+                    <PropertyCard
+                      propertyTitle={property.title}
+                      firstLine={property.location}
+                      secoundLine={property.type}
+                      price={`$${property.pricePerNight.toLocaleString()}`}
+                      duration="night"
+                      propertyRating={property.rating.toFixed(1)}
+                      numberOfReviews={`(${property.reviewCount})`}
+                      propertyAccolade={property.host.isSuperhost}
+                      propertyAccoladeType={property.host.isSuperhost ? "Super Host" : ""}
+                      accoladeImageDispaly={property.host.isSuperhost}
+                      accoladeIcon=""
+                      imageAccoladeAltText="Super Host"
+                      accoladeImageSrc={property.host.avatar}
+                      propertyImageSrc={property.images[0]}
+                      propertyImageAltText={property.title}
+                      onBookNow={() => handleBookNow(property.id)}
+                      onViewDetails={() => handleViewDetails(property.id)}
+                      onFavorite={() => console.log('Toggle favorite:', property.id)}
+                      onShare={() => console.log('Share property:', property.id)}
+                      isFavorite={false}
+                      isAvailable={property.availability}
+                      discountPercentage={0}
+                      amenities={property.amenities}
+                      hostName={property.host.name}
+                      hostAvatar={property.host.avatar}
+                      propertyType={property.type}
+                      maxGuests={property.guests}
+                      bedrooms={property.beds}
+                      bathrooms={property.baths}
+                      checkInTime="3:00 PM"
+                      checkOutTime="11:00 AM"
+                      cancellationPolicy="Flexible"
+                      instantBook={property.host.isSuperhost}
+                      verified={property.host.isSuperhost}
+                    />
+                  </div>
                 ))}
               </div>
-              
-              {filteredProperties.length === 0 && (
-                <div className="search_no-results text-align-center padding-section-large">
-                  <h2 className="heading-style-h3 margin-bottom-medium">
-                    No properties found
-                  </h2>
-                  <p className="text-size-large text-color-neutral-600 margin-bottom-large">
-                    Try adjusting your search criteria or filters
-                  </p>
-                  <button 
-                    onClick={clearFilters}
-                    className="button is-primary"
-                  >
-                    Clear all filters
-                  </button>
-                </div>
-              )}
-            </main>
+            )}
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </>
   );
 }
