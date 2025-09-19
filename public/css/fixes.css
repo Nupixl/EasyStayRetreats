@@ -1,0 +1,1259 @@
+/* Essential Webflow Utility Classes */
+/* Set color style to inherit */
+.inherit-color * {
+    color: inherit;
+}
+
+/* Focus state style for keyboard navigation for the focusable elements */
+*[tabindex]:focus-visible,
+  input[type="file"]:focus-visible {
+   outline: 0.125rem solid #4d65ff;
+   outline-offset: 0.125rem;
+}
+
+/* Get rid of top margin on first element in any rich text element */
+.w-richtext > :not(div):first-child, .w-richtext > div:first-child > :first-child {
+  margin-top: 0 !important;
+}
+
+/* Get rid of bottom margin on last element in any rich text element */
+.w-richtext>:last-child, .w-richtext ol li:last-child, .w-richtext ul li:last-child {
+	margin-bottom: 0 !important;
+}
+
+/* Prevent all click and hover interaction with an element */
+.pointer-events-off {
+	pointer-events: none;
+}
+
+/* Enables all click and hover interaction with an element */
+.pointer-events-on {
+  pointer-events: auto;
+}
+
+/* Create a class of .div-square which maintains a 1:1 dimension of a div */
+.div-square::after {
+	content: "";
+	display: block;
+	padding-bottom: 100%;
+}
+
+/* Make sure containers never lose their center alignment */
+.container-medium,.container-small, .container-large {
+	margin-right: auto !important;
+  margin-left: auto !important;
+}
+
+/* Apply "..." after 3 lines of text */
+.text-style-3lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+/* Apply "..." after 2 lines of text */
+.text-style-2lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+/* Adds inline flex display */
+.display-inlineflex {
+  display: inline-flex;
+}
+
+/* These classes are never overwritten */
+.hide {
+  display: none !important;
+}
+
+@media screen and (max-width: 991px) {
+    .hide, .hide-tablet {
+        display: none !important;
+    }
+}
+  @media screen and (max-width: 767px) {
+    .hide-mobile-landscape{
+      display: none !important;
+    }
+}
+  @media screen and (max-width: 479px) {
+    .hide-mobile{
+      display: none !important;
+    }
+}
+
+.margin-0 {
+  margin: 0rem !important;
+}
+.padding-0 {
+  padding: 0rem !important;
+}
+.spacing-clean {
+padding: 0rem !important;
+margin: 0rem !important;
+}
+
+/* Apply "..." at 100% width */
+.truncate-width { 
+		width: 100%; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+/* Removes native scrollbar */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none; 
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Google Maps Integration Styles */
+.map-container-full {
+    height: 100vh !important;
+    min-height: 400px;
+    width: 100%;
+}
+
+.map-element {
+    height: 100%;
+    width: 100%;
+}
+
+/* Custom Marker Styles */
+.custom-marker {
+    background: #fff;
+    border: 2px solid #ff5a5f;
+    border-radius: 8px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.custom-marker:hover,
+.custom-marker.marker-hover {
+    background: #ff5a5f;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Info Window Styles */
+.map-info-window {
+    max-width: 300px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.info-window-image {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+.info-window-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-window-content {
+    padding: 12px;
+}
+
+.info-window-title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+}
+
+.info-window-location {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.info-window-rating {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.rating-stars {
+    color: #ff5a5f;
+    margin-right: 4px;
+}
+
+.rating-value {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.rating-count {
+    color: #666;
+}
+
+.info-window-price {
+    margin: 0 0 12px 0;
+}
+
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.duration {
+    font-size: 14px;
+    color: #666;
+}
+
+.info-window-link {
+    display: inline-block;
+    background: #ff5a5f;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+        .info-window-link:hover {
+            background: #e04a4f;
+        }
+
+        /* Interactive States */
+        .property.selected {
+            border: 2px solid #ff5a5f;
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+            transform: scale(1.02);
+        }
+
+        .property.highlight {
+            border: 2px solid #ff5a5f;
+            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .property:focus {
+            outline: 2px solid #ff5a5f;
+            outline-offset: 2px;
+        }
+
+        /* Custom Marker States */
+        .custom-marker.selected {
+            background: #ff5a5f;
+            color: #fff;
+            transform: scale(1.3);
+            z-index: 1000;
+        }
+
+        .custom-marker.hovered {
+            background: #ff5a5f;
+            color: #fff;
+            transform: scale(1.15);
+            z-index: 999;
+        }
+
+        /* Accessibility */
+        .property[tabindex="0"] {
+            cursor: pointer;
+        }
+
+        .property[tabindex="0"]:focus-visible {
+            outline: 2px solid #ff5a5f;
+            outline-offset: 2px;
+        }
+
+        /* Loading States */
+        .map-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .map-loading-content {
+            text-align: center;
+        }
+
+        .map-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff5a5f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .map-loading-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Error States */
+        .map-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            color: #666;
+            text-align: center;
+        }
+
+        .map-error-message p {
+            margin: 0 0 8px 0;
+        }
+
+        .error-details {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .retry-button {
+            background: #ff5a5f;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .retry-button:hover {
+            background: #e04a4f;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .property.selected,
+            .property.highlight {
+                transform: none;
+            }
+            
+            .custom-marker.selected,
+            .custom-marker.hovered {
+                transform: scale(1.1);
+            }
+        }
+
+/* Property Card Image Fixes */
+.property-card .w-slider {
+  height: 200px !important;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+.property-card .w-slider-mask {
+  height: 100% !important;
+}
+
+.property-card .w-slide {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.property-card .w-slide img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Page Layout Fixes */
+.page-wrapper {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.section_search_map {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.map-canvas {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.map-property-wrapper {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.map-property-contiainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.map-property-bottom-contianer {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Map Container Fixes */
+.map-element {
+  height: 100% !important;
+  min-height: 60vh !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.search-map {
+  height: 100% !important;
+  min-height: 60vh !important;
+  flex: 1;
+}
+
+/* Property Card Container Fixes */
+.property-card {
+  height: auto !important;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-card-top-content {
+  flex: 0 0 auto;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+}
+
+.propert-card-bottom-contnet {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+/* Map Loading Overlay Fixes */
+.map-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+.map-loading-content {
+  text-align: center;
+}
+
+.map-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3B82F6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.map-loading-text {
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .property-card .w-slider {
+    height: 180px !important;
+  }
+  
+  .property-card-top-content {
+    height: 180px;
+  }
+  
+  .map-element {
+    min-height: 50vh !important;
+  }
+  
+  .search-map {
+    min-height: 50vh !important;
+  }
+}
+
+/* Property Card Hover Effects */
+.property-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.property-card.selected {
+  border: 2px solid #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Favorite Button Styling */
+.card-favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-favorite-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.card-favorite-button.favorited {
+  background: #EF4444;
+}
+
+.card-favorite-button .favorite-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Super Host Badge */
+.card-accolade {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  background: #3B82F6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Slider Navigation Dots */
+.w-slider-nav.w-round {
+  bottom: 12px;
+}
+
+.w-slider-dot {
+  width: 8px !important;
+  height: 8px !important;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  border-radius: 50% !important;
+  margin: 0 4px !important;
+}
+
+.w-slider-dot.w-active {
+  background-color: #fff !important;
+}
+
+/* Slider Arrows */
+.w-slider-arrow-left,
+.w-slider-arrow-right {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.property-card:hover .w-slider-arrow-left,
+.property-card:hover .w-slider-arrow-right {
+  opacity: 1;
+}
+
+.w-slider-arrow-left,
+.w-slider-arrow-right {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.w-slider-arrow-left {
+  left: 12px;
+  right: auto;
+}
+
+.w-slider-arrow-right {
+  right: 12px;
+  left: auto;
+}
+
+.w-icon-slider-left,
+.w-icon-slider-right {
+  color: white;
+  font-size: 16px;
+}
+
+/* Webflow Essential Utility Classes */
+/* Set color style to inherit */
+.inherit-color * {
+    color: inherit;
+}
+
+/* Focus state style for keyboard navigation for the focusable elements */
+*[tabindex]:focus-visible,
+input[type="file"]:focus-visible {
+   outline: 0.125rem solid #4d65ff;
+   outline-offset: 0.125rem;
+}
+
+/* Get rid of top margin on first element in any rich text element */
+.w-richtext > :not(div):first-child, .w-richtext > div:first-child > :first-child {
+  margin-top: 0 !important;
+}
+
+/* Get rid of bottom margin on last element in any rich text element */
+.w-richtext>:last-child, .w-richtext ol li:last-child, .w-richtext ul li:last-child {
+	margin-bottom: 0 !important;
+}
+
+/* Prevent all click and hover interaction with an element */
+.pointer-events-off {
+	pointer-events: none;
+}
+
+/* Enables all click and hover interaction with an element */
+.pointer-events-on {
+  pointer-events: auto;
+}
+
+/* Create a class of .div-square which maintains a 1:1 dimension of a div */
+.div-square::after {
+	content: "";
+	display: block;
+	padding-bottom: 100%;
+}
+
+/* Make sure containers never lose their center alignment */
+.container-medium,.container-small, .container-large {
+	margin-right: auto !important;
+  margin-left: auto !important;
+}
+
+/* Apply "..." after 3 lines of text */
+.text-style-3lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+/* Apply "..." after 2 lines of text */
+.text-style-2lines {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+/* Adds inline flex display */
+.display-inlineflex {
+  display: inline-flex;
+}
+
+/* These classes are never overwritten */
+.hide {
+  display: none !important;
+}
+
+@media screen and (max-width: 991px) {
+    .hide, .hide-tablet {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .hide-mobile-landscape{
+      display: none !important;
+    }
+}
+
+@media screen and (max-width: 479px) {
+    .hide-mobile{
+      display: none !important;
+    }
+}
+
+.margin-0 {
+  margin: 0rem !important;
+}
+
+.padding-0 {
+  padding: 0rem !important;
+}
+
+.spacing-clean {
+padding: 0rem !important;
+margin: 0rem !important;
+}
+
+.margin-top {
+  margin-right: 0rem !important;
+  margin-bottom: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-top {
+  padding-right: 0rem !important;
+  padding-bottom: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.margin-right {
+  margin-top: 0rem !important;
+  margin-bottom: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-right {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.margin-bottom {
+  margin-top: 0rem !important;
+  margin-right: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-bottom {
+  padding-top: 0rem !important;
+  padding-right: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+.margin-left {
+  margin-top: 0rem !important;
+  margin-right: 0rem !important;
+  margin-bottom: 0rem !important;
+}
+
+.padding-left {
+  padding-top: 0rem !important;
+  padding-right: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+
+.margin-horizontal {
+  margin-top: 0rem !important;
+  margin-bottom: 0rem !important;
+}
+
+.padding-horizontal {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+
+.margin-vertical {
+  margin-right: 0rem !important;
+  margin-left: 0rem !important;
+}
+
+.padding-vertical {
+  padding-right: 0rem !important;
+  padding-left: 0rem !important;
+}
+
+/* Apply "..." at 100% width */
+.truncate-width { 
+		width: 100%; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+/* Removes native scrollbar */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none; 
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Google Maps Integration Styles */
+.map-container-full {
+    height: 100vh !important;
+    min-height: 400px;
+    width: 100%;
+}
+
+.map-element {
+    height: 100%;
+    width: 100%;
+}
+
+/* Custom Marker Styles */
+.custom-marker {
+    background: #fff;
+    border: 2px solid #ff5a5f;
+    border-radius: 8px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.custom-marker:hover,
+.custom-marker.marker-hover {
+    background: #ff5a5f;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Info Window Styles */
+.map-info-window {
+    max-width: 300px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.info-window-image {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+.info-window-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-window-content {
+    padding: 12px;
+}
+
+.info-window-title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+}
+
+.info-window-location {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.info-window-rating {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.rating-stars {
+    color: #ff5a5f;
+    margin-right: 4px;
+}
+
+.rating-value {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.rating-count {
+    color: #666;
+}
+
+.info-window-price {
+    margin: 0 0 12px 0;
+}
+
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.duration {
+    font-size: 14px;
+    color: #666;
+}
+
+.info-window-link {
+    display: inline-block;
+    background: #ff5a5f;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+        .info-window-link:hover {
+            background: #e04a4f;
+        }
+
+        /* Interactive States */
+        .property.selected {
+            border: 2px solid #ff5a5f;
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+            transform: scale(1.02);
+        }
+
+        .property.highlight {
+            border: 2px solid #ff5a5f;
+            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .property:focus {
+            outline: 2px solid #ff5a5f;
+            outline-offset: 2px;
+        }
+
+        /* Custom Marker States */
+        .custom-marker.selected {
+            background: #ff5a5f;
+            color: #fff;
+            transform: scale(1.3);
+            z-index: 1000;
+        }
+
+        .custom-marker.hovered {
+            background: #ff5a5f;
+            color: #fff;
+            transform: scale(1.15);
+            z-index: 999;
+        }
+
+        /* Accessibility */
+        .property[tabindex="0"] {
+            cursor: pointer;
+        }
+
+        .property[tabindex="0"]:focus-visible {
+            outline: 2px solid #ff5a5f;
+            outline-offset: 2px;
+        }
+
+        /* Loading States */
+        .map-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .map-loading-content {
+            text-align: center;
+        }
+
+        .map-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff5a5f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .map-loading-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Error States */
+        .map-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            color: #666;
+            text-align: center;
+        }
+
+        .map-error-message p {
+            margin: 0 0 8px 0;
+        }
+
+        .error-details {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .retry-button {
+            background: #ff5a5f;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .retry-button:hover {
+            background: #e04a4f;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .property.selected,
+            .property.highlight {
+                transform: none;
+            }
+            
+            .custom-marker.selected,
+            .custom-marker.hovered {
+                transform: scale(1.1);
+            }
+        }
+
+/* Property Detail Page Styles */
+.property-detail-page {
+    padding: 2rem 0;
+    min-height: 100vh;
+}
+
+.property-header {
+    margin-bottom: 2rem;
+}
+
+.property-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.property-location {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.property-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.rating-stars {
+    font-size: 1.2rem;
+}
+
+.rating-value {
+    font-weight: 600;
+}
+
+.rating-count {
+    color: #666;
+}
+
+.property-images {
+    margin-bottom: 2rem;
+}
+
+.property-main-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.property-details {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+}
+
+.property-info h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.property-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+.property-amenities h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.amenities-list {
+    list-style: none;
+    padding: 0;
+}
+
+.amenities-list li {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.booking-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 2rem;
+}
+
+.price-section {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.price-period {
+    color: #666;
+    font-size: 1rem;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.book-button {
+    background: #ff5a5f;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.book-button:hover {
+    background: #e04a4f;
+}
+
+/* Property Detail Responsive */
+@media (max-width: 768px) {
+    .property-details {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .property-title {
+        font-size: 2rem;
+    }
+    
+    .booking-card {
+        position: static;
+    }
+}

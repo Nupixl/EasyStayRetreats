@@ -1,37 +1,47 @@
 {
-  "name": "easystay-retreats",
-  "version": "0.1.0",
+  "name": "easystayretreats",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "preview": "npm run build && wrangler dev",
-    "devlink:sync": "webflow devlink sync",
-    "devlink:watch": "webflow devlink watch",
-    "deploy": "webflow cloud deploy",
-    "workflow:sync": "./scripts/webflow-workflow.sh sync",
-    "workflow:dev": "./scripts/webflow-workflow.sh dev",
-    "workflow:build": "./scripts/webflow-workflow.sh build",
-    "workflow:deploy": "./scripts/webflow-workflow.sh deploy",
-    "workflow:watch": "./scripts/webflow-workflow.sh watch",
-    "workflow:full": "./scripts/webflow-workflow.sh full"
+    "webflow:sync": "webflow devlink sync",
+    "webflow:auth": "webflow auth login",
+    "mcp:xano": "tsx lib/xano-mcp.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nupixl/EasyStayRetreats.git"
+  },
+  "keywords": [
+    "webflow",
+    "nextjs",
+    "vacation-rentals",
+    "property-search"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nupixl/EasyStayRetreats/issues"
+  },
+  "homepage": "https://github.com/Nupixl/EasyStayRetreats#readme",
+  "description": "Easy Stay Retreats - Property search and booking platform built with Webflow Cloud and Next.js",
   "dependencies": {
-    "next": "^15.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "@googlemaps/js-api-loader": "^1.16.10",
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "@webflow/webflow-cli": "^1.8.43",
+    "next": "^15.5.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.8.2",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "webflow-cli": "^1.0.0",
-    "eslint": "^8.0.0",
-    "eslint-config-next": "^15.0.0",
-    "typescript": "^5.0.0",
-    "wrangler": "^4.24.4"
+    "@types/react": "19.1.13",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.7.0"
   }
 }

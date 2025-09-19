@@ -1,27 +1,10 @@
 {
-  "cloud": {
-    "framework": "nextjs",
-    "project_id": "63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f"
-  },
   "devlink": {
+    "host": "https://api.webflow.com",
+    "rootDir": "./devlink",
+    "cssModules": true,
+    "relativeHrefRoot": "/",
     "siteId": "609dfa12a141dd6e70976d48",
-    "rootDir": "src/components",
-    "components": [
-      "PropertyCard",
-      "SearchFilters",
-      "SearchResults",
-      "EnhancedSearchFilters",
-      "Footer"
-    ],
-    "pages": [
-      "search-properties"
-    ]
-  },
-  "telemetry": {
-    "global": {
-      "allowTelemetry": true,
-      "lastPrompted": 1757524699371,
-      "version": "1.8.41"
-    }
+    "apiToken": "910e99073cc40530827db99397f4076ff983c93f2b3c8a627e8c202e60aa6f64"
   }
 }

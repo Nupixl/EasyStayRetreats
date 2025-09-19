@@ -1,226 +1,173 @@
-# Easy Stay Retreats
+# Easy Stay Retreats - Property Search Platform
 
-A beautiful, modern wellness retreat website built with Next.js and designed for Webflow Cloud deployment.
+A modern property search and booking platform built with Webflow Cloud and Next.js, featuring an interactive map and advanced search filters.
 
-## 🧘‍♀️ About
+## Features
 
-Easy Stay Retreats offers transformative wellness experiences in stunning locations around the world. This website showcases our retreat offerings with a focus on mindfulness, natural healing, and community connection.
+- 🏠 **Property Search**: Simple filtering by location, dates, and guest count
+- 🗺️ **Interactive Google Maps**: Visual property browsing with security-radius markers
+- 📱 **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- ⚡ **Webflow Integration**: Seamless component syncing with Webflow Designer
+- 🎨 **Modern UI**: Clean, minimalistic interface with Tailwind CSS
+- 🔒 **Security-First**: Property locations shown with radius for privacy protection
 
-## 🚀 Features
+## Tech Stack
 
-- **Modern Design**: Clean, responsive design following Client-First principles
-- **Webflow Cloud Ready**: Configured for seamless deployment on Webflow Cloud
-- **Performance Optimized**: Built with Next.js 15 and optimized for Edge runtime
-- **Mobile First**: Fully responsive design that works on all devices
-- **SEO Optimized**: Proper meta tags and semantic HTML structure
-- **Accessibility**: Built with accessibility best practices
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Design**: Webflow Cloud with DevLink
+- **Mapping**: Interactive map component (ready for Google Maps/Mapbox integration)
 
-## 🛠️ Tech Stack
+## Getting Started
 
-- **Framework**: Next.js 15
-- **Styling**: CSS with Client-First methodology
-- **Deployment**: Webflow Cloud with Edge runtime
-- **Package Manager**: npm
-- **TypeScript**: Full TypeScript support
+### Prerequisites
 
-## 📋 Prerequisites
+- Node.js 18+ installed
+- Webflow account with Cloud access
+- Webflow project ID: `609dfa12a141dd6e70976d48`
 
-Before you begin, ensure you have:
+### Installation
 
-- Node.js 20.0.0 or higher
-- npm package manager
-- A Webflow account
-- A Webflow site (Site ID: 609dfa12a141dd6e70976d48)
-- A GitHub account
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd EasyStayRetreats
+   ```
 
-## 🚀 Quick Start
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### 1. Install Dependencies
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+   ```bash
+   # Google Maps API Key (required for map functionality)
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   
+   # Supabase Configuration (optional, for additional data)
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   
+   # Webflow Configuration
+   NEXT_PUBLIC_WEBFLOW_SITE_ID=609dfa12a141dd6e70976d48
+   ```
 
-```bash
-npm install
-```
+4. **Authenticate with Webflow**
+   ```bash
+   npm run webflow:auth
+   ```
 
-### 2. Development
+5. **Sync Webflow components**
+   ```bash
+   npm run webflow:sync
+   ```
 
-```bash
-npm run dev
-```
+6. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the website.
+7. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-### 3. Build for Production
-
-```bash
-npm run build
-```
-
-### 4. Preview with Wrangler (Webflow Cloud simulation)
-
-```bash
-npm run preview
-```
-
-## 🌐 Webflow Cloud Deployment
-
-This project is configured for Webflow Cloud deployment. Follow these steps:
-
-### 1. Connect to Webflow Cloud
-
-1. In your Webflow site settings, navigate to "Webflow Cloud"
-2. Click "Login to GitHub" and authenticate
-3. Click "Install GitHub App" to connect your repositories
-
-### 2. Create Webflow Cloud Project
-
-1. Click "Create New Project"
-2. Add project details:
-   - **Name**: Easy Stay Retreats
-   - **GitHub Repository**: Your repository URL
-   - **Description**: Wellness retreat website
-3. Click "Create project"
-
-### 3. Create Environment
-
-1. Choose your deployment branch (usually `main`)
-2. Set mount path (e.g., `/app`)
-3. Click "Create environment"
-
-### 4. Deploy
-
-```bash
-# Deploy using Webflow CLI
-webflow cloud deploy
-
-# Or push to GitHub for automatic deployment
-git add .
-git commit -m "Deploy to Webflow Cloud"
-git push origin main
-```
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 EasyStayRetreats/
-├── src/
-│   ├── app/
-│   │   ├── globals.css          # Global styles with Client-First system
-│   │   ├── layout.tsx           # Root layout
-│   │   └── page.tsx             # Home page
-│   └── components/
-│       ├── hero.tsx             # Hero section
-│       ├── features.tsx         # Features section
-│       ├── retreats.tsx         # Retreats showcase
-│       ├── testimonials.tsx     # Customer testimonials
-│       ├── cta.tsx              # Call-to-action section
-│       └── footer.tsx           # Footer
-├── public/
-│   └── images/                  # Image assets
-├── next.config.ts               # Next.js configuration
-├── webflow.json                 # Webflow Cloud configuration
-├── open-next.config.ts          # OpenNext configuration
-├── wrangler.jsonc               # Wrangler configuration
-└── cloudflare-env.d.ts          # Environment types
+├── app/                    # Next.js app directory
+│   ├── search-properties/  # Property search page
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/            # Custom React components
+│   └── InteractiveMap.tsx # Map component
+├── devlink/              # Webflow synced components
+│   ├── PropertyCard.tsx  # Property listing card
+│   └── EnhancedSearchFilters.tsx # Search filters
+├── lib/                  # Utilities and types
+│   └── types.ts         # TypeScript definitions
+└── styles/              # Global styles
 ```
 
-## 🎨 Design System
+## Webflow Integration
 
-This project follows the Client-First methodology:
+This project uses Webflow DevLink to sync components between Webflow Designer and the React application.
 
-### Class Naming Convention
+### Available Components
 
-- **Utility Classes**: Use dashes (`text-size-large`, `background-color-primary`)
-- **Global Classes**: Use dashes or underscores (`faq_item`, `header_background-layer`)
-- **Custom Classes**: Use underscores for grouping (`hero_content`, `retreat_card`)
-- **Combo Classes**: Use `is-` prefix for variants (`button is-primary`)
+- **Property Card**: Displays property information with image, price, and amenities
+- **Enhanced Search Filters**: Advanced filtering interface with location, dates, and amenities
+- **Interactive Map**: Map component for visual property browsing
 
-### Typography
+### Syncing Components
 
-- Use semantic heading tags (H1-H6)
-- Utility classes for styling: `heading-style-h1` through `heading-style-h6`
-- Text utilities: `text-size-[size]`, `text-weight-[weight]`, `text-align-[direction]`
+To sync the latest components from Webflow:
 
-### Spacing
+```bash
+npm run webflow:sync
+```
 
-- Utility classes: `padding-[direction]-[size]`, `margin-[direction]-[size]`
-- Section padding: `padding-section-[small|medium|large]`
-- All units in rem for accessibility
+This will update the components in the `devlink/` directory with the latest designs from your Webflow project.
 
-## 🖼️ Images
+## Development
 
-Place your images in the `public/images/` directory:
+### Available Scripts
 
-- `hero-retreat.jpg` - Hero section (800x600px)
-- `retreat-mountain.jpg` - Mountain retreat (400x300px)
-- `retreat-coastal.jpg` - Coastal retreat (400x300px)
-- `retreat-forest.jpg` - Forest retreat (400x300px)
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run webflow:sync` - Sync Webflow components
+- `npm run webflow:auth` - Authenticate with Webflow
 
-## 🔧 Configuration
+### Adding New Features
+
+1. **Design in Webflow**: Create new components in the Webflow Designer
+2. **Sync Components**: Run `npm run webflow:sync` to import components
+3. **Implement Logic**: Add React logic and state management
+4. **Test**: Verify functionality across different screen sizes
+
+## Deployment
+
+### Webflow Cloud
+
+This project is configured for deployment on Webflow Cloud:
+
+1. **Build the project**
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to Webflow Cloud**
+   ```bash
+   webflow cloud deploy
+   ```
 
 ### Environment Variables
 
-Configure environment variables in Webflow Cloud:
+Create a `.env.local` file for environment-specific configuration:
 
-1. Navigate to your project's environment settings
-2. Click "Environment Variables" tab
-3. Add required variables (API keys, database URLs, etc.)
-
-### Base Path Configuration
-
-The app is configured with a base path of `/app`. To change this:
-
-1. Update `basePath` and `assetPrefix` in `next.config.ts`
-2. Update the mount path in your Webflow Cloud environment
-3. Update `wrangler.jsonc` if needed
-
-## 🚀 Deployment
-
-### Automatic Deployment
-
-Push to your connected GitHub branch for automatic deployment:
-
-```bash
-git add .
-git commit -m "Update website"
-git push origin main
+```env
+NEXT_PUBLIC_WEBFLOW_SITE_ID=609dfa12a141dd6e70976d48
+NEXT_PUBLIC_MAP_API_KEY=your_map_api_key_here
 ```
 
-### Manual Deployment
+## Contributing
 
-```bash
-webflow cloud deploy
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 🐛 Troubleshooting
+## License
 
-### Common Issues
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-1. **404 Error**: Ensure your Webflow site is published
-2. **Assets Not Loading**: Check base path configuration
-3. **Build Failures**: Verify Node.js version (20.0.0+) and dependencies
-4. **Deployment Issues**: Check GitHub App permissions
+## Support
 
-### Local Testing
-
-Use Wrangler for local testing:
-
-```bash
-npm run preview
-```
-
-This simulates the Webflow Cloud environment locally.
-
-## 📞 Support
-
-For issues related to:
-- **Webflow Cloud**: Check the [Webflow Cloud documentation](https://developers.webflow.com/webflow-cloud/bring-your-own-app)
-- **Next.js**: Refer to [Next.js documentation](https://nextjs.org/docs)
-- **Project Issues**: Create an issue in this repository
-
-## 📄 License
-
-This project is proprietary to Easy Stay Retreats.
+For support, email support@easystayretreats.com or join our Slack channel.
 
 ---
 
-**Built with ❤️ for wellness and mindfulness**
+Built with ❤️ using Webflow Cloud and Next.js
