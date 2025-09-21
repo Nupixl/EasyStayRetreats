@@ -1,24 +1,5 @@
 'use client';
 
-<<<<<<< Updated upstream
-import { NavbarWrapper, NavbarContainer, NavbarBrand, NavbarMenu, NavbarLink, NavbarButton } from '@/components/_Builtin/Navbar';
-import { EnhancedSearchFilters } from '@/components/EnhancedSearchFilters';
-import { PropertyCard } from '@/components/PropertyCard';
-import { Footer } from '@/components/Footer';
-import { useEffect, useState } from 'react';
-import { properties as sampleProperties } from '@/data/properties';
-
-export default function SearchPropertiesPage() {
-  const [filters, setFilters] = useState({
-    location: '',
-    checkInDate: '',
-    checkOutDate: '',
-    guests: 1,
-    priceRange: [50, 1000] as [number, number],
-    propertyType: 'Any',
-    amenities: [] as string[]
-  });
-=======
 import { SearchFiltersComponent } from '@/components/SearchFiltersComponent';
 import { EnhancedPropertyCard } from '@/components/EnhancedPropertyCard';
 import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
@@ -32,7 +13,6 @@ const USE_MAPBOX = false; // Set to true when you have a Mapbox token
 function SearchPropertiesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
->>>>>>> Stashed changes
 
   const [filteredProperties, setFilteredProperties] = useState<any[]>(sampleProperties);
 
