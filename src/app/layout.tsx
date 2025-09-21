@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { DevLinkProvider } from '@/components/DevLinkProvider'
 import './globals.css'
-import '@/components/global.css'
 
 export const metadata: Metadata = {
   title: 'Easy Stay Retreats - Luxury Wellness Retreats',
