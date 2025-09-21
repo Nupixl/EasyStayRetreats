@@ -1,6 +1,18 @@
 {
-  "name": "cosmic-builder-dry-run",
+  "name": "easystay-retreats-webflow-cloud",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2025-03-03",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_date": "2025-01-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "BASE_PATH": "/app",
+    "ASSETS_PREFIX": "/app",
+    "BASE_URL": "https://your-site.webflow.io"
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "BASE_URL": "https://your-site.webflow.io"
+      }
+    }
+  }
 }

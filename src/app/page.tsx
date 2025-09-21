@@ -3,6 +3,7 @@
 import { NavbarWrapper, NavbarContainer, NavbarBrand, NavbarMenu, NavbarLink, NavbarButton } from '@/components/_Builtin/Navbar';
 import { PropertyCard } from '@/components/PropertyCard';
 import { Footer } from '@/components/Footer';
+import { ASSETS } from '@/utils/assets';
 
 export default function Home() {
   return (
@@ -151,7 +152,7 @@ export default function Home() {
               <div className="text-center">
                 <div className="subtitle">Really that easy</div>
                 <div className="w-embed">
-                  <img src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/648b412e0dd82235960411c4_icon-1.svg" alt="" className="icon-large" />
+                  <img src={ASSETS.icons.icon1} alt="" className="icon-large" />
                 </div>
                 <h2 className="featured-location-heading heading">Effortless Booking</h2>
                 <div className="body-display small">
@@ -161,7 +162,7 @@ export default function Home() {
               <div className="text-center">
                 <div className="subtitle">Really that easy</div>
                 <div className="w-embed">
-                  <img src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/648b412e0dd82235960411ae_icon-2.svg" alt="" className="icon-large" />
+                  <img src={ASSETS.icons.icon2} alt="" className="icon-large" />
                 </div>
                 <h2 className="featured-location-heading heading">Hotel-Grade Clean</h2>
                 <div className="body-display small">
@@ -171,7 +172,7 @@ export default function Home() {
               <div className="text-center">
                 <div className="subtitle">Really that easy</div>
                 <div className="w-embed">
-                  <img src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/648b412e0dd82235960411d2_icon-3.svg" alt="" className="icon-large" />
+                  <img src={ASSETS.icons.icon3} alt="" className="icon-large" />
                 </div>
                 <h2 className="featured-location-heading heading">Smart, Seamless Check-In</h2>
                 <div className="body-display small">
@@ -181,7 +182,7 @@ export default function Home() {
               <div className="text-center">
                 <div className="subtitle">Really that easy</div>
                 <div className="w-embed">
-                  <img src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/648b412e0dd82235960411c5_icon-4.svg" alt="" className="icon-large" />
+                  <img src={ASSETS.icons.icon4} alt="" className="icon-large" />
                 </div>
                 <h2 className="featured-location-heading heading">
                   <em>24/7 Human Support</em>

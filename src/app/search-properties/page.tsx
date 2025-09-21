@@ -1,7 +1,9 @@
 'use client';
 
-import { SearchFiltersComponent } from '@/components/SearchFiltersComponent';
-import { EnhancedPropertyCard } from '@/components/EnhancedPropertyCard';
+import { NavbarWrapper, NavbarContainer, NavbarBrand, NavbarMenu, NavbarLink, NavbarButton } from '@/components/_Builtin/Navbar';
+import { SearchFilters } from '@/components/SearchFilters';
+import { PropertyCard } from '@/components/PropertyCard';
+import { Footer } from '@/components/Footer';
 import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
 import { properties as sampleProperties, Property } from '@/data/properties';
 import { useSearchParams, useRouter } from 'next/navigation';

@@ -1,7 +1,10 @@
 {
   "cloud": {
     "framework": "nextjs",
-    "project_id": "63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f"
+    "project_id": "63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f",
+    "mount_path": "/app",
+    "build_command": "npm run webflow:build",
+    "output_directory": ".next"
   },
   "devlink": {
     "siteId": "609dfa12a141dd6e70976d48",

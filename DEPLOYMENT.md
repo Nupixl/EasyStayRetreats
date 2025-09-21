@@ -8,6 +8,7 @@ This guide will walk you through deploying your Easy Stay Retreats website to We
 - ✅ GitHub account
 - ✅ Node.js 20.0.0+ installed
 - ✅ This project built and tested locally
+- ✅ Webflow CLI installed (`npm install -g @webflow/cli`)
 
 ## Step 1: Push to GitHub
 
@@ -63,11 +64,28 @@ git push -u origin main
 
 ## Step 4: Configure Environment Variables
 
-If your app needs environment variables:
+Configure the following environment variables in your Webflow Cloud project:
 
-1. Go to your project's environment settings
-2. Click "Environment Variables" tab
-3. Add any required variables (API keys, database URLs, etc.)
+### Required Variables
+```
+BASE_PATH=/app
+ASSETS_PREFIX=/app
+BASE_URL=https://your-site.webflow.io
+```
+
+### Optional Variables
+```
+WEBFLOW_SITE_ID=609dfa12a141dd6e70976d48
+WEBFLOW_PROJECT_ID=63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f
+API_BASE_URL=https://your-site.webflow.io/app/api
+```
+
+### How to Set Environment Variables:
+1. Go to your Webflow Cloud project dashboard
+2. Click on your environment (e.g., "Production")
+3. Click "Environment Variables" tab
+4. Add each variable with its value
+5. Click "Save"
 
 ## Step 5: Deploy
 
@@ -85,14 +103,27 @@ Webflow Cloud will automatically detect changes and deploy your app.
 
 ### Option B: Manual Deployment
 
-Install the Webflow CLI and deploy manually:
+Use the project's built-in deployment scripts:
 
 ```bash
-# Install Webflow CLI
+# Build and deploy to Webflow Cloud
+npm run webflow:deploy
+
+# Or deploy without building (if already built)
+npm run deploy
+```
+
+### Option C: Manual CLI Deployment
+
+```bash
+# Install Webflow CLI (if not already installed)
 npm install -g @webflow/cli
 
 # Login to Webflow
 webflow login
+
+# Build for Webflow Cloud
+npm run webflow:build
 
 # Deploy your project
 webflow cloud deploy
@@ -118,6 +149,27 @@ webflow cloud deploy
 2. Click "Publish" in the top right corner
 3. Select "Publish to Webflow.io"
 4. Your app will now be accessible at your site URL + mount path
+
+## Webflow Cloud Optimizations
+
+This project has been optimized for Webflow Cloud deployment:
+
+### Build Optimizations
+- **Bundle Size**: Optimized to stay under Webflow Cloud's 10MB worker limit
+- **Edge Runtime**: API routes configured for Edge runtime compatibility
+- **Asset Handling**: Static assets properly configured with basePath and assetPrefix
+- **Image Optimization**: Disabled Next.js image optimization (Webflow handles this)
+
+### Performance Features
+- **Code Splitting**: Automatic code splitting for optimal loading
+- **Tree Shaking**: Unused code elimination
+- **Compression**: Gzip compression enabled
+- **Caching**: Proper cache headers for static assets
+
+### Resource Limits
+- **Worker Size**: < 10MB (Webflow Cloud limit)
+- **CPU Time**: < 30 seconds per request
+- **Memory**: Optimized for Cloudflare Workers environment
 
 ## Troubleshooting
 

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Configure for Webflow Cloud Edge runtime
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const retreats = [
     {
