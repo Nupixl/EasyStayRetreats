@@ -18,7 +18,7 @@
     "workflow:deploy": "./scripts/webflow-workflow.sh deploy",
     "workflow:watch": "./scripts/webflow-workflow.sh watch",
     "workflow:full": "./scripts/webflow-workflow.sh full",
-    "webflow:build": "BASE_PATH=/app ASSETS_PREFIX=/app next build --config next.config.webflow.js",
+    "webflow:build": "BASE_PATH=/app ASSETS_PREFIX=/app npm run build",
     "webflow:deploy": "npm run webflow:build && webflow cloud deploy"
   },
   "dependencies": {
