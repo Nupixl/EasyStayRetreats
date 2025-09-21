@@ -1,0 +1,292 @@
+/* Import Webflow CSS files */
+@import url('/css/normalize.css');
+@import url('/css/components.css');
+@import url('/css/easystayretreasts.css');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Custom Navigation Styles to match design */
+.navigation-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-main {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.5px;
+}
+
+.logo-icon {
+  font-size: 16px;
+}
+
+.logo-sub {
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
+}
+
+.integrated-search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px 0;
+  min-width: 500px;
+  border: 1px solid #e9ecef;
+}
+
+.search-section {
+  flex: 1;
+  text-align: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-section:hover {
+  background-color: #e9ecef;
+}
+
+.search-divider {
+  width: 1px;
+  height: 24px;
+  background-color: #dee2e6;
+}
+
+.search-button-section {
+  background-color: #e9ecef;
+  flex: 1;
+  text-align: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.2s;
+}
+
+.search-button-section:hover {
+  background-color: #dee2e6;
+}
+
+.search-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.right-nav {
+  display: flex;
+  align-items: center;
+}
+
+.login-button {
+  padding: 8px 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background-color: white;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.login-button:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+/* Map Layout Fixes to match reference */
+.section_search_map {
+  flex-direction: row;
+  flex: 1;
+  align-self: stretch;
+  align-items: stretch;
+  padding: 6rem 1rem 2rem;
+  display: flex;
+  height: calc(100vh - 80px); /* Subtract header height */
+}
+
+.map-canvas {
+  grid-column-gap: 1rem;
+  grid-row-gap: 1rem;
+  flex: 1;
+  max-height: 90svh;
+  display: flex;
+  overflow-y: hidden;
+}
+
+.map-property-wrapper {
+  background-color: var(--outline);
+  border-radius: 12px;
+  min-width: 60svw;
+  overflow-y: auto;
+}
+
+.map-element {
+  background-color: var(--shaddow);
+  border-radius: 12px;
+  width: 100%;
+  min-width: 30svw;
+  min-height: 40rem;
+  position: sticky;
+  top: 0;
+}
+
+.search-map {
+  height: 100% !important;
+  min-height: 40rem;
+  border-radius: 12px;
+}
+
+.top-content {
+  grid-template-rows: auto;
+  grid-template-columns: auto 1fr auto;
+}
+
+.property-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:root {
+  --ghost-white: #fcfcff;
+  --black: #081c3a;
+  --shadow: rgba(53, 64, 117, 0.1);
+  --outline: #efeff7;
+  --grey-background: #f7f8fc;
+  --dark-outline: #e6e6f3;
+  --body-display: #516381;
+  --indicator-outline: rgba(192, 192, 211, 0.2);
+  --teal: #9bff3e;
+  --dodger-blue: #217dfc;
+  --travel-green: #478760;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--ghost-white);
+  color: var(--black);
+}
+
+body {
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Webflow DevLink styles will be imported here */
+
+/* Custom utility classes matching Webflow design */
+.text-body-display {
+  color: var(--body-display);
+}
+
+.bg-grey-background {
+  background-color: var(--grey-background);
+}
+
+.border-outline {
+  border-color: var(--outline);
+}
+
+.border-dark-outline {
+  border-color: var(--dark-outline);
+}
+
+.text-primary {
+  color: var(--dodger-blue);
+}
+
+.bg-primary {
+  background-color: var(--dodger-blue);
+}
+
+.text-secondary {
+  color: var(--teal);
+}
+
+.bg-secondary {
+  background-color: var(--teal);
+}
+
+.text-accent {
+  color: var(--travel-green);
+}
+
+.bg-accent {
+  background-color: var(--travel-green);
+}
+
+/* Webflow-specific layout classes */
+.property-listing-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .property-listing-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .property-listing-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section styling to match Webflow */
+.section_search_map {
+  padding: 2rem 0;
+}
+
+/* Map wrapper styling */
+.map-wrapper {
+  position: sticky;
+  top: 2rem;
+}
+
+/* Property card hover effects */
+.property-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.property-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Search filter styling */
+.search-filters {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

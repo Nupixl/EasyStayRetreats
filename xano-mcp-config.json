@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "xano-meta-api": {
+      "command": "npm",
+      "args": ["run", "mcp:xano"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
