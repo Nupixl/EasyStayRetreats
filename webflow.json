@@ -3,12 +3,19 @@
     "framework": "nextjs",
     "project_id": "63f4f3d4-57ff-49c5-a8b3-3ce76d1b242f",
     "mount_path": "/app",
-    "build_command": "npm run build",
+    "build_command": "npm run webflow:build",
     "output_directory": ".next",
+    "install_command": "npm ci --prefer-offline --no-audit",
     "environment_variables": {
+      "NODE_ENV": "production",
       "BASE_PATH": "/app",
       "ASSETS_PREFIX": "/app",
       "BASE_URL": "https://your-site.webflow.io"
+    },
+    "build_settings": {
+      "skip_clean_install": true,
+      "use_cache": true,
+      "parallel_builds": true
     }
   },
   "devlink": {
@@ -23,7 +30,10 @@
     ],
     "pages": [
       "search-properties"
-    ]
+    ],
+    "watch": true,
+    "typescript": true,
+    "outputDir": "src/components/_Builtin"
   },
   "telemetry": {
     "global": {

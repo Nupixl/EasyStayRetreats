@@ -18,8 +18,10 @@
     "workflow:deploy": "./scripts/webflow-workflow.sh deploy",
     "workflow:watch": "./scripts/webflow-workflow.sh watch",
     "workflow:full": "./scripts/webflow-workflow.sh full",
-    "webflow:build": "BASE_PATH=/app ASSETS_PREFIX=/app npm run build",
-    "webflow:deploy": "npm run webflow:build && webflow cloud deploy"
+    "webflow:build": "NODE_ENV=production BASE_PATH=/app ASSETS_PREFIX=/app npm run build",
+    "webflow:deploy": "npm run webflow:build && webflow cloud deploy",
+    "webflow:install": "npm ci --prefer-offline --no-audit",
+    "webflow:build:fast": "npm run webflow:install && npm run webflow:build"
   },
   "dependencies": {
     "next": "^15.0.0",
@@ -36,5 +38,9 @@
     "eslint-config-next": "^15.0.0",
     "typescript": "^5.0.0",
     "wrangler": "^4.24.4"
+  },
+  "webflow": {
+    "siteId": "609dfa12a141dd6e70976d48",
+    "authToken": "${WF_AUTH_TOKEN}"
   }
 }
