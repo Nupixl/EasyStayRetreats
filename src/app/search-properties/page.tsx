@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< Updated upstream
 import { NavbarWrapper, NavbarContainer, NavbarBrand, NavbarMenu, NavbarLink, NavbarButton } from '@/components/_Builtin/Navbar';
 import { EnhancedSearchFilters } from '@/components/EnhancedSearchFilters';
 import { PropertyCard } from '@/components/PropertyCard';
@@ -17,6 +18,21 @@ export default function SearchPropertiesPage() {
     propertyType: 'Any',
     amenities: [] as string[]
   });
+=======
+import { SearchFiltersComponent } from '@/components/SearchFiltersComponent';
+import { EnhancedPropertyCard } from '@/components/EnhancedPropertyCard';
+import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
+import { properties as sampleProperties, Property } from '@/data/properties';
+import { useSearchParams, useRouter } from 'next/navigation';
+
+// Mapbox configuration
+const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'YOUR_MAPBOX_TOKEN';
+const USE_MAPBOX = false; // Set to true when you have a Mapbox token
+
+function SearchPropertiesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+>>>>>>> Stashed changes
 
   const [filteredProperties, setFilteredProperties] = useState<any[]>(sampleProperties);
 
@@ -240,5 +256,13 @@ export default function SearchPropertiesPage() {
       {/* Footer */}
       <Footer />
     </>
+  );
+}
+
+export default function SearchPropertiesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchPropertiesContent />
+    </Suspense>
   );
 }
