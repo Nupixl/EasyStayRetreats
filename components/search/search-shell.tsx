@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, addDays, parseISO } from "date-fns";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { usePropertySearch } from "@/lib/hooks/use-property-search";
@@ -10,6 +10,14 @@ import { PropertyCard } from "./property-card";
 import { PropertyMap } from "./property-map";
 
 const minCheckOutOffset = 2;
+
+const baseDestinationSuggestions = [
+  "Austin, TX",
+  "Virginia Beach, VA",
+  "Asheville, NC",
+  "Boston, MA",
+  "Miami, FL"
+];
 
 type SearchFormState = {
   where: string;
@@ -41,6 +49,7 @@ export function SearchShell() {
   const [appliedFilters, setAppliedFilters] = useState<SearchFormState>(initialState);
   const [bounds, setBounds] = useState<PropertySearchParams["bounds"]>();
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [showWhereSuggestions, setShowWhereSuggestions] = useState(false);
 
   const debouncedBounds = useDebounce(bounds, 400);
 
@@ -55,7 +64,63 @@ export function SearchShell() {
   }, [appliedFilters, debouncedBounds]);
 
   const { data, isFetching, isLoading, error } = usePropertySearch(searchParams);
-  const properties = data?.properties ?? [];
+  const properties = useMemo(() => data?.properties ?? [], [data?.properties]);
+
+  const propertyRefs = useRef(new Map<string, HTMLElement | null>());
+  const hideSuggestionsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const destinationSuggestions = useMemo(() => {
+    const suggestions = new Map<string, string>();
+
+    properties.forEach((property) => {
+      const parts = [property.city, property.state, property.country].filter(Boolean);
+      if (parts.length === 0) return;
+      const label = parts.join(", ");
+      const key = label.toLowerCase();
+      if (!suggestions.has(key)) {
+        suggestions.set(key, label);
+      }
+    });
+
+    baseDestinationSuggestions.forEach((label) => {
+      const normalized = label.trim();
+      if (!normalized) return;
+      const key = normalized.toLowerCase();
+      if (!suggestions.has(key)) {
+        suggestions.set(key, normalized);
+      }
+    });
+
+    return Array.from(suggestions.values()).slice(0, 8);
+  }, [properties]);
+
+  const filteredDestinationSuggestions = useMemo(() => {
+    const query = formState.where.trim().toLowerCase();
+    if (!query) return destinationSuggestions;
+    return destinationSuggestions.filter((suggestion) => suggestion.toLowerCase().includes(query));
+  }, [destinationSuggestions, formState.where]);
+
+  const closeSuggestions = useCallback(() => {
+    if (hideSuggestionsTimeout.current) {
+      clearTimeout(hideSuggestionsTimeout.current);
+      hideSuggestionsTimeout.current = null;
+    }
+    setShowWhereSuggestions(false);
+  }, []);
+
+  const registerPropertyRef = useCallback((propertyId: string, node: HTMLElement | null) => {
+    if (node) {
+      propertyRefs.current.set(propertyId, node);
+    } else {
+      propertyRefs.current.delete(propertyId);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      closeSuggestions();
+    };
+  }, [closeSuggestions]);
 
   useEffect(() => {
     if (!selectedProperty) return;
@@ -63,6 +128,13 @@ export function SearchShell() {
     if (!exists) {
       setSelectedProperty(null);
     }
+  }, [properties, selectedProperty]);
+
+  useEffect(() => {
+    if (!selectedProperty) return;
+    const node = propertyRefs.current.get(selectedProperty);
+    if (!node) return;
+    node.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [properties, selectedProperty]);
 
   const handleCheckInChange = (value: string) => {
@@ -97,19 +169,81 @@ export function SearchShell() {
     });
   };
 
+  const handleGuestStep = (delta: number) => {
+    setFormState((prev) => {
+      const nextValue = Math.max(1, Math.min(16, prev.guests + delta));
+      return { ...prev, guests: nextValue };
+    });
+  };
+
+  const handleSubmit = useCallback(
+    (event?: React.FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      closeSuggestions();
+      setAppliedFilters({ ...formState });
+    },
+    [closeSuggestions, formState]
+  );
+
+  const handleSuggestionSelect = (value: string) => {
+    setFormState((prev) => ({ ...prev, where: value }));
+    closeSuggestions();
+  };
+
+  const handleMapSelection = (id: string | null) => {
+    setSelectedProperty(id);
+  };
+
   return (
     <section className="flex h-[calc(100vh-48px)] w-full flex-col gap-6">
-      <div className="rounded-card border border-slate-200 bg-white p-4 shadow-sm">
+      <form
+        className="rounded-card border border-slate-200 bg-white p-4 shadow-sm"
+        onSubmit={(event) => handleSubmit(event)}
+      >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="flex flex-col gap-1">
+            <label className="relative flex flex-col gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Where</span>
               <input
                 value={formState.where}
                 onChange={(event) => setFormState((prev) => ({ ...prev, where: event.target.value }))}
+                onFocus={() => {
+                  if (hideSuggestionsTimeout.current) {
+                    clearTimeout(hideSuggestionsTimeout.current);
+                    hideSuggestionsTimeout.current = null;
+                  }
+                  setShowWhereSuggestions(true);
+                }}
+                onBlur={() => {
+                  hideSuggestionsTimeout.current = setTimeout(() => {
+                    closeSuggestions();
+                  }, 120);
+                }}
                 placeholder="Anywhere"
                 className="h-12 rounded-full border border-slate-200 bg-slate-50 px-5 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white"
               />
+              {showWhereSuggestions && filteredDestinationSuggestions.length > 0 ? (
+                <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                  <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Suggested destinations
+                  </p>
+                  <ul className="max-h-60 space-y-1 overflow-auto">
+                    {filteredDestinationSuggestions.map((suggestion) => (
+                      <li key={suggestion}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-slate-600 transition hover:bg-slate-100"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => handleSuggestionSelect(suggestion)}
+                        >
+                          <span>{suggestion}</span>
+                          <span className="text-xs text-slate-400">Tap to fill</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Check-in</span>
@@ -132,31 +266,47 @@ export function SearchShell() {
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Guests</span>
-              <input
-                type="number"
-                min={1}
-                max={16}
-                value={formState.guests}
-                onChange={(event) => {
-                  const nextValue = Math.max(1, Number(event.target.value));
-                  setFormState((prev) => ({ ...prev, guests: nextValue }));
-                }}
-                className="h-12 rounded-full border border-slate-200 bg-slate-50 px-5 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  min={1}
+                  max={16}
+                  value={formState.guests}
+                  readOnly
+                  className="h-12 w-full rounded-full border border-slate-200 bg-slate-50 px-14 text-center text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white"
+                />
+                <div className="absolute inset-y-0 left-2 flex items-center">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    aria-label="Decrease guests"
+                    onClick={() => handleGuestStep(-1)}
+                  >
+                    −
+                  </button>
+                </div>
+                <div className="absolute inset-y-0 right-2 flex items-center">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    aria-label="Increase guests"
+                    onClick={() => handleGuestStep(1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </label>
           </div>
           <button
-            type="button"
+            type="submit"
             className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-700 lg:w-auto"
-            onClick={() => {
-              setAppliedFilters({ ...formState });
-            }}
           >
             <MagnifyingGlassIcon className="h-5 w-5" />
             Search
           </button>
         </div>
-      </div>
+      </form>
 
       <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex h-full flex-col overflow-hidden rounded-card border border-slate-200 bg-white shadow-sm">
@@ -189,6 +339,8 @@ export function SearchShell() {
                 isActive={selectedProperty === property.id}
                 onHover={() => setSelectedProperty(property.id)}
                 onFocus={() => setSelectedProperty(property.id)}
+                onSelect={() => setSelectedProperty(property.id)}
+                ref={(node) => registerPropertyRef(property.id, node)}
               />
             ))}
           </div>
@@ -214,7 +366,7 @@ export function SearchShell() {
               });
             }}
             selectedPropertyId={selectedProperty}
-            onSelectProperty={setSelectedProperty}
+            onSelectProperty={handleMapSelection}
           />
         </div>
       </div>

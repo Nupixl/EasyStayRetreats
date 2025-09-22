@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
@@ -12,9 +13,13 @@ type PropertyCardProps = {
   isActive?: boolean;
   onHover?: () => void;
   onFocus?: () => void;
+  onSelect?: () => void;
 };
 
-export function PropertyCard({ property, isActive, onHover, onFocus }: PropertyCardProps) {
+export const PropertyCard = forwardRef<HTMLElement, PropertyCardProps>(function PropertyCard(
+  { property, isActive, onHover, onFocus, onSelect },
+  ref
+) {
   const {
     slug,
     heroImageUrl,
@@ -33,14 +38,29 @@ export function PropertyCard({ property, isActive, onHover, onFocus }: PropertyC
     shortDescription
   } = property;
 
+  const handleSelect = () => {
+    onSelect?.();
+  };
+
   return (
     <article
+      ref={ref}
+      role="button"
       className={clsx(
         "rounded-card border border-slate-200 bg-white shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-xl focus-within:ring-2 focus-within:ring-slate-900 focus-within:ring-offset-2",
         isActive ? "ring-2 ring-slate-900 ring-offset-2" : ""
       )}
       onMouseEnter={onHover}
       onFocus={onFocus}
+      onClick={handleSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleSelect();
+        }
+      }}
+      tabIndex={0}
+      aria-pressed={Boolean(isActive)}
     >
       <div className="relative h-56 w-full overflow-hidden rounded-t-card">
         <Image
@@ -93,6 +113,9 @@ export function PropertyCard({ property, isActive, onHover, onFocus }: PropertyC
           <Link
             href={`https://easystayretreats.homes/properties/${slug}`}
             className="text-sm font-semibold text-slate-900 underline-offset-4 transition hover:underline"
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
           >
             View details
           </Link>
@@ -100,4 +123,4 @@ export function PropertyCard({ property, isActive, onHover, onFocus }: PropertyC
       </div>
     </article>
   );
-}
+});
