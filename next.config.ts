@@ -17,30 +17,12 @@ const nextConfig = {
     optimizePackageImports: ['@/components'],
   },
   
-  // Webflow Cloud specific optimizations - use standalone for server-side rendering
+  // Webflow Cloud specific optimizations
   output: 'standalone',
   
   // Image optimization for Webflow Cloud
   images: {
     unoptimized: true, // Webflow Cloud handles image optimization
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com"
-      },
-      {
-        protocol: "https",
-        hostname: "assets.website-files.com"
-      },
-      {
-        protocol: "https",
-        hostname: "easystayretreats.homes"
-      },
-      {
-        protocol: "https",
-        hostname: "**.supabase.co"
-      }
-    ]
   },
   
   // Trailing slash for consistent routing
