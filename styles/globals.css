@@ -6,25 +6,30 @@
     @apply fixed top-0 left-0 w-full h-full z-10 bg-black bg-opacity-40;
   }
   .btn-secondary {
-    @apply bg-blackColor text-white rounded-lg font-medium text-sm md:text-base px-4 py-3 outline-offset-[2.8px];
+    @apply bg-primaryColor text-white rounded-xl font-medium text-sm md:text-base px-5 py-3 shadow-md hover:shadow-lg outline-offset-[2.8px];
   }
   .btn-tertiary {
-    @apply px-6 py-2 rounded-full border hover:border-blackColor hover:bg-blackColor hover:text-white bg-blackColor text-white border-blackColor outline-offset-[2.8px];
+    @apply px-6 py-2 rounded-full border border-transparent bg-secondaryColor text-blackColor font-medium hover:bg-[#f8dc7b] outline-offset-[2.8px];
   }
   .btn-tertiary-normal {
-    @apply px-6 py-2 rounded-full border hover:border-blackColor text-sm md:text-base hover:bg-blackColor hover:text-white  bg-white text-blackColor border-darkBorderColor outline-offset-[2.8px];
+    @apply px-6 py-2 rounded-full border text-sm md:text-base bg-white text-blackColor border-borderColor hover:border-primaryColor hover:text-primaryColor outline-offset-[2.8px];
   }
   .btn-link {
     @apply underline font-medium text-sm md:text-base;
   }
   .btn-normal {
-    @apply border border-darkBorderColor rounded-xl px-6 py-3 text-sm md:text-base font-medium hover:bg-gray-100 outline-offset-[2.8px];
+    @apply border border-borderColor rounded-xl px-6 py-3 text-sm md:text-base font-medium text-blackColor bg-white hover:bg-surfaceMuted outline-offset-[2.8px];
   }
 }
 * {
   font-family: "Inter", sans-serif;
   transition: top 250ms ease, scale 250ms ease, visibility 250ms ease, opacity 250ms ease, padding 250ms ease !important;
   box-sizing: border-box !important;
+}
+
+body {
+  background-color: #f7f9fb;
+  color: #1d2a30;
 }
 
 .map * {
@@ -34,21 +39,22 @@
 .btn-primary,
 .btn-primary-rounded {
   color: white;
-  font-weight: 500;
+  font-weight: 600;
   background-size: 200% 200%;
   outline-offset: 3px;
-  transition: opacity 1.25s !important;
+  transition: opacity 0.35s ease, transform 0.35s ease !important;
   width: 100%;
-  border-radius: 7px;
+  border-radius: 10px;
   outline-offset: 1px;
+  box-shadow: 0 12px 24px rgba(31, 122, 140, 0.18);
 }
 
 .dark-bg {
-  background-image: radial-gradient(circle at center, #ff385c 0%, #e61e4d 27.5%, #e31c5f 40%, #d70466 57.5%, #bd1e59 75%, #bd1e59 100%);
+  background-image: linear-gradient(135deg, #134e6f 0%, #072f49 100%);
 }
 
 .light-bg {
-  background-image: radial-gradient(circle at center center, rgba(255, 56, 93, 0.838) 0%, rgba(230, 30, 77, 0.838) 27.5%, rgba(227, 28, 95, 0.838) 40%, rgba(215, 4, 102, 0.838) 57.5%, rgba(189, 30, 89, 0.838) 75%, rgba(189, 30, 89, 0.838) 100%);
+  background-image: linear-gradient(135deg, #1f7a8c 0%, #56a0b6 100%);
 }
 
 .btn-primary-rounded {
@@ -57,12 +63,35 @@
   width: -moz-fit-content;
   width: fit-content;
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 500;
   padding: 12px 20px;
 }
 
 .custom-shadow {
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 6px 16px 9px;
+  box-shadow: 0 18px 32px rgba(13, 58, 71, 0.14);
+}
+
+.easystay-price-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #d5e0e6;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1d2a30;
+  box-shadow: 0 12px 24px rgba(15, 67, 86, 0.1);
+  transition: all 180ms ease;
+}
+
+.easystay-price-marker.is-active {
+  background: linear-gradient(135deg, #1f7a8c 0%, #134e6f 100%);
+  border-color: #134e6f;
+  color: #ffffff;
+  box-shadow: 0 18px 28px rgba(19, 78, 111, 0.35);
 }
 
 .hidden-scroll-bar::-webkit-scrollbar {

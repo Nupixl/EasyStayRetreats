@@ -1,4 +1,4 @@
-# Airbnb Clone using Reactjs
+# EasyStay Retreats
 
 This is airbnb clone using reactjs which has many features. I have not added backend yet.
 

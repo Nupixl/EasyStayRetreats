@@ -65,10 +65,10 @@ const Header = ({
 
   return (
     <header
-      className={`border-b border-[#e6e6e6] ${header} top-0 left-0 z-40 bg-white px-4 block`}
+      className={`border-b border-lightBorderColor ${header} top-0 left-0 z-40 bg-white/90 backdrop-blur px-4 block`}
     >
       <div
-        className={`w-full xl:${width} relative mx-auto py-2 md:py-5 flex items-center justify-between`}
+        className={`w-full xl:${width} relative mx-auto py-3 md:py-4 flex items-center justify-between`}
       >
         <div>
           <a href="/">
@@ -124,12 +124,12 @@ const Header = ({
         </div>
 
         <div className="flex gap-2 items-center min-w-fit">
-          <div className="rounded-full px-4 py-2 hidden md:block">
-            Become a Host
+          <div className="rounded-full px-4 py-2 hidden md:block text-sm font-medium text-lightTextColor hover:text-primaryColor transition-colors">
+            List a Retreat
           </div>
           <div
             onClick={() => setHeaderMenu((prev) => !prev)}
-            className={`flex items-center gap-3 border border-borderColor select-none rounded-full pr-2 pl-4 py-1 cursor-pointer relative ${
+            className={`flex items-center gap-3 border border-lightBorderColor bg-white select-none rounded-full pr-2 pl-4 py-1 cursor-pointer relative shadow-sm hover:shadow-md transition-all ${
               headerMenu ? "custom-shadow" : ""
             }`}
           >
@@ -162,31 +162,39 @@ export default Header;
 
 const HeaderMenu = () => {
   return (
-    <div className="w-64 rounded-md bg-white z-30 absolute top-full mt-4 right-0 shadow-xl border border-borderColor">
-      <ul className="border-b border-borderColor py-2">
+    <div className="w-64 rounded-2xl bg-white z-30 absolute top-full mt-4 right-0 shadow-xl border border-lightBorderColor">
+      <ul className="border-b border-lightBorderColor py-2">
         <Link href="/messages">
-          <li className="px-4 py-2 text-md hover:bg-gray-100">
-            <span className="block">Messages</span>
+          <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+            <span className="block">Inbox</span>
           </li>
         </Link>
         <Link href="/wishlists">
-          <li className="px-4 py-2 text-md hover:bg-gray-100">
+          <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
             <span className="block">Wishlists</span>
           </li>
         </Link>
         <Link href="/trips">
-          <li className="px-4 py-2 text-md hover:bg-gray-100">
-            <span className="block">Trips</span>
+          <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+            <span className="block">Journeys</span>
           </li>
         </Link>
       </ul>
-      <ul className="border-b border-borderColor py-2">
-        <li className="px-4 py-2 text-md hover:bg-gray-100">Host your home</li>
-        <li className="px-4 py-2 text-md hover:bg-gray-100">Account</li>
+      <ul className="border-b border-lightBorderColor py-2">
+        <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+          Partner portal
+        </li>
+        <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+          Account settings
+        </li>
       </ul>
       <ul className="py-2">
-        <li className="px-4 py-2 text-md hover:bg-gray-100">Help</li>
-        <li className="px-4 py-2 text-md hover:bg-gray-100">Log out</li>
+        <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+          Help center
+        </li>
+        <li className="px-4 py-2 text-md text-blackColor hover:bg-surfaceMuted transition">
+          Log out
+        </li>
       </ul>
     </div>
   );

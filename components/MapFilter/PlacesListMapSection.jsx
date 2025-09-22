@@ -16,14 +16,16 @@ const PlacesListMapSection = ({
   }, [data]);
 
   return (
-    <div className="max-w-full xl:max-w-[720px] w-full h-full py-6 px-4 overflow-hidden">
+    <div className="max-w-full xl:max-w-[720px] w-full h-full py-6 px-4 overflow-hidden bg-white/90 backdrop-blur border-r border-lightBorderColor">
       <header className="flex items-center justify-between">
-        <span className="font-semibold">{places?.results?.length} homes</span>
+        <span className="font-semibold text-blackColor">
+          {places?.results?.length} retreats
+        </span>
         <button
           onClick={() => {
             setFilterModal(true);
           }}
-          className="btn-normal"
+          className="btn-tertiary-normal"
         >
           Filter
         </button>
@@ -58,10 +60,12 @@ const PlacesListMapSection = ({
             />
           </div>
         ) : places?.results?.length === 0 ? (
-          <div className="">
-            <h1 className="text-2xl font-semibold mb-4">No exact matches</h1>
-            <p className="text-md mb-4">
-              Try adjusting your dates to explore more places to stay.
+          <div>
+            <h1 className="text-2xl font-semibold text-blackColor mb-4">
+              No retreats found
+            </h1>
+            <p className="text-md mb-4 text-lightTextColor">
+              Adjust your filters to discover more EasyStay experiences.
             </p>
           </div>
         ) : (

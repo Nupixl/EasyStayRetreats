@@ -222,7 +222,9 @@ const SingleListingBody = ({ listing }) => {
           >
             <Heart
               css={`h-[20px] w-[20px] stroke-white stroke-[3] ${
-                isSaved ? "fill-[#ff385c]" : "fill-[rgba(0, 0, 0, 0.5)]"
+                isSaved
+                  ? "fill-[#1f7a8c]"
+                  : "fill-[rgba(0, 0, 0, 0.5)]"
               }`}
             />
           </button>

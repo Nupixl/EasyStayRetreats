@@ -94,7 +94,7 @@ const SearchPage = () => {
     <>
       <Head>
         <title>
-          Airbnb Clone | Map Choice - Vacation Rentals & Places to stay - Airbnb
+          EasyStay Retreats | {destination ? `${destination} getaways` : "Curated stays"}
         </title>
       </Head>
       <Header

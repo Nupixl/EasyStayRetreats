@@ -121,11 +121,9 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
             key={uuidv4()}
             position={[place?.lat, place?.lng]}
             icon={L.divIcon({
-              html: `<span class="px-4 py-2 rounded-full text-md font-bold shadow ${
-                place?.hovered
-                  ? "bg-blackColor text-white"
-                  : "bg-white text-blackColor"
-              }">${place?.price}</span> `,
+              html: `<span class="easystay-price-marker ${
+                place?.hovered ? "is-active" : ""
+              }">${place?.price}</span>`,
             })}
           />
         );

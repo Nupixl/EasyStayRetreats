@@ -75,7 +75,7 @@ const Book = () => {
   return (
     <>
       <Head>
-        <title>Request to book - Airbnb Clone</title>
+        <title>Confirm your EasyStay retreat</title>
       </Head>
       <header className="p-6 border-b border-borderColor">
         <Link href="/">

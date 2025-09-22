@@ -21,7 +21,7 @@ const WishlistPage = () => {
   return (
     <>
       <Head>
-        <title>Your lists - Wishlists - Airbnb</title>
+        <title>Your lists - EasyStay wishlists</title>
       </Head>
       <Header
         setOverlay={setOverlay}

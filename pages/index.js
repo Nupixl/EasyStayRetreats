@@ -14,7 +14,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>Airbnb Clone</title>
+        <title>EasyStay Retreats | Feel at home anywhere</title>
       </Head>
       <Header
         width="container"

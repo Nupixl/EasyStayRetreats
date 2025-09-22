@@ -63,20 +63,20 @@ const HeaderSearchLayoutTwo = ({
         headerSearch
           ? "header_search_layout_two_active"
           : "header_search_layout_two_inactive"
-      } header_section_layout_two absolute mb-2 mx-auto flex max-w-[80%] gap-2 rounded-full bg-searchBackground border border-borderColor z-30`}
+      } header_section_layout_two absolute mb-2 mx-auto flex max-w-[80%] gap-2 rounded-[32px] bg-white border border-lightBorderColor shadow-lg z-30`}
     >
       <div
         onClick={() => {
           setSelection("destination");
         }}
-        className={`rounded-full px-7 flex-4 py-2 w-max cursor-pointer select-none ${
+        className={`rounded-[28px] px-7 flex-4 py-2 w-max cursor-pointer select-none transition-all ${
           selection === "destination"
-            ? "bg-white shadow-xl"
-            : "bg-transparent hover:bg-borderColor"
+            ? "bg-surfaceMuted shadow-md"
+            : "bg-transparent hover:bg-surfaceMuted"
         }`}
       >
-        <label htmlFor="destination" className="text-sm mb-1 font-medium pl-2">
-          Where
+        <label htmlFor="destination" className="text-xs mb-1 font-semibold pl-2 uppercase tracking-wide text-lightTextColor">
+          Where to?
         </label>
         <input
           type="text"
@@ -86,8 +86,8 @@ const HeaderSearchLayoutTwo = ({
           autoComplete="off"
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
-          placeholder="Search Destinations"
-          className="outline-none w-max block px-2 text-md rounded-full bg-transparent"
+          placeholder="Search destinations"
+          className="outline-none w-max block px-2 text-md rounded-full bg-transparent text-blackColor placeholder:text-lightTextColor"
         />
       </div>
 
@@ -97,15 +97,17 @@ const HeaderSearchLayoutTwo = ({
         onClick={() => {
           setSelection((prev) => (prev === "check-in" ? null : "check-in"));
         }}
-        className={`rounded-full relative px-7 min-w-[144px] py-2 cursor-pointer select-none flex flex-col justify-start ${
+        className={`rounded-[28px] relative px-7 min-w-[144px] py-2 cursor-pointer select-none flex flex-col justify-start transition-all ${
           selection === "check-in"
-            ? "bg-white shadow-xl"
-            : "bg-transparent hover:bg-borderColor"
+            ? "bg-surfaceMuted shadow-md"
+            : "bg-transparent hover:bg-surfaceMuted"
         }`}
       >
-        <p className="font-medium text-sm mb-1 whitespace-nowrap">Check in</p>
-        <p className="text-gray-500 text-md w-max">
-          {(selectedDay && format(selectedDay, "MMM dd")) || "Add Dates"}
+        <p className="font-semibold text-xs uppercase tracking-wide text-lightTextColor mb-1 whitespace-nowrap">
+          Check in
+        </p>
+        <p className="text-blackColor text-md w-max">
+          {(selectedDay && format(selectedDay, "MMM dd")) || "Add dates"}
         </p>
       </div>
 
@@ -115,25 +117,27 @@ const HeaderSearchLayoutTwo = ({
         onClick={() => {
           setSelection((prev) => (prev === "check-out" ? null : "check-out"));
         }}
-        className={`rounded-full relative px-7 min-w-[150px] w-max py-2 cursor-pointer select-none flex flex-col justify-start ${
+        className={`rounded-[28px] relative px-7 min-w-[150px] w-max py-2 cursor-pointer select-none flex flex-col justify-start transition-all ${
           selection === "check-out"
-            ? "bg-white shadow-xl"
-            : " bg-transparent hover:bg-borderColor"
+            ? "bg-surfaceMuted shadow-md"
+            : " bg-transparent hover:bg-surfaceMuted"
         }`}
       >
-        <p className="font-medium text-sm mb-1 whitespace-nowrap">Check out</p>
-        <p className="text-gray-500 text-md w-max">
-          {(selectEnd && format(selectEnd, "MMM dd")) || "Add Dates"}
+        <p className="font-semibold text-xs uppercase tracking-wide text-lightTextColor mb-1 whitespace-nowrap">
+          Check out
+        </p>
+        <p className="text-blackColor text-md w-max">
+          {(selectEnd && format(selectEnd, "MMM dd")) || "Add dates"}
         </p>
       </div>
 
       <div className="border-r border-borderColor my-auto h-[32px] w-[0.15px]"></div>
 
       <div
-        className={`flex items-center justify-between gap-6 rounded-full pr-3 pl-6 flex-2 py-2 cursor-pointer select-none ${
+        className={`flex items-center justify-between gap-6 rounded-[28px] pr-3 pl-6 flex-2 py-2 cursor-pointer select-none transition-all ${
           selection === "guests"
-            ? "bg-white shadow-xl"
-            : "bg-transparent hover:bg-borderColor"
+            ? "bg-surfaceMuted shadow-md"
+            : "bg-transparent hover:bg-surfaceMuted"
         }`}
       >
         <div
@@ -142,13 +146,20 @@ const HeaderSearchLayoutTwo = ({
             setSelection((prev) => (prev === "guests" ? null : "guests"));
           }}
         >
-          <p className="text-sm mb-1 font-medium">Who</p>
-          <p className="text-gray-500 text-md w-max">
-            {textResizer(result, 12) || "Any Guest"}
+          <p className="text-xs uppercase tracking-wide text-lightTextColor mb-1 font-semibold">
+            Who's coming
+          </p>
+          <p className="text-blackColor text-md w-max">
+            {textResizer(result, 12) || "Add guests"}
           </p>
         </div>
-        <BtnPrimary onClick={submit} rounded={true} dark={false}>
-          Search
+        <BtnPrimary
+          onClick={submit}
+          rounded={true}
+          dark={false}
+          style={{ background: "#1f7a8c", backgroundImage: "none" }}
+        >
+          Explore retreats
         </BtnPrimary>
       </div>
 

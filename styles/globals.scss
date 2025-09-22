@@ -54,27 +54,11 @@
 }
 
 .dark-bg {
-  background-image: radial-gradient(
-    circle at center,
-    #ff385c 0%,
-    #e61e4d 27.5%,
-    #e31c5f 40%,
-    #d70466 57.5%,
-    #bd1e59 75%,
-    #bd1e59 100%
-  );
+  background-image: linear-gradient(135deg, #134e6f 0%, #072f49 100%);
 }
 
 .light-bg {
-  background-image: radial-gradient(
-    circle at center center,
-    rgba(255, 56, 93, 0.838) 0%,
-    rgba(230, 30, 77, 0.838) 27.5%,
-    rgba(227, 28, 95, 0.838) 40%,
-    rgba(215, 4, 102, 0.838) 57.5%,
-    rgba(189, 30, 89, 0.838) 75%,
-    rgba(189, 30, 89, 0.838) 100%
-  );
+  background-image: linear-gradient(135deg, #1f7a8c 0%, #56a0b6 100%);
 }
 
 .btn-primary-rounded {

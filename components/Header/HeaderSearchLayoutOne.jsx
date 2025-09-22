@@ -28,7 +28,7 @@ const HeaderSearchLayoutOne = ({
         headerSearch
           ? "header_search_layout_one_active"
           : "header_search_layout_one_inactive"
-      } absolute w-max bg-white border border-borderColor rounded-full shadow px-2 flex items-center justify-center mx-auto`}
+      } absolute w-max bg-white/95 border border-lightBorderColor rounded-full shadow px-2 flex items-center justify-center mx-auto backdrop-blur-sm`}
     >
       <div
         className="h-full px-3 py-1 flex gap-1 items-center"
@@ -38,8 +38,8 @@ const HeaderSearchLayoutOne = ({
           setHeaderSearch((prev) => !prev);
         }}
       >
-        <span className="block text-sm text-gray-700 font-semibold cursor-pointer">
-          {destination || "Anywhere"}
+        <span className="block text-sm text-blackColor font-semibold cursor-pointer">
+          {destination || "Any destination"}
         </span>
       </div>
       <div className="h-[20px] w-1 block border-r border-borderColor"></div>
@@ -52,13 +52,13 @@ const HeaderSearchLayoutOne = ({
         }}
       >
         <button>
-          <span className="block text-sm text-gray-700 font-semibold">
+          <span className="block text-sm text-blackColor font-semibold">
             {selectedDay && selectEnd
               ? `${format(selectedDay, "MMM dd")} - ${format(
                   selectEnd,
                   "MMM dd"
                 )}`
-              : "Any week"}
+              : "Flexible dates"}
           </span>
         </button>
       </div>
@@ -71,16 +71,16 @@ const HeaderSearchLayoutOne = ({
             setSelection("guests");
             setHeaderSearch((prev) => !prev);
           }}
-          className="block text-sm font-semibold text-black cursor-pointer"
+          className="block text-sm font-semibold text-blackColor cursor-pointer"
         >
-          {textResizer(result, 12) || "Any Guest"}
+          {textResizer(result, 12) || "Guests"}
         </span>
 
         <BtnPrimary
           rounded={true}
           style={{
             padding: "12px",
-            background: "#ff385c",
+            background: "#1f7a8c",
             backgroundImage: "none!important",
           }}
           dark={false}
