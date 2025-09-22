@@ -47,8 +47,8 @@ export const PropertyCard = forwardRef<HTMLElement, PropertyCardProps>(function 
       ref={ref}
       role="button"
       className={clsx(
-        "rounded-card border border-slate-200 bg-white shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-xl focus-within:ring-2 focus-within:ring-slate-900 focus-within:ring-offset-2",
-        isActive ? "ring-2 ring-slate-900 ring-offset-2" : ""
+        "property-card cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2",
+        isActive && "is-active"
       )}
       onMouseEnter={onHover}
       onFocus={onFocus}
@@ -62,35 +62,36 @@ export const PropertyCard = forwardRef<HTMLElement, PropertyCardProps>(function 
       tabIndex={0}
       aria-pressed={Boolean(isActive)}
     >
-      <div className="relative h-56 w-full overflow-hidden rounded-t-card">
+      <div className="property-card-top-content">
         <Image
           src={heroImageUrl || fallbackImage}
           alt={name}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
+          className="property-card-image"
         />
         {isSuperHost ? (
-          <span className="absolute left-4 top-4 inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 shadow-sm">
-            Super Host
-          </span>
+          <div className="card-top-interactive-container">
+            <div className="card-accolade">
+              <span>Super Host</span>
+            </div>
+            <div className="card-favorite-button" aria-hidden />
+          </div>
         ) : null}
       </div>
-      <div className="flex flex-col gap-3 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">{name}</h3>
-            <p className="text-sm text-slate-500">
-              {[city, state, country].filter(Boolean).join(", ") || "Address withheld"}
-            </p>
-          </div>
+      <div className="propert-card-bottom-contnet">
+        <div className="card-space">
+          <div className="property-card-title">{name}</div>
           {rating ? (
-            <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
+            <div className="property-card-rating-wrapper">
               <span aria-hidden>★</span>
               <span>{rating.toFixed(1)}</span>
-              {reviewCount ? <span className="text-xs text-slate-400">({reviewCount})</span> : null}
+              {reviewCount ? <span className="text-xs font-medium text-slate-400">({reviewCount})</span> : null}
             </div>
           ) : null}
+        </div>
+        <div className="card-second-line text-sm text-slate-500">
+          {[city, state, country].filter(Boolean).join(", ") || "Address withheld"}
         </div>
         <p
           className="text-sm text-slate-600"
@@ -98,17 +99,17 @@ export const PropertyCard = forwardRef<HTMLElement, PropertyCardProps>(function 
         >
           {shortDescription}
         </p>
-        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="card-third-line text-xs font-medium text-slate-500">
           <span>{guestCapacity} guests</span>
           <span aria-hidden>•</span>
           <span>{bedrooms} beds</span>
           <span aria-hidden>•</span>
           <span>{bathrooms} baths</span>
         </div>
-        <div className="flex items-end justify-between pt-1">
-          <div className="text-lg font-semibold text-slate-900">
-            ${nightlyPrice}
-            <span className="ml-1 text-xs font-medium text-slate-500">/ night</span>
+        <div className="card-price-wrapper items-center justify-between">
+          <div>
+            <span className="card-price">${nightlyPrice}</span>
+            <span className="card-duration">/ night</span>
           </div>
           <Link
             href={`https://easystayretreats.homes/properties/${slug}`}
@@ -117,7 +118,7 @@ export const PropertyCard = forwardRef<HTMLElement, PropertyCardProps>(function 
               event.stopPropagation();
             }}
           >
-            View details
+            View stay
           </Link>
         </div>
       </div>
