@@ -7,3 +7,4 @@ out
 
 # Webflow Cloud build output
 .vercel
+.cloudflare

@@ -29,7 +29,7 @@ To mirror the Webflow Cloud build locally (Cloudflare worker bundle), run:
 ```bash
 npm run webflow:build
 ```
-This uses `open-next` to emit the `.open-next` worker output consumed by `wrangler`.
+This uses `next-on-pages` to emit the `.cloudflare` worker output consumed by `wrangler`.
 
 If Supabase variables are missing, the UI still renders using mock listings so styling can be validated without backend access.
 

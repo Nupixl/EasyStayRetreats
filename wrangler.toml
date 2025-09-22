@@ -1,5 +1,5 @@
 name = "easystay-retreats-webflow-cloud"
-main = ".open-next/worker.js"
+main = ".cloudflare/worker.js"
 compatibility_date = "2025-01-15"
 compatibility_flags = ["nodejs_compat"]
 

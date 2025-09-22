@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "preview": "open-next dev",
+    "preview": "next-on-pages dev --output-dir=.cloudflare",
     "devlink:sync": "webflow devlink sync",
     "devlink:watch": "webflow devlink watch",
     "deploy": "webflow cloud deploy",
     "deploy:webflow": "npm run build && webflow cloud deploy",
-    "webflow:build": "open-next build",
+    "webflow:build": "next-on-pages build --output-dir=.cloudflare",
     "webflow:deploy": "npm run webflow:build && webflow cloud deploy"
   },
   "dependencies": {
@@ -39,8 +39,7 @@
     "typescript": "^5.5.4",
     "webflow-cli": "^1.0.0",
     "wrangler": "^4.24.4",
-    "open-next": "^3.3.0",
     "@cloudflare/workers-types": "^4.20240919.0",
-    "@opennextjs/adapter-cloudflare": "^0.3.5"
+    "@cloudflare/next-on-pages": "^1.15.0"
   }
 }
