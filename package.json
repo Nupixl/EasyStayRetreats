@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "npm run build && wrangler dev",
+    "devlink:sync": "webflow devlink sync",
+    "devlink:watch": "webflow devlink watch",
+    "deploy": "webflow cloud deploy",
+    "deploy:webflow": "npm run build && webflow cloud deploy",
+    "webflow:build": "BASE_PATH=/app ASSETS_PREFIX=/app next build --config next.config.webflow.js",
+    "webflow:deploy": "npm run webflow:build && webflow cloud deploy"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -29,6 +36,8 @@
     "eslint-config-next": "^14.2.5",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "webflow-cli": "^1.0.0",
+    "wrangler": "^4.24.4"
   }
 }
