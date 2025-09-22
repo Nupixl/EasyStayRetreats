@@ -40,6 +40,6 @@
     "webflow-cli": "^1.0.0",
     "wrangler": "^4.24.4",
     "@cloudflare/workers-types": "^4.20240919.0",
-    "@cloudflare/next-on-pages": "^1.15.0"
+    "@cloudflare/next-on-pages": "^1.9.0"
   }
 }
