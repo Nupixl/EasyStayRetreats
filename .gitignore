@@ -8,3 +8,6 @@ out
 # Webflow Cloud build output
 .vercel
 .cloudflare
+
+# Reference projects
+Refrence/airbnb-clone/
