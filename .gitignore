@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+.env
+.DS_Store
+.eslintcache
+
+# Webflow Cloud build output
+.vercel
