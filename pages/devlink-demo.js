@@ -149,9 +149,9 @@ const DevLinkDemo = () => {
 
         {/* Footer */}
         <Footer />
-      </div>
+        </div>
 
-      <style jsx>{`
+        <style jsx>{`
         .page-wrapper {
           min-height: 100vh;
           background: #f8f9fa;
