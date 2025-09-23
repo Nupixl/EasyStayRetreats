@@ -57,7 +57,11 @@ const Categories = ({ data }) => {
       >
         <div className="flex items-center py-3 gap-4 select-none">
           <ul className="w-full overflow-hidden flex gap-7">
-            {data.loading ? (
+            {data.error ? (
+              <li className="text-sm text-lightTextColor">
+                {data.error}
+              </li>
+            ) : data.loading ? (
               <>
                 {Array(20)
                   .fill("_")

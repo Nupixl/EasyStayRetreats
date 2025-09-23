@@ -1,4 +1,4 @@
-// Redirect to new Supabase-based search endpoint
+import postData from "../../../data.json";
 
 const parseMarkers = (query) => {
   const rawMarkers = query["data[]"] ?? query.data;
@@ -76,7 +76,55 @@ const parseMarkers = (query) => {
 
 export default function handler(req, res) {
   if (req.method === "GET") {
-    // Redirect to the new properties search endpoint
-    return res.redirect(307, '/api/properties/search');
+    const { markers, error } = parseMarkers(req.query);
+
+    if (error) {
+      return res.status(400).json({ success: false, error });
+    }
+
+    if (markers.length < 4) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Incomplete bounds payload" });
+    }
+
+    const calcLocation = (lat, lng) => {
+      if (
+        +lat < +markers[0].latitude &&
+        +lat > +markers[2].latitude &&
+        +lng > +markers[0].longitude &&
+        +lng < +markers[3].longitude
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    let result;
+    const newP = new Promise((r) => {
+      if (true) {
+        setTimeout(() => {
+          r(
+            (result = postData
+              .map((post) => {
+                const res = calcLocation(
+                  post.geolocation.lat,
+                  post.geolocation.lng
+                );
+                if (res) {
+                  return post;
+                } else {
+                  return null;
+                }
+              })
+              .filter((e) => e !== null))
+          );
+        }, Math.floor(Math.random() * 800));
+      }
+    });
+    newP
+      .then((response) => res.json({ success: true, data: response }))
+      .catch((err) => res.json({ success: false, data: null }));
   }
 }

@@ -26,19 +26,25 @@ const PostBody = ({ data }) => {
   return (
     <div>
       <ul className="flex gap-6 flex-wrap px-4">
-        {data.loading
-          ? Array(50)
-              .fill("_")
-              .map(() => <ListingsLoading key={uuidv4()} />)
-          : data.data.map((post, i) => (
-              <li
-                key={post._id}
-                className="w-full sm:w-[calc(100%/2-15px)] lg:w-[calc(100%/3-25px)] xl:w-[calc(100%/4-1.2rem)] 2xl:w-[calc(100%/5-1.2rem)] opacity-0"
-                ref={(el) => (child.current[i] = el)}
-              >
-                <Card post={post} />
-              </li>
-            ))}
+        {data.error ? (
+          <li className="w-full rounded-3xl border border-lightBorderColor bg-surfaceMuted/60 p-6 text-center text-sm text-lightTextColor">
+            {data.error}
+          </li>
+        ) : data.loading ? (
+          Array(50)
+            .fill("_")
+            .map(() => <ListingsLoading key={uuidv4()} />)
+        ) : (
+          data.data.map((post, i) => (
+            <li
+              key={post._id}
+              className="w-full sm:w-[calc(100%/2-15px)] lg:w-[calc(100%/3-25px)] xl:w-[calc(100%/4-1.2rem)] 2xl:w-[calc(100%/5-1.2rem)] opacity-0"
+              ref={(el) => (child.current[i] = el)}
+            >
+              <Card post={post} />
+            </li>
+          ))
+        )}
       </ul>
     </div>
   );

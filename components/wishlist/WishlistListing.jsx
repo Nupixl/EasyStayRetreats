@@ -1,26 +1,45 @@
 import React, { useEffect, useState } from "react";
 import Card from "../Posts/body/Card";
-import postsData from "../../bot/data.json";
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
+import axios from "axios";
 
 const WishlistListing = ({ data, setPlaces }) => {
   const [listings, setListings] = useState([]);
+  const [properties, setProperties] = useState([]);
 
   useEffect(() => {
-    if (data && data.listings) {
-      const ids = data?.listings?.map((e) => e._id);
-      const res = postsData.filter((e) => ids.includes(e._id));
-      setListings(res);
+    const fetchProperties = async () => {
+      try {
+        const { data: response } = await axios.get("/api/properties");
+        if (response.success) {
+          setProperties(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching wishlist properties:", error);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  useEffect(() => {
+    if (data && data.listings && properties.length > 0) {
+      const ids = data.listings.map((listing) => listing._id);
+      const filtered = properties.filter((property) => ids.includes(property._id));
+      setListings(filtered);
       setPlaces(
-        res.map((e) => ({
-          lat: e.geolocation.lat,
-          lng: e.geolocation.lng,
-          price: e.price,
+        filtered.map((property) => ({
+          lat: property.geolocation.lat,
+          lng: property.geolocation.lng,
+          price: property.price,
         }))
       );
+    } else {
+      setListings([]);
+      setPlaces([]);
     }
-  }, [data]);
+  }, [data, properties]);
 
   return (
     <div className="bg-white lg:shadow lg:border-r lg:border-borderColor max-w-[850px] w-full px-4 py-6">

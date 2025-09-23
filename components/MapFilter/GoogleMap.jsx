@@ -4,8 +4,8 @@ import axios from "axios";
 // import { v4 as uuidv4 } from "uuid";
 
 let center = {
-  lat: -3.745,
-  lng: -38.523,
+  lat: 37.4316,
+  lng: -78.6569,
 };
 
 const containerStyle = {
@@ -68,20 +68,36 @@ function Map({
           lng: SECorner?.lng(),
         },
       ];
-      const { data } = await axios("/api/search", {
-        params: {
-          data: markers,
-        },
-      });
-      // setPlaces(
-      //   data.data.map((e) => ({
-      //     ...e.geolocation,
-      //     price: e.price,
-      //     _id: e._id,
-      //     hovered: false,
-      //   }))
-      // );
-      setData({ loading: false, results: data.data });
+      try {
+        const { data } = await axios("/api/properties/search", {
+          params: {
+            data: markers,
+          },
+        });
+
+        if (data.success) {
+          setData({ loading: false, results: data.data, error: null });
+        } else {
+          const message = data.error || "Unable to load retreats at the moment.";
+          console.error("Map search failed:", message);
+          setData({
+            loading: false,
+            results: [],
+            error: message,
+          });
+        }
+      } catch (error) {
+        const message =
+          error.response?.data?.error ||
+          error.message ||
+          "Unexpected error loading retreats.";
+        console.error("Map search failed:", message);
+        setData({
+          loading: false,
+          results: [],
+          error: message,
+        });
+      }
     }
   };
 

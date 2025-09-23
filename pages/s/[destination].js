@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { Header } from "../../components";
+import { EasyStayNav } from "../../components";
 import PlacesListMapSection from "../../components/MapFilter/PlacesListMapSection";
 import { getParams } from "../../utils/handlers";
 import dynamic from "next/dynamic";
@@ -27,11 +27,9 @@ const SearchPage = () => {
   const [data, setData] = useState({
     loading: true,
     results: [],
+    error: null,
   });
 
-  const [overlay, setOverlay] = useState(false);
-  const [selection, setSelection] = useState(null);
-  const [headerSearch, setHeaderSearch] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [filterModal, setFilterModal] = useState(false);
   const [location, setLocation] = useState(null);
@@ -60,9 +58,14 @@ const SearchPage = () => {
     setInfos({ ...getParams(), destination });
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setUserLocation([position.coords.latitude, position.coords.longitude]);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+        },
+        () => {
+          setUserLocation(null);
+        }
+      );
     }
     (async () => {
       if (destination?.trim()) {
@@ -77,14 +80,14 @@ const SearchPage = () => {
           if (userLocation) {
             setLocation(userLocation);
           } else {
-            setLocation([-34.6037, -58.563]);
+            setLocation([37.4316, -78.6569]);
           }
         }
       } else {
         if (userLocation) {
           setLocation(userLocation);
         } else {
-          setLocation([-34.6037, -58.563]);
+          setLocation([37.4316, -78.6569]);
         }
       }
     })();
@@ -97,21 +100,14 @@ const SearchPage = () => {
           EasyStay Retreats | {destination ? `${destination} getaways` : "Curated stays"}
         </title>
       </Head>
-      <Header
-        width="px-6"
-        setOverlay={setOverlay}
-        selection={selection}
-        setSelection={setSelection}
-        headerSearch={headerSearch}
-        setHeaderSearch={setHeaderSearch}
-        defaultInfos={infos}
-      />
+      <EasyStayNav />
       <div className="flex flex-col-reverse xl:flex-row w-full h-[calc(100vh-81px)] relative z-10">
         <PlacesListMapSection
           data={data}
           setFilterModal={setFilterModal}
           hoveredPlace={hoveredPlace}
           setHoveredPlace={setHoveredPlace}
+          searchDefaults={infos}
         />
         {location ? (
           // <GoogleMapComponent
@@ -138,16 +134,6 @@ const SearchPage = () => {
         )}
       </div>
       {filterModal && <FilterModal setFilterModal={setFilterModal} />}
-      {overlay && (
-        <div
-          className="overlay"
-          onClick={() => {
-            setSelection(null);
-            setOverlay(false);
-            setHeaderSearch(false);
-          }}
-        ></div>
-      )}
       {wishlist && <Wishlist setWishlist={setWishlist} />}
     </>
   );

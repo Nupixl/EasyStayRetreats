@@ -25,12 +25,19 @@ const Listing = () => {
         data: {},
       });
       (async () => {
-        const { data } = await axios(`/api/listings/${router.query.slug}`);
-        if (data.success) {
-          setListing({
-            loading: false,
-            data: data.data[0],
-          });
+        try {
+          const { data } = await axios(`/api/properties/${router.query.slug}`)
+          if (data.success) {
+            setListing({
+              loading: false,
+              data: data.data,
+            })
+          } else {
+            setListing({ loading: false, data: {} })
+          }
+        } catch (error) {
+          console.error('Error fetching property details:', error)
+          setListing({ loading: false, data: {} })
         }
       })();
     }
@@ -40,7 +47,7 @@ const Listing = () => {
     <>
       <Head>
         <title>
-          House rent in {listing.loading ? "..." : listing.data?.title} - Aribnb
+          House rent in {listing.loading ? '...' : listing.data?.title} - EasyStay
           Clone
         </title>
       </Head>

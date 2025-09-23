@@ -1,11 +1,7 @@
-import data from "../../../data.json";
-
+// Redirect to new Supabase-based properties endpoint
 export default function handler(req, res) {
   if (req.method === "GET") {
-    const time = Math.floor(Math.random() * 1000);
-
-    setTimeout(() => {
-      return res.json({ success: true, data: data });
-    }, time);
+    // Redirect to the new properties endpoint
+    return res.redirect(307, '/api/properties');
   }
 }

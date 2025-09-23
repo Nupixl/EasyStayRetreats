@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
+import { escapeHtml } from "../../utils/sanitize";
 
 const WishlistMap = ({ places }) => {
   return (
@@ -28,7 +29,7 @@ const WishlistMap = ({ places }) => {
                   ? "bg-blackColor text-white"
                   : "bg-white text-blackColor"
               }">
-              <span>${place?.price}</span>
+              <span>${escapeHtml(place?.price)}</span>
               <span>❤️</span>
               </div> `,
             })}

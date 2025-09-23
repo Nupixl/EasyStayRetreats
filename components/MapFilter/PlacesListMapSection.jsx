@@ -2,22 +2,31 @@ import React, { useEffect, useState } from "react";
 import Card from "../Posts/body/Card";
 import { v4 as uuidv4 } from "uuid";
 import ListingsLoading from "../Loading/ListingsLoading";
+import { SearchPanel } from "../";
 
 const PlacesListMapSection = ({
   data,
   setFilterModal,
   hoveredPlace,
   setHoveredPlace,
+  searchDefaults,
 }) => {
-  const [places, setPlaces] = useState({ loading: true, results: [] });
+  const [places, setPlaces] = useState({ loading: true, results: [], error: null });
 
   useEffect(() => {
     setPlaces(data);
   }, [data]);
 
   return (
-    <div className="max-w-full xl:max-w-[720px] w-full h-full py-6 px-4 overflow-hidden bg-white/90 backdrop-blur border-r border-lightBorderColor">
-      <header className="flex items-center justify-between">
+    <div className="max-w-full xl:max-w-[720px] w-full h-full py-6 px-4 overflow-hidden bg-white/95 backdrop-blur border-r border-lightBorderColor">
+      <SearchPanel
+        initialValues={searchDefaults}
+        variant="compact"
+        className="mb-6"
+        buttonLabel="Search"
+      />
+
+      <header className="mb-4 flex items-center justify-between">
         <span className="font-semibold text-blackColor">
           {places?.results?.length} retreats
         </span>
@@ -27,12 +36,19 @@ const PlacesListMapSection = ({
           }}
           className="btn-tertiary-normal"
         >
-          Filter
+          Filters
         </button>
       </header>
 
       <section className="py-4 h-full">
-        {places.loading ? (
+        {places.error ? (
+          <div className="rounded-3xl border border-lightBorderColor bg-surfaceMuted/60 p-6 text-center text-sm text-lightTextColor">
+            <p>{places.error}</p>
+            <p className="mt-2">
+              Adjust the map or verify Supabase connectivity, then try again.
+            </p>
+          </div>
+        ) : places.loading ? (
           <div className="flex flex-wrap gap-6 w-full">
             <ListingsLoading
               divider={2}

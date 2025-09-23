@@ -10,7 +10,7 @@ const { scrollPageToBottom } = require("puppeteer-autoscroll-down");
   const page = await browser.newPage();
   await page.goto("https://www.airbnb.com/", { waitUntil: "domcontentloaded" });
 
-  scrollPageToBottom(page, {
+  await scrollPageToBottom(page, {
     size: 500,
     delay: 250,
     stepsLimit: 25,

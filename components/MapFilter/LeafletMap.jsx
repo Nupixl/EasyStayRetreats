@@ -6,9 +6,10 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import axios from "axios";
+import { escapeHtml } from "../../utils/sanitize";
 
 const LeafletMap = ({ setData, location, places, setPlaces }) => {
-  const DEFAULT_CENTER = location || [51.505, -0.09];
+  const DEFAULT_CENTER = location || [37.4316, -78.6569];
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -18,22 +19,46 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
   }, [location]);
 
   const getData = async (m) => {
-    setData({ loading: true, results: [] });
-    const { data } = await axios.get("/api/search", {
-      params: {
-        data: m,
-      },
-    });
-    if (data.success) {
-      setData({ loading: false, results: data.data });
-      setPlaces(
-        data.data.map((e) => ({
-          ...e.geolocation,
-          price: e.price,
-          _id: e._id,
-          hovered: false,
-        }))
-      );
+    setData({ loading: true, results: [], error: null });
+    try {
+      const { data } = await axios.get("/api/properties/search", {
+        params: {
+          data: m,
+        },
+      });
+
+      if (data.success) {
+        setData({ loading: false, results: data.data, error: null });
+        setPlaces(
+          data.data.map((e) => ({
+            ...e.geolocation,
+            price: e.price,
+            _id: e._id,
+            hovered: false,
+          }))
+        );
+      } else {
+        const message = data.error || "Unable to load retreats at the moment.";
+        console.error("Map search failed:", message);
+        setData({
+          loading: false,
+          results: [],
+          error: message,
+        });
+        setPlaces([]);
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.error ||
+        error.message ||
+        "Unexpected error loading retreats.";
+      console.error("Map search failed:", message);
+      setData({
+        loading: false,
+        results: [],
+        error: message,
+      });
+      setPlaces([]);
     }
   };
 
@@ -123,7 +148,7 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
             icon={L.divIcon({
               html: `<span class="easystay-price-marker ${
                 place?.hovered ? "is-active" : ""
-              }">${place?.price}</span>`,
+              }">${escapeHtml(place?.price)}</span>`,
             })}
           />
         );

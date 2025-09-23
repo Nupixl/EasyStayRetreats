@@ -10,7 +10,7 @@ import GuestsModel from "../../components/book/GuestsModel";
 import Head from "next/head";
 import Footer from "../../components/Footer";
 import { getParams } from "../../utils/handlers";
-import postsData from "../../bot/data.json";
+// import postsData from "../../bot/data.json"; // Replaced with Supabase API
 
 const Book = () => {
   const router = useRouter();
@@ -44,7 +44,23 @@ const Book = () => {
   });
 
   useEffect(() => {
-    setListing(postsData.filter((e) => e._id === listingID)[0]);
+    // Fetch listing from Supabase API
+    const fetchListing = async () => {
+      try {
+        const response = await fetch(`/api/properties/${listingID}`);
+        const data = await response.json();
+        if (data.success) {
+          setListing(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching listing:', error);
+      }
+    };
+    
+    if (listingID) {
+      fetchListing();
+    }
+    
     const params = getParams();
     setInfos(params);
 
