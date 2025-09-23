@@ -1,0 +1,21 @@
+.login-button {
+  display: flex;
+  width: 100%;
+  padding: 12px 24px;
+  justify-content: center;
+  align-items: center;
+  grid-column-gap: 12px;
+
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, 1);
+
+  color: var(--black);
+  text-decoration: none;
+}
+
+.icon-google {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  object-fit: cover;
+}

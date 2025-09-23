@@ -28,22 +28,32 @@ const buildImages = (property) => {
   return images
 }
 
+const parseAmount = (value) => {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/[^0-9.]/g, '')
+    const numeric = Number(cleaned)
+    return Number.isFinite(numeric) ? numeric : null
+  }
+  return null
+}
+
 const resolvePrice = (property) => {
-  if (property.nightly_rate) {
-    return { amount: Number(property.nightly_rate), label: 'per night' }
-  }
-  if (property.weekly_rate) {
-    return { amount: Number(property.weekly_rate), label: 'per week' }
-  }
-  if (property.monthly_rate) {
-    return { amount: Number(property.monthly_rate), label: 'per month' }
-  }
-  if (property.price_starts_at) {
-    return { amount: Number(property.price_starts_at), label: 'starting rate' }
-  }
-  if (property.price) {
-    return { amount: Number(property.price), label: 'starting rate' }
-  }
+  const nightly = parseAmount(property.nightly_rate)
+  if (nightly) return { amount: nightly, label: 'per night' }
+
+  const weekly = parseAmount(property.weekly_rate)
+  if (weekly) return { amount: weekly, label: 'per week' }
+
+  const monthly = parseAmount(property.monthly_rate)
+  if (monthly) return { amount: monthly, label: 'per month' }
+
+  const starting = parseAmount(property.price_starts_at)
+  if (starting) return { amount: starting, label: 'starting rate' }
+
+  const generic = parseAmount(property.price)
+  if (generic) return { amount: generic, label: 'starting rate' }
 
   return { amount: 0, label: 'per stay' }
 }

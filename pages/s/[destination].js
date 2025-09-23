@@ -101,7 +101,7 @@ const SearchPage = () => {
         </title>
       </Head>
       <EasyStayNav />
-      <div className="flex flex-col-reverse xl:flex-row w-full h-[calc(100vh-81px)] relative z-10">
+      <div className="flex flex-col-reverse xl:flex-row w-full h-[calc(100vh-65px)] lg:h-[calc(100vh-80px)] relative z-10">
         <PlacesListMapSection
           data={data}
           setFilterModal={setFilterModal}
