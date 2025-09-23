@@ -1,5 +1,52 @@
-import { supabase, isSupabaseConfigured } from '../../../lib/supabase'
+import { supabaseAdmin, supabase, isSupabaseConfigured } from '../../../lib/supabase'
 import fallbackData from '../../../data.json'
+
+const buildImages = (property) => {
+  const sources = [
+    property.card_image,
+    property.hero_slider_image_first,
+    property.hero_slider_image_second,
+    property.hero_slider_image_third,
+    property.showcase_featured_image,
+    property.showcase_images_4,
+  ]
+
+  const images = []
+  const seen = new Set()
+  for (const url of sources) {
+    if (!url || typeof url !== 'string') continue
+    const trimmed = url.trim()
+    if (!trimmed || seen.has(trimmed)) continue
+    seen.add(trimmed)
+    images.push({ url: trimmed })
+  }
+
+  if (images.length === 0) {
+    images.push({ url: '/images/default_image.png' })
+  }
+
+  return images
+}
+
+const resolvePrice = (property) => {
+  if (property.nightly_rate) {
+    return { amount: Number(property.nightly_rate), label: 'per night' }
+  }
+  if (property.weekly_rate) {
+    return { amount: Number(property.weekly_rate), label: 'per week' }
+  }
+  if (property.monthly_rate) {
+    return { amount: Number(property.monthly_rate), label: 'per month' }
+  }
+  if (property.price_starts_at) {
+    return { amount: Number(property.price_starts_at), label: 'starting rate' }
+  }
+  if (property.price) {
+    return { amount: Number(property.price), label: 'starting rate' }
+  }
+
+  return { amount: 0, label: 'per stay' }
+}
 
 export default async function handler(req, res) {
   const { id } = req.query
@@ -16,10 +63,16 @@ export default async function handler(req, res) {
         return res.json({ success: true, data: property })
       }
 
-      const { data: property, error } = await supabase
-        .from('properties')
+      const client = supabaseAdmin ?? supabase
+      if (!client) {
+        console.error('Supabase client unavailable on the server')
+        return res.status(500).json({ success: false, error: 'Supabase client unavailable' })
+      }
+
+      const { data: property, error } = await client
+        .from('App-Properties')
         .select('*')
-        .eq('id', id)
+        .eq('whalesync_postgres_id', id)
         .single()
 
       if (error) {
@@ -28,22 +81,28 @@ export default async function handler(req, res) {
       }
 
       // Transform the data to match the expected format
+      const { amount, label } = resolvePrice(property)
+      const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
+
       const transformedProperty = {
-        _id: property.id,
-        title: property.title,
-        rating: property.rating?.toString() || '',
-        review: `${property.review_count || 0} review${property.review_count !== 1 ? 's' : ''}`,
-        lt: property.location,
-        images: [{ url: property.image_url || '/images/default_image.png' }], // Use single image for now
-        price: `$${property.price}`,
-        about: property.about,
-        user: null, // Will be populated later when we fix the relationships
-        reviews: [], // Will be populated later when we fix the relationships
+        _id: property.whalesync_postgres_id || property.id,
+        title: property.name || 'Untitled Property',
+        rating: property.property_rating ? property.property_rating.toString() : '4.5',
+        review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
+        lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address,
+        images: buildImages(property),
+        price: formattedPrice,
+        priceLabel: label,
+        priceValue: amount,
+        slug: property.slug || null,
+        about: property.body_description,
+        user: null,
+        reviews: [],
         geolocation: {
-          lat: property.latitude,
-          lng: property.longitude
+          lat: Number(property.latitude) || 0,
+          lng: Number(property.longitude) || 0,
         },
-        amenities: [] // Will be populated later when we fix the relationships
+        amenities: [],
       }
 
       return res.json({ success: true, data: transformedProperty })

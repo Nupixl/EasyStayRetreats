@@ -43,6 +43,47 @@ function Map({
     setMap(null);
   }, []);
 
+  const pushPlaces = (results) => {
+    if (typeof setPlaces === "function") {
+      setPlaces(
+        results.map((e) => ({
+          ...e.geolocation,
+          price: e.price,
+          _id: e._id,
+          hovered: false,
+        }))
+      );
+    }
+  };
+
+  const fallbackToAllProperties = async () => {
+    try {
+      const { data } = await axios.get("/api/properties");
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        setData({ loading: false, results: data.data, error: null });
+        pushPlaces(data.data);
+        if (map) {
+          const [first] = data.data;
+          if (first?.geolocation?.lat && first?.geolocation?.lng) {
+            map.panTo({ lat: first.geolocation.lat, lng: first.geolocation.lng });
+            map.setZoom(6);
+          }
+        }
+        return true;
+      }
+    } catch (fallbackError) {
+      console.error("Fallback property load failed:", fallbackError.message);
+    }
+
+    setData({
+      loading: false,
+      results: [],
+      error: "No retreats match the current map area. Try panning or zooming out.",
+    });
+    pushPlaces([]);
+    return false;
+  };
+
   const onIdle = async () => {
     if (map) {
       const bounds = map.getBounds();
@@ -76,15 +117,28 @@ function Map({
         });
 
         if (data.success) {
-          setData({ loading: false, results: data.data, error: null });
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            setData({ loading: false, results: data.data, error: null });
+            pushPlaces(data.data);
+          } else {
+            setData({
+              loading: false,
+              results: [],
+              error: data.message || 'No retreats match the current map area. Try panning or zooming out.',
+            });
+            pushPlaces([]);
+          }
         } else {
           const message = data.error || "Unable to load retreats at the moment.";
           console.error("Map search failed:", message);
-          setData({
-            loading: false,
-            results: [],
-            error: message,
-          });
+          const recovered = await fallbackToAllProperties();
+          if (!recovered) {
+            setData({
+              loading: false,
+              results: [],
+              error: message,
+            });
+          }
         }
       } catch (error) {
         const message =
@@ -92,11 +146,14 @@ function Map({
           error.message ||
           "Unexpected error loading retreats.";
         console.error("Map search failed:", message);
-        setData({
-          loading: false,
-          results: [],
-          error: message,
-        });
+        const recovered = await fallbackToAllProperties();
+        if (!recovered) {
+          setData({
+            loading: false,
+            results: [],
+            error: message,
+          });
+        }
       }
     }
   };

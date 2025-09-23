@@ -10,7 +10,8 @@
     "scrape": "cd bot && node index.js",
     "setup-supabase": "node scripts/setup-supabase.js",
     "setup-env": "node scripts/setup-env.js",
-    "migrate-supabase": "node scripts/migrate-to-supabase.js"
+    "migrate-supabase": "node scripts/migrate-to-supabase.js",
+    "merge-app-properties": "node scripts/merge-properties-into-app-properties.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.1",

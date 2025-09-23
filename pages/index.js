@@ -13,6 +13,49 @@ import {
   SparklesIcon,
 } from "@heroicons/react/outline";
 
+const buildImagesFromAppProperty = (property) => {
+  const sources = [
+    property.card_image,
+    property.hero_slider_image_first,
+    property.hero_slider_image_second,
+    property.hero_slider_image_third,
+    property.showcase_featured_image,
+    property.showcase_images_4,
+  ];
+
+  const images = [];
+  const seen = new Set();
+  for (const url of sources) {
+    if (!url || typeof url !== "string") continue;
+    const trimmed = url.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    images.push({ url: trimmed });
+  }
+
+  if (images.length === 0) {
+    images.push({ url: "/images/default_image.png" });
+  }
+
+  return images;
+};
+
+const buildPriceFromAppProperty = (property) => {
+  const price =
+    property.price_starts_at ??
+    property.nightly_rate ??
+    property.daily_rate ??
+    property.price ??
+    0;
+
+  const numeric = Number(price);
+  if (Number.isFinite(numeric) && numeric > 0) {
+    return `$${numeric.toLocaleString()}`;
+  }
+
+  return "$0";
+};
+
 const travelerHighlights = [
   {
     title: "Curated stays in inspiring destinations",
@@ -314,64 +357,44 @@ const Home = ({ featuredListings = [] }) => {
 
 export const getStaticProps = async () => {
   try {
-    const { supabase } = await import('../lib/supabase')
-    const { data, error } = await supabase
-      .from('properties')
-      .select(`
-        *,
-        property_images(*),
-        property_hosts(
-          hosts(*)
-        ),
-        reviews(*),
-        property_amenities(
-          amenities(*)
-        )
-      `)
-      .order('created_at', { ascending: false })
+    const { supabaseAdmin, supabase, isSupabaseConfigured } = await import('../lib/supabase')
+
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase not configured')
+    }
+
+    const client = supabaseAdmin ?? supabase
+    if (!client) {
+      throw new Error('Supabase client unavailable')
+    }
+
+    const { data, error } = await client
+      .from('App-Properties')
+      .select('*')
+      .eq('webflow_status', 'Active')
+      .order('created', { ascending: false })
       .limit(3)
 
     if (error) {
       throw error
     }
 
-    const featuredListings = data.map((property) => ({
-      _id: property.id,
-      title: property.title,
-      rating: property.rating?.toString() || '',
-      review: `${property.review_count} review${property.review_count !== 1 ? 's' : ''}`,
-      lt: property.location,
-      images: property.property_images.map((img) => ({ url: img.url })),
-      price: `$${property.price}`,
-      about: property.about,
-      user: property.property_hosts[0]?.hosts
-        ? {
-            profile: {
-              url: property.property_hosts[0].hosts.profile_image_url,
-            },
-            name: `Hosted by ${property.property_hosts[0].hosts.name}`,
-            joinedAt: property.property_hosts[0].hosts.joined_at,
-            reviews: `${property.property_hosts[0].hosts.review_count} reviews`,
-          }
-        : null,
-      reviews: property.reviews.map((review) => ({
-        reivew: review.review_text,
-        user: {
-          profile: {
-            url: review.user_profile_image_url,
-          },
-          name: review.user_name,
-          createdAt: new Date(review.created_at).toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric',
-          }),
-        },
-      })),
+    const featuredListings = (data || []).map((property) => ({
+      _id: property.whalesync_postgres_id || property.id,
+      title: property.name || 'Untitled Property',
+      rating: property.property_rating ? property.property_rating.toString() : '',
+      review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
+      lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address,
+      images: buildImagesFromAppProperty(property),
+      price: buildPriceFromAppProperty(property),
+      about: property.body_description,
+      user: null,
+      reviews: [],
       geolocation: {
-        lat: property.latitude,
-        lng: property.longitude,
+        lat: Number(property.latitude) || 0,
+        lng: Number(property.longitude) || 0,
       },
-      amenities: property.property_amenities.map((pa) => pa.amenities.name),
+      amenities: [],
     }))
 
     return {

@@ -18,6 +18,47 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
     }
   }, [location]);
 
+  const pushPlaces = (results) => {
+    setPlaces(
+      results.map((e) => ({
+        ...e.geolocation,
+        price: e.price,
+        _id: e._id,
+        hovered: false,
+      }))
+    );
+  };
+
+  const fallbackToAllProperties = async () => {
+    try {
+      const { data } = await axios.get("/api/properties");
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        setData({ loading: false, results: data.data, error: null });
+        pushPlaces(data.data);
+        if (mapRef.current) {
+          const [first] = data.data;
+          if (first?.geolocation?.lat && first?.geolocation?.lng) {
+            mapRef.current.setView(
+              [first.geolocation.lat, first.geolocation.lng],
+              6
+            );
+          }
+        }
+        return true;
+      }
+    } catch (fallbackError) {
+      console.error("Fallback property load failed:", fallbackError.message);
+    }
+
+    setData({
+      loading: false,
+      results: [],
+      error: "No retreats match the current map area. Try panning or zooming out.",
+    });
+    setPlaces([]);
+    return false;
+  };
+
   const getData = async (m) => {
     setData({ loading: true, results: [], error: null });
     try {
@@ -28,24 +69,28 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
       });
 
       if (data.success) {
-        setData({ loading: false, results: data.data, error: null });
-        setPlaces(
-          data.data.map((e) => ({
-            ...e.geolocation,
-            price: e.price,
-            _id: e._id,
-            hovered: false,
-          }))
-        );
+        if (Array.isArray(data.data) && data.data.length > 0) {
+          setData({ loading: false, results: data.data, error: null });
+          pushPlaces(data.data);
+        } else {
+          setData({
+            loading: false,
+            results: [],
+            error: data.message || 'No retreats match the current map area. Try panning or zooming out.',
+          });
+          setPlaces([]);
+        }
       } else {
         const message = data.error || "Unable to load retreats at the moment.";
         console.error("Map search failed:", message);
-        setData({
-          loading: false,
-          results: [],
-          error: message,
-        });
-        setPlaces([]);
+        const recovered = await fallbackToAllProperties();
+        if (!recovered) {
+          setData({
+            loading: false,
+            results: [],
+            error: message,
+          });
+        }
       }
     } catch (error) {
       const message =
@@ -53,12 +98,15 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
         error.message ||
         "Unexpected error loading retreats.";
       console.error("Map search failed:", message);
-      setData({
-        loading: false,
-        results: [],
-        error: message,
-      });
-      setPlaces([]);
+      const recovered = await fallbackToAllProperties();
+      if (!recovered) {
+        setData({
+          loading: false,
+          results: [],
+          error: message,
+        });
+        setPlaces([]);
+      }
     }
   };
 
