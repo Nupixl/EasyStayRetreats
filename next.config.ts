@@ -27,7 +27,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-if (process.env.NODE_ENV === "development") {
+if (
+  process.env.NODE_ENV === "development" &&
+  process.env.WEBFLOW_USE_CLOUDFLARE_DEV === "true"
+) {
   initOpenNextCloudflareForDev();
 }
 
