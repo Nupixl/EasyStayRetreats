@@ -1,20 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Webflow CMS Field Type Checker
+ * Simple Webflow CMS Field Type Checker
  * 
- * This script checks Webflow CMS field types to ensure body descriptions
- * and property features are using Rich Text Format (RTF) instead of HTML.
- * 
- * Based on Webflow documentation:
- * - Rich Text Fields automatically convert content to HTML for formatting
- * - Plain Text Fields store content as plain text without HTML
- * - For RTF content, we want to ensure proper field type configuration
+ * This script checks Webflow CMS field types using direct API calls
+ * to ensure body descriptions and property features are using Rich Text Format (RTF).
  */
 
 require('dotenv').config({ path: '.env.local' })
 
-const { WebflowClient } = require('webflow-api')
+const https = require('https')
 
 // Configuration
 const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN
@@ -31,12 +26,86 @@ if (!WEBFLOW_API_TOKEN || !WEBFLOW_SITE_ID) {
   process.exit(1)
 }
 
-const webflow = new WebflowClient({ token: WEBFLOW_API_TOKEN })
+/**
+ * Make HTTP request to Webflow API
+ */
+function makeRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, {
+      headers: {
+        'Authorization': `Bearer ${WEBFLOW_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
+    }, (res) => {
+      let data = ''
+      res.on('data', chunk => data += chunk)
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data)
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(json)
+          } else {
+            reject(new Error(`API Error ${res.statusCode}: ${json.message || data}`))
+          }
+        } catch (e) {
+          reject(new Error(`Parse Error: ${e.message}`))
+        }
+      })
+    })
+    
+    req.on('error', reject)
+    if (options.body) {
+      req.write(JSON.stringify(options.body))
+    }
+    req.end()
+  })
+}
 
 /**
- * Check field types in a collection
+ * Get site information
  */
-async function checkCollectionFields(collection) {
+async function getSiteInfo() {
+  try {
+    const response = await makeRequest(`https://api.webflow.com/v2/sites/${WEBFLOW_SITE_ID}`)
+    return response
+  } catch (error) {
+    console.error('❌ Error fetching site info:', error.message)
+    return null
+  }
+}
+
+/**
+ * Get collections for the site
+ */
+async function getCollections() {
+  try {
+    const response = await makeRequest(`https://api.webflow.com/v2/sites/${WEBFLOW_SITE_ID}/collections`)
+    return response.collections || []
+  } catch (error) {
+    console.error('❌ Error fetching collections:', error.message)
+    return []
+  }
+}
+
+/**
+ * Get collection details including fields
+ */
+async function getCollectionDetails(collectionId) {
+  try {
+    const response = await makeRequest(`https://api.webflow.com/v2/collections/${collectionId}`)
+    return response
+  } catch (error) {
+    console.error(`❌ Error fetching collection ${collectionId}:`, error.message)
+    return null
+  }
+}
+
+/**
+ * Analyze field types in a collection
+ */
+function analyzeCollectionFields(collection) {
   console.log(`\n📋 Collection: ${collection.name} (${collection.slug})`)
   console.log(`   ID: ${collection.id}`)
   
@@ -115,57 +184,6 @@ async function checkCollectionFields(collection) {
 }
 
 /**
- * Get sample content from a collection to analyze field content
- */
-async function analyzeCollectionContent(collection) {
-  try {
-    console.log(`\n🔍 Analyzing content in ${collection.name}...`)
-    
-    const items = await webflow.items({ collectionId: collection.id })
-    
-    if (items.length === 0) {
-      console.log(`   No items found in ${collection.name}`)
-      return
-    }
-    
-    // Analyze first few items
-    const sampleSize = Math.min(3, items.length)
-    console.log(`   Analyzing ${sampleSize} sample items...`)
-    
-    for (let i = 0; i < sampleSize; i++) {
-      const item = items[i]
-      console.log(`\n   📄 Item ${i + 1}: ${item.name || item.id}`)
-      
-      // Check for body description fields
-      const bodyFields = Object.keys(item.fieldData || {}).filter(key => 
-        key.includes('body') || 
-        key.includes('description')
-      )
-      
-      bodyFields.forEach(fieldKey => {
-        const content = item.fieldData[fieldKey]
-        if (content) {
-          const hasHtml = /<[^>]+>/.test(content)
-          const isRichText = content.includes('\n') || content.includes('>') || content.includes('*')
-          
-          console.log(`      ${fieldKey}:`)
-          console.log(`         Content length: ${content.length} characters`)
-          console.log(`         Contains HTML: ${hasHtml ? '⚠️ Yes' : '✅ No'}`)
-          console.log(`         Rich formatting: ${isRichText ? '✅ Yes' : '❌ No'}`)
-          
-          if (hasHtml && !isRichText) {
-            console.log(`         ⚠️  WARNING: This field contains HTML but may not be properly configured as Rich Text`)
-          }
-        }
-      })
-    }
-    
-  } catch (error) {
-    console.error(`   ❌ Error analyzing content: ${error.message}`)
-  }
-}
-
-/**
  * Main function to check all collections
  */
 async function checkWebflowCMS() {
@@ -174,13 +192,20 @@ async function checkWebflowCMS() {
     console.log(`   Site ID: ${WEBFLOW_SITE_ID}`)
     
     // Get site information
-    const site = await webflow.site({ siteId: WEBFLOW_SITE_ID })
-    console.log(`\n🏠 Site: ${site.displayName}`)
-    console.log(`   Domain: ${site.shortName}.webflow.io`)
+    const site = await getSiteInfo()
+    if (site) {
+      console.log(`\n🏠 Site: ${site.displayName}`)
+      console.log(`   Domain: ${site.shortName}.webflow.io`)
+    }
     
     // Get all collections
-    const collections = await webflow.collections({ siteId: WEBFLOW_SITE_ID })
+    const collections = await getCollections()
     console.log(`\n📚 Found ${collections.length} collections`)
+    
+    if (collections.length === 0) {
+      console.log('❌ No collections found. This might be a new site or the API token might not have access.')
+      return
+    }
     
     let totalFields = 0
     let richTextFields = 0
@@ -189,26 +214,21 @@ async function checkWebflowCMS() {
     
     // Analyze each collection
     for (const collection of collections) {
-      const analysis = await checkCollectionFields(collection)
-      totalFields += analysis.total
-      richTextFields += analysis.richText.length
-      htmlFields += analysis.html.length
-      
-      // Check for potential issues
-      const bodyFields = analysis.richText.concat(analysis.plainText).concat(analysis.html)
-        .filter(f => f.name.toLowerCase().includes('body') || f.name.toLowerCase().includes('description'))
-      
-      if (bodyFields.some(f => f.type === 'HTML')) {
-        issuesFound++
-        console.log(`   ⚠️  WARNING: Found HTML field for body content in ${collection.name}`)
-      }
-      
-      // Analyze content if this looks like a properties collection
-      if (collection.name.toLowerCase().includes('property') || 
-          collection.name.toLowerCase().includes('listing') ||
-          collection.slug.includes('property') ||
-          collection.slug.includes('listing')) {
-        await analyzeCollectionContent(collection)
+      const details = await getCollectionDetails(collection.id)
+      if (details) {
+        const analysis = analyzeCollectionFields(details)
+        totalFields += analysis.total
+        richTextFields += analysis.richText.length
+        htmlFields += analysis.html.length
+        
+        // Check for potential issues
+        const bodyFields = analysis.richText.concat(analysis.plainText).concat(analysis.html)
+          .filter(f => f.name.toLowerCase().includes('body') || f.name.toLowerCase().includes('description'))
+        
+        if (bodyFields.some(f => f.type === 'HTML')) {
+          issuesFound++
+          console.log(`   ⚠️  WARNING: Found HTML field for body content in ${collection.name}`)
+        }
       }
     }
     
@@ -232,13 +252,6 @@ async function checkWebflowCMS() {
     
   } catch (error) {
     console.error('❌ Error checking Webflow CMS:', error.message)
-    
-    if (error.status === 401) {
-      console.error('   Authentication failed. Check your WEBFLOW_API_TOKEN.')
-    } else if (error.status === 404) {
-      console.error('   Site not found. Check your WEBFLOW_SITE_ID.')
-    }
-    
     process.exit(1)
   }
 }
@@ -248,5 +261,4 @@ if (require.main === module) {
   checkWebflowCMS()
 }
 
-module.exports = { checkWebflowCMS, checkCollectionFields }
-
+module.exports = { checkWebflowCMS }

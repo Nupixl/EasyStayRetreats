@@ -12,7 +12,7 @@
 
 require('dotenv').config({ path: '.env.local' })
 
-const WebflowApi = require('webflow-api')
+const { WebflowClient } = require('webflow-api')
 
 // Configuration
 const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN
@@ -29,7 +29,7 @@ if (!WEBFLOW_API_TOKEN || !WEBFLOW_SITE_ID) {
   process.exit(1)
 }
 
-const webflow = new WebflowApi({ token: WEBFLOW_API_TOKEN })
+const webflow = new WebflowClient({ token: WEBFLOW_API_TOKEN })
 
 /**
  * Generate field conversion recommendations
