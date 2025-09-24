@@ -87,4 +87,6 @@ const Date_GuestsPickerCard = React.forwardRef(
   }
 );
 
+Date_GuestsPickerCard.displayName = "Date_GuestsPickerCard";
+
 export default Date_GuestsPickerCard;

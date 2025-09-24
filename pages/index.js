@@ -315,6 +315,13 @@ const Home = ({ featuredListings = [] }) => {
 export const getStaticProps = async () => {
   try {
     const { supabase } = await import('../lib/supabase')
+
+    if (!supabase) {
+      return {
+        props: { featuredListings: [] },
+        revalidate: 60,
+      }
+    }
     const { data, error } = await supabase
       .from('properties')
       .select(`
@@ -335,7 +342,7 @@ export const getStaticProps = async () => {
       throw error
     }
 
-    const featuredListings = data.map((property) => ({
+    const featuredListings = (data || []).map((property) => ({
       _id: property.id,
       title: property.title,
       rating: property.rating?.toString() || '',

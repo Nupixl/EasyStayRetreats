@@ -147,7 +147,7 @@ const HeaderSearchLayoutTwo = ({
           }}
         >
           <p className="text-xs uppercase tracking-wide text-lightTextColor mb-1 font-semibold">
-            Who's coming
+            Who&apos;s coming
           </p>
           <p className="text-blackColor text-md w-max">
             {textResizer(result, 12) || "Add guests"}

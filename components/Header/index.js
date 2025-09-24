@@ -71,16 +71,14 @@ const Header = ({
         className={`w-full xl:${width} relative mx-auto py-3 md:py-4 flex items-center justify-between`}
       >
         <div>
-          <a href="/">
-            <>
-              <div className="cursor-pointer hidden xl:block">
-                <Logo />
-              </div>
-              <div className="cursor-pointer block xl:hidden">
-                <LogoIcon />
-              </div>
-            </>
-          </a>
+          <Link href="/" className="inline-flex flex-col">
+            <div className="cursor-pointer hidden xl:block">
+              <Logo />
+            </div>
+            <div className="cursor-pointer block xl:hidden">
+              <LogoIcon />
+            </div>
+          </Link>
         </div>
 
         <SemiHeader headerSearch={headerSearch} />

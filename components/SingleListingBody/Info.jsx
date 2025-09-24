@@ -94,6 +94,8 @@ const Info = React.forwardRef(({ listing }, ref) => {
   );
 });
 
+Info.displayName = "Info";
+
 export default React.memo(Info);
 
 const AmenitiesModal = ({ amenities, setAmenitiesModal }) => {

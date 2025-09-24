@@ -72,3 +72,4 @@ export const AnimatedMenuItem = ({ children, delay = 0 }) => {
 
 export default AnimatedNavBar
 
+
