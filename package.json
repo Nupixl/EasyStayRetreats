@@ -11,7 +11,10 @@
     "setup-supabase": "node scripts/setup-supabase.js",
     "setup-env": "node scripts/setup-env.js",
     "migrate-supabase": "node scripts/migrate-to-supabase.js",
-    "merge-app-properties": "node scripts/merge-properties-into-app-properties.js"
+    "merge-app-properties": "node scripts/merge-properties-into-app-properties.js",
+    "check-webflow-cms": "node scripts/check-webflow-cms-fields.js",
+    "setup-webflow-rtf": "node scripts/setup-webflow-cms-rtf.js",
+    "setup-webflow-env": "node scripts/setup-webflow-env.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.1",
@@ -32,7 +35,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.1.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "webflow-api": "^3.2.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^6.3.1",

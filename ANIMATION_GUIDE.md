@@ -174,3 +174,4 @@ const item = {
 5. **Optimize performance** as needed
 
 Your animations are now fully functional in React! 🎉
+
