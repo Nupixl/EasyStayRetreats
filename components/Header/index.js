@@ -7,6 +7,7 @@ import Logo from "../../public/_svgs/Logo";
 import Link from "next/link";
 import Hamburger from "../../public/_svgs/Hamburger";
 import LogoIcon from "../../public/_svgs/LogoIcon";
+import { resolveHomepageHref, HOMEPAGE_NATIVE_URL } from "../../utils/homeLink";
 
 let hasRendered = false; // for removing the animation of line 120.
 
@@ -24,6 +25,11 @@ const Header = ({
   const [selectEnd, setSelectEnd] = useState(null);
   const [guests, setGuests] = useState(guestsData);
   const [headerMenu, setHeaderMenu] = useState(false);
+  const [homeHref, setHomeHref] = useState(HOMEPAGE_NATIVE_URL);
+
+  useEffect(() => {
+    setHomeHref(resolveHomepageHref());
+  }, []);
 
   useEffect(() => {
     if (defaultInfos?.checkin && defaultInfos?.checkin) {
@@ -71,7 +77,7 @@ const Header = ({
         className={`w-full xl:${width} relative mx-auto py-3 md:py-4 flex items-center justify-between`}
       >
         <div>
-          <Link href="/" className="inline-flex flex-col">
+          <Link href={homeHref} className="inline-flex flex-col">
             <div className="cursor-pointer hidden xl:block">
               <Logo />
             </div>

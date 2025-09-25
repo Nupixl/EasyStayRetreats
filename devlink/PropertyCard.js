@@ -1,10 +1,10 @@
 "use client";
-import React from "react";
+import React, { memo, useCallback } from "react";
 import * as _Builtin from "./_Builtin";
 import * as _utils from "./utils";
 import _styles from "./PropertyCard.module.css";
 
-export function PropertyCard({
+const PropertyCardComponent = ({
   as: _Component = _Builtin.Block,
   secoundLine = "Second Line Tags",
   accoladeImageDispaly = true,
@@ -52,7 +52,7 @@ export function PropertyCard({
   },
 
   onClick = {},
-}) {
+}) => {
   const _styleVariantMap = {
     Base: "",
     Popup: "w-variant-b81090d1-07fa-761b-3373-bb258fe54410",
@@ -60,12 +60,19 @@ export function PropertyCard({
 
   const _activeStyleVariant = _styleVariantMap[variant];
 
+  // Memoize click handler for performance
+  const handleClick = useCallback((e) => {
+    if (onClick && typeof onClick === 'function') {
+      onClick(e);
+    }
+  }, [onClick]);
+
   return (
     <_Component
       className={_utils.cx(_styles, "property-card", _activeStyleVariant)}
       tag="div"
       data-property-id={slug}
-      {...onClick}
+      onClick={handleClick}
     >
       <_Builtin.Block
         className={_utils.cx(
@@ -473,4 +480,7 @@ export function PropertyCard({
       </_Builtin.Link>
     </_Component>
   );
-}
+};
+
+// Memoize the component for better performance
+export const PropertyCard = memo(PropertyCardComponent);

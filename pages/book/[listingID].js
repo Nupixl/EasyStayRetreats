@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import LeftArrow from "../../public/_svgs/LeftArrow";
 import Logo from "../../public/_svgs/Logo";
 import Star from "../../public/_svgs/star";
-import Link from "next/link";
 import DatesModel from "../../components/book/DatesModel";
 import GuestsModel from "../../components/book/GuestsModel";
 import Head from "next/head";
 import Footer from "../../components/Footer";
 import { getParams } from "../../utils/handlers";
+import { HOMEPAGE_NATIVE_URL } from "../../utils/homeLink";
 // import postsData from "../../bot/data.json"; // Replaced with Supabase API
 
 const Book = () => {
@@ -94,11 +94,9 @@ const Book = () => {
         <title>Confirm your EasyStay retreat</title>
       </Head>
       <header className="p-6 border-b border-borderColor">
-        <Link href="/">
-          <div className="cursor-pointer">
-            <Logo />
-          </div>
-        </Link>
+        <a href={HOMEPAGE_NATIVE_URL} className="cursor-pointer inline-block">
+          <Logo />
+        </a>
       </header>
 
       <main className="max-w-[1150px] min-h-screen py-[3.6rem] mx-auto">
