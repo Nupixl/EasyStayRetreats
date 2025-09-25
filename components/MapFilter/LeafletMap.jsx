@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import { v4 as uuidv4 } from "uuid";
@@ -7,6 +7,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import { escapeHtml } from "../../utils/sanitize";
+import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
 
 const LeafletMap = ({ setData, location, places, setPlaces }) => {
   const DEFAULT_CENTER = location || [37.4316, -78.6569];
@@ -18,15 +19,26 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
     }
   }, [location]);
 
-  const pushPlaces = (results) => {
-    setPlaces(
-      results.map((e) => ({
-        ...e.geolocation,
+  const pushPlaces = (results = []) => {
+    const formatted = results.map((e) => {
+      const lat = Number(e?.geolocation?.lat);
+      const lng = Number(e?.geolocation?.lng);
+      return {
+        lat: Number.isFinite(lat) ? lat : null,
+        lng: Number.isFinite(lng) ? lng : null,
         price: e.price,
         _id: e._id,
         hovered: false,
-      }))
-    );
+      };
+    });
+
+    const obfuscated = obfuscateMarkerPositions(formatted, {
+      maxOffsetKm: 3,
+      minOffsetKm: 0.5,
+      minSeparationKm: 1,
+    });
+    const spaced = spreadOverlappingMarkers(obfuscated, { radius: 0 });
+    setPlaces(spaced);
   };
 
   const fallbackToAllProperties = async () => {

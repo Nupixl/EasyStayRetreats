@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import React, { useState } from "react";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import axios from "axios";
+import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
 // import { v4 as uuidv4 } from "uuid";
 
 let center = {
@@ -43,17 +44,28 @@ function Map({
     setMap(null);
   }, []);
 
-  const pushPlaces = (results) => {
-    if (typeof setPlaces === "function") {
-      setPlaces(
-        results.map((e) => ({
-          ...e.geolocation,
-          price: e.price,
-          _id: e._id,
-          hovered: false,
-        }))
-      );
-    }
+  const pushPlaces = (results = []) => {
+    if (typeof setPlaces !== "function") return;
+
+    const formatted = results.map((e) => {
+      const lat = Number(e?.geolocation?.lat);
+      const lng = Number(e?.geolocation?.lng);
+      return {
+        lat: Number.isFinite(lat) ? lat : null,
+        lng: Number.isFinite(lng) ? lng : null,
+        price: e.price,
+        _id: e._id,
+        hovered: false,
+      };
+    });
+
+    const obfuscated = obfuscateMarkerPositions(formatted, {
+      maxOffsetKm: 3,
+      minOffsetKm: 0.5,
+      minSeparationKm: 1,
+    });
+    const spaced = spreadOverlappingMarkers(obfuscated, { radius: 0 });
+    setPlaces(spaced);
   };
 
   const fallbackToAllProperties = async () => {

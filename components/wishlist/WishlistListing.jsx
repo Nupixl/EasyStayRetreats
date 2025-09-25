@@ -3,6 +3,7 @@ import Card from "../Posts/body/Card";
 import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import axios from "axios";
+import { obfuscateMarkerPositions } from "../../utils/spreadMarkers";
 
 const WishlistListing = ({ data, setPlaces }) => {
   const [listings, setListings] = useState([]);
@@ -28,13 +29,23 @@ const WishlistListing = ({ data, setPlaces }) => {
       const ids = data.listings.map((listing) => listing._id);
       const filtered = properties.filter((property) => ids.includes(property._id));
       setListings(filtered);
-      setPlaces(
-        filtered.map((property) => ({
-          lat: property.geolocation.lat,
-          lng: property.geolocation.lng,
+      const formatted = filtered.map((property) => {
+        const lat = Number(property?.geolocation?.lat);
+        const lng = Number(property?.geolocation?.lng);
+        return {
+          lat: Number.isFinite(lat) ? lat : null,
+          lng: Number.isFinite(lng) ? lng : null,
           price: property.price,
-        }))
-      );
+          _id: property._id,
+          hovered: false,
+        };
+      });
+      const obfuscated = obfuscateMarkerPositions(formatted, {
+        maxOffsetKm: 3,
+        minOffsetKm: 0.5,
+        minSeparationKm: 1,
+      });
+      setPlaces(obfuscated);
     } else {
       setListings([]);
       setPlaces([]);
