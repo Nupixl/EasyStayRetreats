@@ -15,24 +15,52 @@ export function StepCard({
   stepDescription = "We evaluate your property’s potential with a personalized consultation, revenue forecast, and compliance check tailored to your market.",
   title = "Step 1: Free Assessment",
   titleTag = "h3",
+  variant = "Base",
+  visibilityIcon = true,
+  iconImage = "https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/609dfa12a141ddc6fb976daa_Guideyes.svg",
 }) {
   _interactions.useInteractions(_interactionsData, _styles);
 
+  const _styleVariantMap = {
+    Base: "",
+    Icon: "w-variant-5b6f227c-eea1-2567-c302-03186e5adcaf",
+  };
+
+  const _activeStyleVariant = _styleVariantMap[variant];
+
   return (
-    <_Component className={_utils.cx(_styles, "steps-card")} tag="div">
-      <_Builtin.Block className={_utils.cx(_styles, "steps-circle")} tag="div">
-        <_Builtin.Block className={_utils.cx(_styles, "steps-dot")} tag="div" />
+    <_Component
+      className={_utils.cx(_styles, "steps-card", _activeStyleVariant)}
+      tag="div"
+    >
+      <_Builtin.Block
+        className={_utils.cx(
+          _styles,
+          "steps-circle",
+          "component",
+          _activeStyleVariant
+        )}
+        tag="div"
+      >
         <_Builtin.Block
-          className={_utils.cx(_styles, "card-arrow")}
+          className={_utils.cx(_styles, "steps-dot", _activeStyleVariant)}
           tag="div"
         />
         <_Builtin.Block
-          className={_utils.cx(_styles, "steps-circle-outline")}
+          className={_utils.cx(_styles, "card-arrow", _activeStyleVariant)}
+          tag="div"
+        />
+        <_Builtin.Block
+          className={_utils.cx(
+            _styles,
+            "steps-circle-outline",
+            _activeStyleVariant
+          )}
           tag="div"
         />
       </_Builtin.Block>
       <_Builtin.Block
-        className={_utils.cx(_styles, "steps-content")}
+        className={_utils.cx(_styles, "steps-content", _activeStyleVariant)}
         id={_utils.cx(
           _styles,
           "w-node-d46c5676-0d62-5e2e-a140-d1833fa23a02-3fa239fd"
@@ -40,17 +68,49 @@ export function StepCard({
         tag="div"
       >
         <_Builtin.Block
-          className={_utils.cx(_styles, "steps-icon")}
+          className={_utils.cx(_styles, "steps-icon", _activeStyleVariant)}
           id={_utils.cx(
             _styles,
             "w-node-d46c5676-0d62-5e2e-a140-d1833fa23a03-3fa239fd"
           )}
           tag="div"
         >
-          <_Builtin.Block tag="div">{stepNumber}</_Builtin.Block>
+          <_Builtin.Block
+            className={_utils.cx(_styles, "text-block", _activeStyleVariant)}
+            tag="div"
+          >
+            {stepNumber}
+          </_Builtin.Block>
+          {visibilityIcon ? (
+            <_Builtin.Block
+              className={_utils.cx(
+                _styles,
+                "benefit-icon",
+                "component",
+                _activeStyleVariant
+              )}
+              id={_utils.cx(
+                _styles,
+                "w-node-_598a30e7-24a0-e77f-96da-e9b28c44d513-3fa239fd"
+              )}
+              tag="div"
+            >
+              <_Builtin.Image
+                loading="lazy"
+                width="auto"
+                height="auto"
+                alt=""
+                src={iconImage}
+              />
+            </_Builtin.Block>
+          ) : null}
         </_Builtin.Block>
         <_Builtin.Block
-          className={_utils.cx(_styles, "steps-description")}
+          className={_utils.cx(
+            _styles,
+            "steps-description",
+            _activeStyleVariant
+          )}
           id={_utils.cx(
             _styles,
             "w-node-d46c5676-0d62-5e2e-a140-d1833fa23a06-3fa239fd"
@@ -59,7 +119,7 @@ export function StepCard({
         >
           <_Builtin.Heading tag="h3">{title}</_Builtin.Heading>
           <_Builtin.Block
-            className={_utils.cx(_styles, "body-display")}
+            className={_utils.cx(_styles, "body-display", _activeStyleVariant)}
             tag="div"
           >
             {stepDescription}

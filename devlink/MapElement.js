@@ -9,23 +9,20 @@ export function MapElement({
   metaAcolladeFavoriteTag = "div",
   metaRuntimeProp = {},
   metaSlug = "main-slug",
-  children,
-  mapSlot,
 }) {
   return (
     <_Component className={_utils.cx(_styles, "map-element")} tag="div">
       <_Builtin.Block
         className={_utils.cx(_styles, "map-container-full")}
         tag="div"
+        data-google-maps-key="YOUR_GOOGLE_MAPS_API_KEY"
         id="search-map"
       >
         <_Builtin.Block
           className={_utils.cx(_styles, "map-google")}
           tag="div"
           id="property-map"
-        >
-          {mapSlot || children || null}
-        </_Builtin.Block>
+        />
       </_Builtin.Block>
     </_Component>
   );

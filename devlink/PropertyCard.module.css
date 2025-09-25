@@ -103,13 +103,13 @@
   height: 24px;
   flex: 0 0 auto;
 
-  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c8efe86d245d7af93_Heart.png");
+  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c8efe86d245d7af93_Heart.avif");
   background-position: 0px 0px;
   background-size: cover;
 }
 
 .card-favorite-button:hover {
-  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c1d2c1a1b4016b2fa_Heart-1.png");
+  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c1d2c1a1b4016b2fa_Heart-1.avif");
   opacity: 0.51;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .card-favorite-button:focus {
-  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c1d2c1a1b4016b2fa_Heart-1.png");
+  background-image: url("https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4529c1d2c1a1b4016b2fa_Heart-1.avif");
 }
 
 .mask {

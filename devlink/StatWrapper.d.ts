@@ -8,4 +8,7 @@ declare function StatWrapper(props: {
   visibilityStatCardIconVisibility?: Types.Visibility.VisibilityConditions;
   imageStatCardImage?: Types.Asset.Image;
   variant?: "Base" | "Card";
+  slot?: Types.Slots.SlotContent;
+  slot?: Types.Slots.SlotContent;
+  slot?: Types.Slots.SlotContent;
 }): React.JSX.Element;

@@ -1,10 +1,10 @@
 "use client";
-import React, { memo, useCallback } from "react";
+import React from "react";
 import * as _Builtin from "./_Builtin";
 import * as _utils from "./utils";
 import _styles from "./PropertyCard.module.css";
 
-const PropertyCardComponent = ({
+export function PropertyCard({
   as: _Component = _Builtin.Block,
   secoundLine = "Second Line Tags",
   accoladeImageDispaly = true,
@@ -52,7 +52,7 @@ const PropertyCardComponent = ({
   },
 
   onClick = {},
-}) => {
+}) {
   const _styleVariantMap = {
     Base: "",
     Popup: "w-variant-b81090d1-07fa-761b-3373-bb258fe54410",
@@ -60,19 +60,12 @@ const PropertyCardComponent = ({
 
   const _activeStyleVariant = _styleVariantMap[variant];
 
-  // Memoize click handler for performance
-  const handleClick = useCallback((e) => {
-    if (onClick && typeof onClick === 'function') {
-      onClick(e);
-    }
-  }, [onClick]);
-
   return (
     <_Component
       className={_utils.cx(_styles, "property-card", _activeStyleVariant)}
       tag="div"
       data-property-id={slug}
-      onClick={handleClick}
+      {...onClick}
     >
       <_Builtin.Block
         className={_utils.cx(
@@ -381,7 +374,7 @@ const PropertyCardComponent = ({
                   width="auto"
                   height="auto"
                   alt=""
-                  src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.png"
+                  src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.avif"
                 />
               </_Builtin.Block>
               <_Builtin.Block
@@ -480,7 +473,4 @@ const PropertyCardComponent = ({
       </_Builtin.Link>
     </_Component>
   );
-};
-
-// Memoize the component for better performance
-export const PropertyCard = memo(PropertyCardComponent);
+}
