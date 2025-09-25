@@ -1,6 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
-import { 
+import {
   NavBar, 
   Footer, 
   HeroSection, 
@@ -51,6 +51,40 @@ export default function Homepage() {
           backgroundImage="/webflow-images/claire-rendall-rqckazRfbCs-unsplash-p-1600.jpg"
         />
         
+        {/* Hero Links */}
+        <div className="hero-links">
+          <div className="container">
+            <div className="hero-links-wrapper">
+              <a href="/search-properties" className="hero-link">
+                <div className="hero-link-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.3639 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="hero-link-content">
+                  <h3>Search Properties</h3>
+                  <p>Browse our curated selection of vacation rentals</p>
+                </div>
+              </a>
+              
+              <a href="/s/all" className="hero-link">
+                <div className="hero-link-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 6V22L8 18L16 22L23 18V2L16 6L8 2L1 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 2V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 6V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="hero-link-content">
+                  <h3>View Map</h3>
+                  <p>Explore properties on our interactive map</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+        
         {/* Popular Properties Section */}
         <section className="section">
           <div className="grid-wrapper">
@@ -97,7 +131,7 @@ export default function Homepage() {
             </div>
           </div>
         </section>
-        
+
         {/* How It Works Section */}
         <section className="section">
           <div className="grid-wrapper">
@@ -130,7 +164,7 @@ export default function Homepage() {
             </div>
           </div>
         </section>
-        
+
         {/* Benefits Section */}
         <section className="section">
           <div className="grid-wrapper">
@@ -153,8 +187,8 @@ export default function Homepage() {
                     <div className="benefit-text">
                       <h3>Hotel-Grade Cleaning</h3>
                       <p>Professional housekeeping ensures every property meets our high standards</p>
-                    </div>
-                  </div>
+            </div>
+          </div>
                   <div className="benefit-item">
                     <div className="benefit-icon">✓</div>
                     <div className="benefit-text">
@@ -171,7 +205,7 @@ export default function Homepage() {
             </div>
           </div>
         </section>
-        
+
         {/* CTA Section */}
         <CtaSection 
           title="Ready to Start Your Easy Stay Journey?"
@@ -183,7 +217,104 @@ export default function Homepage() {
         
         {/* Footer */}
         <Footer />
-      </div>
+            </div>
+      
+      <style jsx>{`
+        .hero-links {
+          padding: 60px 0;
+          background: #f8f9fa;
+        }
+        
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        
+        .hero-links-wrapper {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        
+        .hero-link {
+          display: flex;
+          align-items: center;
+          padding: 30px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          color: #333;
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+        }
+        
+        .hero-link:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+          border-color: var(--travel-green, #478760);
+        }
+        
+        .hero-link-icon {
+          width: 60px;
+          height: 60px;
+          background: var(--travel-green, #478760);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 20px;
+          flex-shrink: 0;
+        }
+        
+        .hero-link-icon svg {
+          width: 24px;
+          height: 24px;
+          color: white;
+        }
+        
+        .hero-link-content h3 {
+          font-size: 20px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #333;
+        }
+        
+        .hero-link-content p {
+          font-size: 14px;
+          color: #666;
+          margin: 0;
+          line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+          .hero-links {
+            padding: 40px 0;
+          }
+          
+          .hero-links-wrapper {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+          
+          .hero-link {
+            padding: 20px;
+          }
+          
+          .hero-link-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+          }
+          
+          .hero-link-content h3 {
+            font-size: 18px;
+          }
+        }
+      `}</style>
     </>
   );
 }
