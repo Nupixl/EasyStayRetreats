@@ -18,7 +18,6 @@ export function NavBar({
   buttonBtnOnclick = {},
   buttonButtonText = "Log-in",
   buttonId,
-
   buttonButtonLink = {
     href: "/contact",
   },

@@ -4,7 +4,7 @@ console.warn(
   "⚠️ Avoid importing components from 'index.js' for better performance. This practice is deprecated and may be removed in the future."
 );
 
-export * as _Builtin from "./_Builtin";
+export * from "./_Builtin";
 export * from "./devlinkContext";
 export * from "./interactions";
 export * from "./utils";
@@ -27,3 +27,11 @@ export * from "./StatWrapper";
 export * from "./Status";
 export * from "./StepCard";
 export * from "./StickHeaderCard";
+export * from "./CtaSection";
+export * from "./CtaSection2";
+export * from "./HeroSection";
+export * from "./ParallaxSection";
+export * from "./TallSectionWPhotos";
+export * from "./SmallCard";
+export * from "./LargeImageCard";
+export * from "./MobileNav";

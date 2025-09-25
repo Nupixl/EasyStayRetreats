@@ -36,10 +36,10 @@ export function PropertyDirectory({
           tag="div"
           id="SearchNavWrapper"
         >
-          <_Builtin.FormWrapper
-            className={_utils.cx(_styles, "property-filter-block")}
-          >
-            {propertyFilter ? (
+          {propertyFilter ? (
+            <_Builtin.FormWrapper
+              className={_utils.cx(_styles, "property-filter-block")}
+            >
               <_Builtin.FormForm
                 className={_utils.cx(_styles, "property-filter")}
                 name="email-form"
@@ -76,18 +76,18 @@ export function PropertyDirectory({
                   {"Search"}
                 </_Builtin.DOM>
               </_Builtin.FormForm>
-            ) : null}
-            <_Builtin.FormSuccessMessage>
-              <_Builtin.Block tag="div">
-                {"Thank you! Your submission has been received!"}
-              </_Builtin.Block>
-            </_Builtin.FormSuccessMessage>
-            <_Builtin.FormErrorMessage>
-              <_Builtin.Block tag="div">
-                {"Oops! Something went wrong while submitting the form."}
-              </_Builtin.Block>
-            </_Builtin.FormErrorMessage>
-          </_Builtin.FormWrapper>
+              <_Builtin.FormSuccessMessage>
+                <_Builtin.Block tag="div">
+                  {"Thank you! Your submission has been received!"}
+                </_Builtin.Block>
+              </_Builtin.FormSuccessMessage>
+              <_Builtin.FormErrorMessage>
+                <_Builtin.Block tag="div">
+                  {"Oops! Something went wrong while submitting the form."}
+                </_Builtin.Block>
+              </_Builtin.FormErrorMessage>
+            </_Builtin.FormWrapper>
+          ) : null}
           <_Builtin.Block
             className={_utils.cx(_styles, "property-notice")}
             id={_utils.cx(
@@ -127,7 +127,9 @@ export function PropertyDirectory({
           <_Builtin.Block
             className={_utils.cx(_styles, "property-listing-wrapper")}
             tag="div"
-          />
+          >
+            {propertyCardSlot || null}
+          </_Builtin.Block>
         </_Builtin.Block>
       </_Builtin.Block>
     </_Component>
