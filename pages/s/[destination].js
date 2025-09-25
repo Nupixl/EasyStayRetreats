@@ -14,12 +14,6 @@ import { Context } from "../_app";
 const Map = dynamic(() => import("../../components/MapFilter/LeafletMap"), {
   ssr: false,
 });
-// const GoogleMapComponent = dynamic(
-//   () => import("../../components/MapFilter/GoogleMap"),
-//   {
-//     ssr: false,
-//   }
-// );
 
 const SearchPage = () => {
   const { destination } = useRouter().query;

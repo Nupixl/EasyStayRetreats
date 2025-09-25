@@ -15,7 +15,6 @@ export function MapElement({
       <_Builtin.Block
         className={_utils.cx(_styles, "map-container-full")}
         tag="div"
-        data-google-maps-key="YOUR_GOOGLE_MAPS_API_KEY"
         id="search-map"
       >
         <_Builtin.Block

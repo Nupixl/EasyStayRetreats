@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import { v4 as uuidv4 } from "uuid";
@@ -9,9 +9,23 @@ import axios from "axios";
 import { escapeHtml } from "../../utils/sanitize";
 import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
 
+// Debounce utility
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 const LeafletMap = ({ setData, location, places, setPlaces }) => {
   const DEFAULT_CENTER = location || [37.4316, -78.6569];
   const mapRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (mapRef.current && location) {
@@ -19,7 +33,8 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
     }
   }, [location]);
 
-  const pushPlaces = (results = []) => {
+  // Memoize the pushPlaces function to prevent unnecessary re-renders
+  const pushPlaces = useCallback((results = []) => {
     const formatted = results.map((e) => {
       const lat = Number(e?.geolocation?.lat);
       const lng = Number(e?.geolocation?.lng);
@@ -32,14 +47,23 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
       };
     });
 
-    const obfuscated = obfuscateMarkerPositions(formatted, {
-      maxOffsetKm: 3,
-      minOffsetKm: 0.5,
-      minSeparationKm: 1,
+    // Only process if we have valid coordinates
+    const validResults = formatted.filter(place => place.lat && place.lng);
+    
+    if (validResults.length === 0) {
+      setPlaces([]);
+      return;
+    }
+
+    // Simplified marker processing for better performance
+    const obfuscated = obfuscateMarkerPositions(validResults, {
+      maxOffsetKm: 2, // Reduced from 3
+      minOffsetKm: 0.3, // Reduced from 0.5
+      minSeparationKm: 0.5, // Reduced from 1
     });
     const spaced = spreadOverlappingMarkers(obfuscated, { radius: 0 });
     setPlaces(spaced);
-  };
+  }, [setPlaces]);
 
   const fallbackToAllProperties = async () => {
     try {
@@ -71,8 +95,12 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
     return false;
   };
 
-  const getData = async (m) => {
+  const getData = useCallback(async (m) => {
+    if (isLoading) return; // Prevent multiple simultaneous requests
+    
+    setIsLoading(true);
     setData({ loading: true, results: [], error: null });
+    
     try {
       const { data } = await axios.get("/api/properties/search", {
         params: {
@@ -119,10 +147,12 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
         });
         setPlaces([]);
       }
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [isLoading, pushPlaces, setData, setPlaces]);
 
-  const getBounds = (map) => {
+  const getBounds = useCallback((map) => {
     const bounds = map?.getBounds();
     const northWest = bounds?.getNorthWest(),
       northEast = bounds?.getNorthEast(),
@@ -147,17 +177,27 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
       },
     ];
     getData(markers);
-  };
+  }, [getData]);
 
-  const GetLngAndLat = () => {
-    if (mapRef.current) {
-      getBounds(mapRef.current);
-    }
-  };
+  // Debounced version of GetLngAndLat to reduce API calls
+  const debouncedGetLngAndLat = useMemo(
+    () => debounce(() => {
+      if (mapRef.current) {
+        getBounds(mapRef.current);
+      }
+    }, 500), // 500ms debounce
+    [getBounds]
+  );
 
   useEffect(() => {
-    mapRef.current?.on("moveend", () => GetLngAndLat());
-  }, [mapRef.current]);
+    const map = mapRef.current;
+    if (map) {
+      map.on("moveend", debouncedGetLngAndLat);
+      return () => {
+        map.off("moveend", debouncedGetLngAndLat);
+      };
+    }
+  }, [debouncedGetLngAndLat]);
 
   // const [mk, setMk] = useState([]);
 
@@ -172,6 +212,28 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
   // }, [mapRef.current?.getBounds]);
   // console.log(mk);
 
+  // Memoize markers to prevent unnecessary re-renders
+  const memoizedMarkers = useMemo(() => {
+    return places.map((place) => {
+      if (!place?.lat || !place?.lng) return null;
+      
+      return (
+        <Marker
+          key={place._id || uuidv4()}
+          position={[place.lat, place.lng]}
+          icon={L.divIcon({
+            html: `<span class="easystay-price-marker ${
+              place?.hovered ? "is-active" : ""
+            }">${escapeHtml(place?.price)}</span>`,
+            className: 'custom-marker',
+            iconSize: [60, 30],
+            iconAnchor: [30, 15]
+          })}
+        />
+      );
+    }).filter(Boolean);
+  }, [places]);
+
   return (
     <MapContainer
       ref={mapRef}
@@ -182,37 +244,32 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
       whenReady={(map) => {
         getBounds(map.target);
       }}
+      // Performance optimizations
+      preferCanvas={true}
+      zoomControl={true}
+      scrollWheelZoom={true}
+      doubleClickZoom={true}
+      touchZoom={true}
+      boxZoom={true}
+      keyboard={true}
+      dragging={true}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         noWrap={true}
+        // Performance optimizations
+        maxZoom={18}
+        minZoom={1}
+        tileSize={256}
+        zoomOffset={0}
+        updateWhenZooming={false}
+        updateWhenIdle={true}
+        keepBuffer={2}
+        maxNativeZoom={18}
       />
 
-      {/* {mk.map((place) => (
-        <Marker
-          key={uuidv4()}
-          position={[place?.lat, place?.lng]}
-          draggable={false}
-          animate={true}
-          // icon={L.divIcon({
-          //   html: `<span class="bg-white px-4 py-2 rounded-full text-md font-bold shadow">${place?.price}</span>`,
-          // })}
-        />
-      ))} */}
-      {places.map((place) => {
-        return (
-          <Marker
-            key={uuidv4()}
-            position={[place?.lat, place?.lng]}
-            icon={L.divIcon({
-              html: `<span class="easystay-price-marker ${
-                place?.hovered ? "is-active" : ""
-              }">${escapeHtml(place?.price)}</span>`,
-            })}
-          />
-        );
-      })}
+      {memoizedMarkers}
     </MapContainer>
   );
 };

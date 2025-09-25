@@ -33,8 +33,6 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
-# Optional: Google Maps API Key
-NEXT_PUBLIC_GOOGLE_MAP_API_KEY=your-google-maps-key
 ```
 
 ## Step 4: Set Up Database Schema

@@ -14,8 +14,6 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Google Maps API Key (if not already set)
-NEXT_PUBLIC_GOOGLE_MAP_API_KEY=your_google_maps_api_key
 `
   fs.writeFileSync(envPath, envContent)
   console.log('✅ Created .env.local file')
