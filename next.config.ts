@@ -30,12 +30,18 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   async rewrites() {
-    return [
+    const rewrites = [
       {
-        source: "/pixl",
+        source: normalizedBasePath ? "/" : "/pixl",
         destination: "/api/pixl",
       },
     ];
+
+    if (normalizedBasePath) {
+      rewrites.push({ source: "/pixl", destination: "/api/pixl" });
+    }
+
+    return rewrites;
   },
 };
 
