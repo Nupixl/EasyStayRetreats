@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   basePath: normalizedBasePath,
   assetPrefix,
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: normalizedBasePath ?? "",
+    NEXT_PUBLIC_ASSET_PREFIX: assetPrefix ?? "",
+  },
   images: {
     domains: ["a0.muscache.com"],
     loader: "custom",

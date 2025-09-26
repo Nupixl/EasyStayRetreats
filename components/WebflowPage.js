@@ -36,6 +36,20 @@ function toJSONLiteral(value) {
 }
 
 export default function WebflowPage({ title, description, bodyHtml, pageId, siteId }) {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? "";
+
+  const withPrefix = (path) => {
+    if (!path) return path;
+    if (assetPrefix) {
+      return `${assetPrefix}${path}`;
+    }
+    if (basePath) {
+      return `${basePath}${path}`;
+    }
+    return path;
+  };
+
   useEffect(() => {
     if (typeof document === "undefined") return;
     if (pageId) {
@@ -55,7 +69,7 @@ export default function WebflowPage({ title, description, bodyHtml, pageId, site
           <link key={href} rel="preconnect" href={href} crossOrigin={crossOrigin} />
         ))}
         {STYLESHEETS.map((href) => (
-          <link key={href} rel="stylesheet" href={href} />
+          <link key={href} rel="stylesheet" href={withPrefix(href)} />
         ))}
         <style>{INLINE_STYLES}</style>
       </Head>
@@ -97,7 +111,7 @@ export default function WebflowPage({ title, description, bodyHtml, pageId, site
         dangerouslySetInnerHTML={{ __html: bodyHtml }}
         suppressHydrationWarning
       />
-      <Script src={WEBFLOW_RUNTIME_SRC} strategy="afterInteractive" />
+      <Script src={withPrefix(WEBFLOW_RUNTIME_SRC)} strategy="afterInteractive" />
       <Script
         id="webflow-interactions-init"
         strategy="afterInteractive"
