@@ -6,6 +6,4 @@ declare function MapElement(props: {
   metaAcolladeFavoriteTag?: Types.Basic.TagType;
   metaRuntimeProp?: Types.Devlink.RuntimeProps;
   metaSlug?: Types.Builtin.Text;
-  mapSlot?: React.ReactNode;
-  children?: React.ReactNode;
 }): React.JSX.Element;

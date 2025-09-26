@@ -35,3 +35,4 @@ export * from "./Status";
 export * from "./StepCard";
 export * from "./StickHeaderCard";
 export * from "./TallSectionWPhotos";
+export * from "./TestimonialSection";
