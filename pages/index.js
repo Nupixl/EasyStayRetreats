@@ -97,36 +97,76 @@ export default function Homepage() {
           <div className="grid-wrapper">
             <div className="properties-grid">
               <PropertyCard 
-                title="Luxury Beach House"
-                location="Miami, FL"
-                price="$299/night"
-                rating={4.9}
-                image="/webflow-images/Villa0019_1.avif"
-                link="/listings/luxury-beach-house"
+                locationPropertyTitle="Luxury Beach House"
+                locationCity="Miami"
+                locationState="FL"
+                propertyPriceMonthlyPrice="$299"
+                propertyDurationDuration="/night"
+                propertyReviewPropertyRating="4.9"
+                propertyImageImage1="/webflow-images/Villa0019_1.avif"
+                propertyLinkPropertyLink={{
+                  href: "https://www.easystayretreats.homes/properties/luxury-beach-house"
+                }}
+                propertyListingsNumberOfGuest="4"
+                propertyListingsNumberOfBedrooms="3"
+                propertyListingsNumberOfBathrooms="2"
+                ratingVisibility={true}
+                visibility3rdLine={true}
+                visibility1stLine={true}
               />
               <PropertyCard 
-                title="Mountain Cabin Retreat"
-                location="Aspen, CO"
-                price="$199/night"
-                rating={4.8}
-                image="/webflow-images/knhr826qIMA_1.avif"
-                link="/listings/mountain-cabin"
+                locationPropertyTitle="Mountain Cabin Retreat"
+                locationCity="Aspen"
+                locationState="CO"
+                propertyPriceMonthlyPrice="$199"
+                propertyDurationDuration="/night"
+                propertyReviewPropertyRating="4.8"
+                propertyImageImage1="/webflow-images/knhr826qIMA_1.avif"
+                propertyLinkPropertyLink={{
+                  href: "https://www.easystayretreats.homes/properties/mountain-cabin"
+                }}
+                propertyListingsNumberOfGuest="6"
+                propertyListingsNumberOfBedrooms="3"
+                propertyListingsNumberOfBathrooms="2"
+                ratingVisibility={true}
+                visibility3rdLine={true}
+                visibility1stLine={true}
               />
               <PropertyCard 
-                title="Urban Loft"
-                location="New York, NY"
-                price="$249/night"
-                rating={4.7}
-                image="/webflow-images/UVyOfX3v0Ls_1.avif"
-                link="/listings/urban-loft"
+                locationPropertyTitle="Urban Loft"
+                locationCity="New York"
+                locationState="NY"
+                propertyPriceMonthlyPrice="$249"
+                propertyDurationDuration="/night"
+                propertyReviewPropertyRating="4.7"
+                propertyImageImage1="/webflow-images/UVyOfX3v0Ls_1.avif"
+                propertyLinkPropertyLink={{
+                  href: "https://www.easystayretreats.homes/properties/urban-loft"
+                }}
+                propertyListingsNumberOfGuest="2"
+                propertyListingsNumberOfBedrooms="1"
+                propertyListingsNumberOfBathrooms="1"
+                ratingVisibility={true}
+                visibility3rdLine={true}
+                visibility1stLine={true}
               />
               <PropertyCard 
-                title="Lakefront Villa"
-                location="Lake Tahoe, CA"
-                price="$399/night"
-                rating={4.9}
-                image="/webflow-images/Villa0017_1.avif"
-                link="/listings/lakefront-villa"
+                locationPropertyTitle="Lakefront Villa"
+                locationCity="Lake Tahoe"
+                locationState="CA"
+                propertyPriceMonthlyPrice="$399"
+                propertyDurationDuration="/night"
+                propertyReviewPropertyRating="4.9"
+                propertyImageImage1="/webflow-images/Villa0017_1.avif"
+                propertyLinkPropertyLink={{
+                  href: "https://www.easystayretreats.homes/properties/lakefront-villa"
+                }}
+                propertyListingsNumberOfGuest="8"
+                propertyListingsNumberOfBedrooms="4"
+                propertyListingsNumberOfBathrooms="3"
+                ratingVisibility={true}
+                visibility3rdLine={true}
+                visibility1stLine={true}
               />
             </div>
           </div>

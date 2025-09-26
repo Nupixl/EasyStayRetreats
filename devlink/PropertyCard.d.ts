@@ -47,4 +47,8 @@ declare function PropertyCard(props: {
   propertyLinkPropertyLink?: Types.Basic.Link;
   onClick?: Types.Devlink.RuntimeProps;
   ratingVisibility?: Types.Visibility.VisibilityConditions;
+  visibility2ndLine?: Types.Visibility.VisibilityConditions;
+  visibility4thLine?: Types.Visibility.VisibilityConditions;
+  visibility3rdLine?: Types.Visibility.VisibilityConditions;
+  visibility1stLine?: Types.Visibility.VisibilityConditions;
 }): React.JSX.Element;

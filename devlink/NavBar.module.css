@@ -959,9 +959,11 @@
   align-items: stretch;
 
   border: 1px solid var(--indicatorOutline-59b47200);
-  border-radius: 3px;
+  border-radius: 6px;
 
   background-color: hsla(0, 0.00%, 100.00%, 0.02);
+
+  transition: all 200ms cubic-bezier(.215, .61, .355, 1);
 
   color: var(--black-654be6b4);
   font-size: 11px;
@@ -976,6 +978,11 @@
 
 .nav-button:global(.w--current):hover {
   background-color: var(--travel-green);
+  color: var(--ghost-white);
+}
+
+.nav-button.hide-mobile:hover {
+  background-color: var(--black);
   color: var(--ghost-white);
 }
 

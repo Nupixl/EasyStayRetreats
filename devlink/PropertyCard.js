@@ -52,7 +52,11 @@ export function PropertyCard({
   },
 
   onClick = {},
-  ratingVisibility = true,
+  ratingVisibility = false,
+  visibility2ndLine = false,
+  visibility4thLine = false,
+  visibility3rdLine = true,
+  visibility1stLine = true,
 }) {
   const _styleVariantMap = {
     Base: "",
@@ -259,38 +263,6 @@ export function PropertyCard({
               />
             </_Builtin.SliderSlide>
           </_Builtin.SliderMask>
-          <_Builtin.SliderArrow
-            className={_utils.cx(
-              _styles,
-              "left-arrow",
-              "hide",
-              _activeStyleVariant
-            )}
-            dir="left"
-          >
-            <_Builtin.Icon
-              widget={{
-                type: "icon",
-                icon: "slider-left",
-              }}
-            />
-          </_Builtin.SliderArrow>
-          <_Builtin.SliderArrow
-            className={_utils.cx(
-              _styles,
-              "right-arrow",
-              "hide",
-              _activeStyleVariant
-            )}
-            dir="right"
-          >
-            <_Builtin.Icon
-              widget={{
-                type: "icon",
-                icon: "slider-right",
-              }}
-            />
-          </_Builtin.SliderArrow>
           <_Builtin.SliderNav
             className={_utils.cx(
               _styles,
@@ -318,145 +290,209 @@ export function PropertyCard({
           )}
           tag="div"
         >
-          <_Builtin.Block
-            className={_utils.cx(_styles, "card-space", _activeStyleVariant)}
-            id={_utils.cx(
-              _styles,
-              "w-node-d1a2d0ef-635b-7add-5fbb-67b5746c245f-746c2453"
-            )}
-            tag="div"
-          >
+          {visibility1stLine ? (
             <_Builtin.Block
-              className={_utils.cx(
+              className={_utils.cx(_styles, "card-space", _activeStyleVariant)}
+              id={_utils.cx(
                 _styles,
-                "property-card-title",
-                _activeStyleVariant
-              )}
-              tag="div"
-              data-field="card-title"
-            >
-              <_Builtin.Block tag="div">{locationPropertyTitle}</_Builtin.Block>
-            </_Builtin.Block>
-            {ratingVisibility ? (
-              <_Builtin.Block
-                className={_utils.cx(
-                  _styles,
-                  "property-card-rating-wrapper",
-                  _activeStyleVariant
-                )}
-                tag="div"
-              >
-                <_Builtin.Block
-                  className={_utils.cx(
-                    _styles,
-                    "icon-wrapper",
-                    "small",
-                    "right-margin",
-                    _activeStyleVariant
-                  )}
-                  tag="div"
-                >
-                  <_Builtin.Image
-                    loading="lazy"
-                    width="auto"
-                    height="auto"
-                    alt=""
-                    src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.avif"
-                  />
-                </_Builtin.Block>
-                <_Builtin.Block
-                  className={_utils.cx(
-                    _styles,
-                    "property-card-rating",
-                    _activeStyleVariant
-                  )}
-                  tag="div"
-                  data-field="card-rating"
-                >
-                  <_Builtin.Block tag="div">
-                    {propertyReviewPropertyRating}
-                  </_Builtin.Block>
-                </_Builtin.Block>
-                <_Builtin.Block
-                  className={_utils.cx(
-                    _styles,
-                    "proper-card-number-of-ratings",
-                    _activeStyleVariant
-                  )}
-                  tag="div"
-                  data-field="card-rating-count"
-                >
-                  <_Builtin.Block tag="div">
-                    {propertyReviewNumberOfReviews}
-                  </_Builtin.Block>
-                </_Builtin.Block>
-              </_Builtin.Block>
-            ) : null}
-          </_Builtin.Block>
-          <_Builtin.Block
-            className={_utils.cx(
-              _styles,
-              "card-second-line",
-              _activeStyleVariant
-            )}
-            tag="div"
-          >
-            <_Builtin.Block tag="div">{locationCitySmall}</_Builtin.Block>
-            <_Builtin.Block tag="div">{","}</_Builtin.Block>
-            <_Builtin.Block tag="div">{locationStateSmall}</_Builtin.Block>
-          </_Builtin.Block>
-          <_Builtin.Block
-            className={_utils.cx(
-              _styles,
-              "card-fourth-line",
-              _activeStyleVariant
-            )}
-            id={_utils.cx(
-              _styles,
-              "w-node-d1a2d0ef-635b-7add-5fbb-67b5746c2472-746c2453"
-            )}
-            tag="div"
-          >
-            <_Builtin.Block
-              className={_utils.cx(
-                _styles,
-                "card-price-wrapper",
-                _activeStyleVariant
+                "w-node-d1a2d0ef-635b-7add-5fbb-67b5746c245f-746c2453"
               )}
               tag="div"
             >
               <_Builtin.Block
                 className={_utils.cx(
                   _styles,
-                  "card-compare-price",
+                  "property-card-title",
                   _activeStyleVariant
                 )}
                 tag="div"
+                data-field="card-title"
               >
-                {propertyPriceMonthlyComparedPrice}
+                <_Builtin.Block tag="div">
+                  {locationPropertyTitle}
+                </_Builtin.Block>
               </_Builtin.Block>
+              {ratingVisibility ? (
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "property-card-rating-wrapper",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                >
+                  <_Builtin.Block
+                    className={_utils.cx(
+                      _styles,
+                      "icon-wrapper",
+                      "small",
+                      "right-margin",
+                      _activeStyleVariant
+                    )}
+                    tag="div"
+                  >
+                    <_Builtin.Image
+                      loading="lazy"
+                      width="auto"
+                      height="auto"
+                      alt=""
+                      src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.avif"
+                    />
+                  </_Builtin.Block>
+                  <_Builtin.Block
+                    className={_utils.cx(
+                      _styles,
+                      "property-card-rating",
+                      _activeStyleVariant
+                    )}
+                    tag="div"
+                    data-field="card-rating"
+                  >
+                    <_Builtin.Block tag="div">
+                      {propertyReviewPropertyRating}
+                    </_Builtin.Block>
+                  </_Builtin.Block>
+                  <_Builtin.Block
+                    className={_utils.cx(
+                      _styles,
+                      "proper-card-number-of-ratings",
+                      _activeStyleVariant
+                    )}
+                    tag="div"
+                    data-field="card-rating-count"
+                  >
+                    <_Builtin.Block tag="div">
+                      {propertyReviewNumberOfReviews}
+                    </_Builtin.Block>
+                  </_Builtin.Block>
+                </_Builtin.Block>
+              ) : null}
+            </_Builtin.Block>
+          ) : null}
+          {visibility2ndLine ? (
+            <_Builtin.Block
+              className={_utils.cx(
+                _styles,
+                "card-second-line",
+                _activeStyleVariant
+              )}
+              tag="div"
+            >
+              <_Builtin.Block tag="div">{locationCitySmall}</_Builtin.Block>
+              <_Builtin.Block tag="div">{","}</_Builtin.Block>
+              <_Builtin.Block tag="div">{locationStateSmall}</_Builtin.Block>
+            </_Builtin.Block>
+          ) : null}
+          {visibility3rdLine ? (
+            <_Builtin.Block
+              className={_utils.cx(
+                _styles,
+                "card-third-line",
+                _activeStyleVariant
+              )}
+              id={_utils.cx(
+                _styles,
+                "w-node-d1a2d0ef-635b-7add-5fbb-67b5746c246f-746c2453"
+              )}
+              tag="div"
+            >
               <_Builtin.Block
                 className={_utils.cx(
                   _styles,
-                  "card-price",
+                  "property-qualities",
                   _activeStyleVariant
                 )}
                 tag="div"
               >
-                {propertyPriceMonthlyPrice}
+                <_Builtin.Block tag="div">
+                  {propertyListingsNumberOfGuest}
+                </_Builtin.Block>
+                <_Builtin.Block tag="div">{"guest"}</_Builtin.Block>
               </_Builtin.Block>
+              <_Builtin.Block tag="div">{"-"}</_Builtin.Block>
               <_Builtin.Block
                 className={_utils.cx(
                   _styles,
-                  "card-duration",
+                  "property-qualities",
                   _activeStyleVariant
                 )}
                 tag="div"
               >
-                {propertyDurationDuration}
+                <_Builtin.Block tag="div">
+                  {propertyListingsNumberOfBedrooms}
+                </_Builtin.Block>
+                <_Builtin.Block tag="div">{"bedrooms"}</_Builtin.Block>
+              </_Builtin.Block>
+              <_Builtin.Block tag="div">{"-"}</_Builtin.Block>
+              <_Builtin.Block
+                className={_utils.cx(
+                  _styles,
+                  "property-qualities",
+                  _activeStyleVariant
+                )}
+                tag="div"
+              >
+                <_Builtin.Block tag="div">
+                  {propertyListingsNumberOfBathrooms}
+                </_Builtin.Block>
+                <_Builtin.Block tag="div">{"bathrooms"}</_Builtin.Block>
               </_Builtin.Block>
             </_Builtin.Block>
-          </_Builtin.Block>
+          ) : null}
+          {visibility4thLine ? (
+            <_Builtin.Block
+              className={_utils.cx(
+                _styles,
+                "card-fourth-line",
+                _activeStyleVariant
+              )}
+              id={_utils.cx(
+                _styles,
+                "w-node-d1a2d0ef-635b-7add-5fbb-67b5746c2472-746c2453"
+              )}
+              tag="div"
+            >
+              <_Builtin.Block
+                className={_utils.cx(
+                  _styles,
+                  "card-price-wrapper",
+                  _activeStyleVariant
+                )}
+                tag="div"
+              >
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "card-compare-price",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                >
+                  {propertyPriceMonthlyComparedPrice}
+                </_Builtin.Block>
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "card-price",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                >
+                  {propertyPriceMonthlyPrice}
+                </_Builtin.Block>
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "card-duration",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                >
+                  {propertyDurationDuration}
+                </_Builtin.Block>
+              </_Builtin.Block>
+            </_Builtin.Block>
+          ) : null}
         </_Builtin.Block>
       </_Builtin.Link>
     </_Component>

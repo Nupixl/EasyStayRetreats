@@ -2,10 +2,10 @@
   display: flex;
   overflow-y: auto;
   max-width: 60rem;
-  min-width: 55svw;
+  min-width: 40svw;
   flex-direction: column;
   flex-wrap: nowrap;
-  flex: 1;
+  flex: 0 auto;
 
   border-radius: 12px;
 
@@ -72,44 +72,6 @@
   color: var(--outline);
 }
 
-.property-notice {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  grid-column-gap: 0.5rem;
-  grid-row-gap: 0.5rem;
-}
-
-.subtitle {
-  font-size: 11px;
-  line-height: 1.4em;
-  font-weight: 400;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.subtitle.small {
-  font-size: 8px;
-}
-
-.subtitle.white {
-  color: hsla(229.56521739130437, 0.00%, 100.00%, 1.00);
-}
-
-@media screen and (max-width: 479px) {
-  .subtitle.white.display-none {
-    display: none;
-  }
-}
-
-.subtitle.large {
-  font-size: 14px;
-}
-
-.subtitle.green {
-  color: var(--teal);
-}
-
 .map-property-bottom-contianer {
   display: flex;
   overflow: hidden;
@@ -143,11 +105,4 @@
   .property-listing-wrapper {
     grid-template-columns: 1fr 1fr 1fr;
   }
-}
-
-#w-node-a2beae88-96a7-7cdd-e036-c2ad467326cf-467326cb {
-}
-#NumberOfProperties.w-node-a2beae88-96a7-7cdd-e036-c2ad467326d0-467326cb {
-}
-#w-node-a2beae88-96a7-7cdd-e036-c2ad467326d2-467326cb {
 }

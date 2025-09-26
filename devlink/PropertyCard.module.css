@@ -1,11 +1,10 @@
 .property-card {
   display: flex;
   overflow: hidden;
-  width: 15.2rem;
-  max-width: 33rem;
-  min-height: 26.5rem;
+  max-width: 25rem;
   flex-direction: column;
   flex-wrap: nowrap;
+  align-self: stretch;
   flex: 0 auto;
 
   border-radius: 12px;
@@ -17,7 +16,8 @@
 
 @media screen and (min-width: 1440px) {
   .property-card {
-    height: 22rem;
+    min-height: 22rem;
+    height: auto;
     margin-bottom: 0px;
   }
 }
@@ -149,6 +149,10 @@
   min-height: 30%;
 }
 
+.left-arrow.hide {
+  display: none;
+}
+
 .right-arrow {
   left: auto;
   top: auto;
@@ -161,29 +165,37 @@
   min-height: 30%;
 }
 
+.right-arrow.hide {
+  display: none;
+}
+
 .property-card-slide-nav {
   opacity: 0.6;
 }
 
 .property-card-link {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
   color: var(--black);
   text-decoration: none;
+  flex: 1;
+  min-height: 0;
 }
 
 .propert-card-bottom-contnet {
   display: flex;
-  padding: 9px 9px 30px;
+  min-height: 8rem;
+  padding: 16px 16px 24px;
   flex-direction: column;
-  justify-content: flex-start;
-  justify-items: start;
+  justify-content: space-between;
   flex-wrap: nowrap;
-  align-items: flex-start;
-  flex: 1;
   grid-auto-columns: 1fr;
   grid-column-gap: 5px;
-  grid-row-gap: 5px;
+  grid-row-gap: 8px;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto auto auto;
+  flex: 1;
 }
 
 .propert-card-bottom-contnet:where(.w-variant-b81090d1-07fa-761b-3373-bb258fe54410) {
@@ -195,19 +207,30 @@
 
 .card-space {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
+  width: 100%;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .property-card-title {
   font-size: 1rem;
   font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .property-card-rating-wrapper {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .property-card-rating {
@@ -223,8 +246,11 @@
 
 .card-third-line {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   grid-column-gap: 5px;
   grid-row-gap: 5px;
+  margin-top: 4px;
 }
 
 .property-qualities {

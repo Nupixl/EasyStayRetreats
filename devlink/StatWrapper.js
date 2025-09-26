@@ -6,11 +6,11 @@ import _styles from "./StatWrapper.module.css";
 
 export function StatWrapper({
   as: _Component = _Builtin.Block,
-  slot,
   textTitle = "Stat Card Title",
   visibilityStatCardIconVisibility = true,
   imageStatCardImage = "",
   variant = "Base",
+  ...rest
 }) {
   const _styleVariantMap = {
     Base: "",

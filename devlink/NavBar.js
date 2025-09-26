@@ -515,7 +515,7 @@ export function NavBar({
                   )}
                   tag="div"
                   delay={0}
-                  hover={false}
+                  hover={true}
                 >
                   <_Builtin.DropdownToggle
                     className={_utils.cx(_styles, "dropdown-toggle")}

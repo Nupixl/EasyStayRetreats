@@ -64,7 +64,7 @@ const toPropertyCardProps = (property) => {
     hostAccoladesVerifiedHostOn: false,
     hostAccoladesPremiumHostOn: false,
     propertyLinkPropertyLink: {
-      href: property?.slug ? `/listings/${property.slug}` : "#",
+      href: property?.slug ? `https://www.easystayretreats.homes/properties/${property.slug}` : "#",
     },
   };
 };
@@ -163,23 +163,23 @@ const SearchPropertiesPage = () => {
   const propertyCountDisplay = data?.loading ? "..." : String(propertyCount);
 
   const propertyFilterSlot = (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex w-full flex-col gap-3 px-4 pt-4">
       <SearchPanel
         initialValues={infos}
         variant="compact"
         className="shadow-sm"
         buttonLabel="Search"
       />
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.35em] text-lightTextColor">
-        <span>
+      <div className="flex w-full items-center justify-between">
+        <div className="text-xs uppercase tracking-[0.35em] text-lightTextColor">
           {data?.loading
             ? "Loading retreats"
             : `${propertyCount} retreat${propertyCount === 1 ? "" : "s"}`}
-        </span>
+        </div>
         <button
           type="button"
           onClick={() => setFilterModal(true)}
-          className="btn-tertiary-normal !px-3 !py-1 text-[10px] tracking-[0.3em]"
+          className="btn-tertiary-normal !px-3 !py-1 text-[10px] uppercase tracking-[0.3em]"
         >
           Filters
         </button>
@@ -217,7 +217,7 @@ const SearchPropertiesPage = () => {
     }
 
     return (
-      <div className="flex flex-col gap-4">
+      <div className="property-card-grid grid gap-4 px-4 pb-4 sm:grid-cols-2 xl:grid-cols-3">
         {data.results.map((property) => {
           const cardProps = toPropertyCardProps(property);
           const isHovered = hoveredPlace === property._id;
@@ -226,7 +226,7 @@ const SearchPropertiesPage = () => {
               key={property._id}
               onMouseEnter={() => setHoveredPlace(property._id)}
               onMouseLeave={() => setHoveredPlace(null)}
-              className={`rounded-2xl border transition-shadow duration-150 bg-white ${
+              className={`w-full overflow-hidden rounded-2xl border transition-shadow duration-150 bg-white ${
                 isHovered ? "border-primaryColor shadow-lg" : "border-transparent shadow-sm"
               }`}
             >
@@ -253,15 +253,17 @@ const SearchPropertiesPage = () => {
       </Head>
       <EasyStayNav />
       <div className="flex flex-col xl:flex-row gap-4 w-full h-[calc(100vh-65px)] lg:h-[calc(100vh-80px)] px-4 py-6 bg-surfaceMuted/50">
-        <PropertyDirectory
-          numberOfProperties={propertyCountDisplay}
-          propertyCountLabel={propertyCountLabel}
-          propertyFilter={false}
-          directoryFeature={false}
-          directoryFeaturreIconVisbility={false}
-          propertyFilterSlot={propertyFilterSlot}
-          propertyCardSlot={renderPropertyCards()}
-        />
+        <div className="search-properties-directory">
+          <PropertyDirectory
+            numberOfProperties={propertyCountDisplay}
+            propertyCountLabel={propertyCountLabel}
+            propertyFilter={false}
+            directoryFeature={false}
+            directoryFeaturreIconVisbility={false}
+            propertyFilterSlot={propertyFilterSlot}
+            propertyCardSlot={renderPropertyCards()}
+          />
+        </div>
         <div className="flex-1 min-h-[400px]">
           {location ? (
             <MapElement
@@ -286,6 +288,27 @@ const SearchPropertiesPage = () => {
       </div>
       {filterModal && <FilterModal setFilterModal={setFilterModal} />}
       {wishlist && <Wishlist setWishlist={setWishlist} />}
+      <style jsx global>{`
+        .search-properties-directory .map-property-contiainer {
+          padding: 0 !important;
+        }
+
+        .search-properties-directory .property-notice {
+          padding: 0 1rem 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .search-properties-directory .property-notice .subtitle:first-child {
+          font-weight: 600;
+        }
+
+        .property-card-grid .property-card {
+          width: 100% !important;
+          max-width: none !important;
+        }
+      `}</style>
     </>
   );
 };
