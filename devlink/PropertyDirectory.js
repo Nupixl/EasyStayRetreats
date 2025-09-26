@@ -13,6 +13,9 @@ export function PropertyDirectory({
   as: _Component = _Builtin.Block,
   numberOfProperties = "###",
   propertyFilter = true,
+  propertyCountLabel = "Properties",
+  propertyCardSlot,
+  propertyFilterSlot,
   _4thElementTag = "div",
   _4thElementValue,
   _4thElementKey,
@@ -45,40 +48,42 @@ export function PropertyDirectory({
           tag="div"
           id="SearchNavWrapper"
         >
-          <_Builtin.DOM
-            className={_utils.cx(_styles, "property-filter")}
-            tag="div"
-            slot=""
-          >
+          {propertyFilter ? (
             <_Builtin.DOM
-              className={_utils.cx(_styles, "search-menu-dropdown")}
+              className={_utils.cx(_styles, "property-filter")}
+              tag="div"
               slot=""
-              tag={_1stElementTag}
             >
-              {_1stElementText}
+              <_Builtin.DOM
+                className={_utils.cx(_styles, "search-menu-dropdown")}
+                slot=""
+                tag={_1stElementTag}
+              >
+                {_1stElementText}
+              </_Builtin.DOM>
+              <_Builtin.DOM
+                className={_utils.cx(_styles, "search-menu-dropdown")}
+                slot=""
+                tag={_2ndElementTag}
+              >
+                {_2ndElementText}
+              </_Builtin.DOM>
+              <_Builtin.DOM
+                className={_utils.cx(_styles, "search-menu-dropdown")}
+                slot=""
+                tag={_3rdElementTag}
+              >
+                {_3rdElementText}
+              </_Builtin.DOM>
+              <_Builtin.DOM
+                className={_utils.cx(_styles, "seach-menu-button")}
+                slot=""
+                tag={_4thElementTag}
+              >
+                {_4thElementText}
+              </_Builtin.DOM>
             </_Builtin.DOM>
-            <_Builtin.DOM
-              className={_utils.cx(_styles, "search-menu-dropdown")}
-              slot=""
-              tag={_2ndElementTag}
-            >
-              {_2ndElementText}
-            </_Builtin.DOM>
-            <_Builtin.DOM
-              className={_utils.cx(_styles, "search-menu-dropdown")}
-              slot=""
-              tag={_3rdElementTag}
-            >
-              {_3rdElementText}
-            </_Builtin.DOM>
-            <_Builtin.DOM
-              className={_utils.cx(_styles, "seach-menu-button")}
-              slot=""
-              tag={_4thElementTag}
-            >
-              {_4thElementText}
-            </_Builtin.DOM>
-          </_Builtin.DOM>
+          ) : propertyFilterSlot || null}
           <_Builtin.Block
             className={_utils.cx(_styles, "property-notice")}
             id={_utils.cx(
@@ -106,7 +111,7 @@ export function PropertyDirectory({
               )}
               tag="div"
             >
-              {"Properties"}
+              {propertyCountLabel}
             </_Builtin.Block>
           </_Builtin.Block>
         </_Builtin.Block>
@@ -117,7 +122,9 @@ export function PropertyDirectory({
           <_Builtin.Block
             className={_utils.cx(_styles, "property-listing-wrapper")}
             tag="div"
-          />
+          >
+            {propertyCardSlot || null}
+          </_Builtin.Block>
         </_Builtin.Block>
       </_Builtin.Block>
     </_Component>

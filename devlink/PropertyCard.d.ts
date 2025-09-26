@@ -46,4 +46,5 @@ declare function PropertyCard(props: {
   variant?: "Base" | "Popup";
   propertyLinkPropertyLink?: Types.Basic.Link;
   onClick?: Types.Devlink.RuntimeProps;
+  ratingVisibility?: Types.Visibility.VisibilityConditions;
 }): React.JSX.Element;

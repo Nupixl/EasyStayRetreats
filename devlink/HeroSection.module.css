@@ -38,6 +38,12 @@
   grid-template-rows: 1fr;
 }
 
+@media screen and (min-width: 1440px) {
+  .grid-wrapper {
+    flex: 1;
+  }
+}
+
 @media screen and (max-width: 991px) {
   .grid-wrapper {
     grid-template-columns: minmax(65px, 1fr) minmax(auto, 1400px) minmax(65px, 1fr);

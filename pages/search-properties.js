@@ -6,10 +6,10 @@ import axios from "axios";
 import { EasyStayNav, SearchPanel } from "../components";
 import Wishlist from "../components/Wishlist";
 import FilterModal from "../components/MapFilter/Filters";
-import Card from "../components/Posts/body/Card";
 import ListingsLoading from "../components/Loading/ListingsLoading";
 import { PropertyDirectory } from "../devlink/PropertyDirectory";
 import { MapElement } from "../devlink/MapElement";
+import { PropertyCard } from "../devlink/PropertyCard";
 import { Context } from "./_app";
 import { getParams } from "../utils/handlers";
 import LOADING from "../public/images/giphy.gif";
@@ -18,77 +18,55 @@ const LeafletMap = dynamic(() => import("../components/MapFilter/LeafletMap"), {
   ssr: false,
 });
 
-const PropertyListPanel = ({
-  data,
-  hoveredPlace,
-  setHoveredPlace,
-  searchDefaults,
-  onOpenFilters,
-}) => {
-  const [panelData, setPanelData] = useState(data);
+const getPrimaryImages = (images = []) =>
+  (Array.isArray(images) ? images : [])
+    .map((img) => (typeof img === "string" ? { url: img } : img))
+    .filter((img) => img && typeof img.url === "string" && img.url.trim().length > 0)
+    .slice(0, 5)
+    .map((img) => img.url.trim());
 
-  useEffect(() => {
-    setPanelData(data);
-  }, [data]);
+const toPropertyCardProps = (property) => {
+  const locationLabel = typeof property?.lt === "string" ? property.lt : "";
+  const [cityPart = "", statePart = ""] = locationLabel
+    .split(",")
+    .map((part) => part.trim())
+    .concat(["", ""]);
 
-  const results = panelData?.results ?? [];
-  const loading = panelData?.loading;
-  const error = panelData?.error;
+  const images = getPrimaryImages(property?.images);
 
-  return (
-    <div className="w-full h-full flex flex-col gap-4 p-4">
-      <SearchPanel
-        initialValues={searchDefaults}
-        variant="compact"
-        className="shadow-sm"
-        buttonLabel="Search"
-      />
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.35em] text-lightTextColor">
-        <span>{`${results.length} retreats`}</span>
-        <button
-          type="button"
-          onClick={onOpenFilters}
-          className="btn-tertiary-normal !px-3 !py-1 text-[10px] tracking-[0.3em]"
-        >
-          Filters
-        </button>
-      </div>
-      <div className="flex-1 overflow-auto pr-1">
-        {error ? (
-          <div className="rounded-xl border border-lightBorderColor bg-surfaceMuted/60 p-6 text-center text-sm text-lightTextColor">
-            <p>{error}</p>
-            <p className="mt-2">Adjust the map or verify connectivity, then try again.</p>
-          </div>
-        ) : loading ? (
-          <div className="grid gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <ListingsLoading key={index} divider={2} css="w-full h-max" />
-            ))}
-          </div>
-        ) : results.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-lightBorderColor p-6 text-center text-sm text-lightTextColor">
-            <h2 className="text-xl font-semibold text-blackColor mb-3">No retreats found</h2>
-            <p>Adjust your filters or pan the map to explore more EasyStay experiences.</p>
-          </div>
-        ) : (
-          <ul className="grid gap-4">
-            {results.map((property) => (
-              <li
-                key={property._id}
-                onMouseEnter={() => setHoveredPlace(property._id)}
-                onMouseLeave={() => setHoveredPlace(null)}
-                className={`rounded-2xl border border-transparent transition-colors duration-150 ${
-                  hoveredPlace === property._id ? "border-primaryColor" : "border-transparent"
-                }`}
-              >
-                <Card post={property} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
+  return {
+    slug: property?._id ?? property?.slug ?? "property",
+    locationPropertyTitle: property?.title || "EasyStay Retreat",
+    locationCity: cityPart,
+    locationState: statePart,
+    locationCitySmall: cityPart,
+    locationStateSmall: statePart,
+    locationDataAddress: locationLabel,
+    locationDataLat:
+      property?.geolocation?.lat !== undefined ? Number(property.geolocation.lat) : undefined,
+    locationDataLng:
+      property?.geolocation?.lng !== undefined ? Number(property.geolocation.lng) : undefined,
+    propertyPriceMonthlyPrice: property?.price || "$0",
+    propertyDurationDuration: property?.priceLabel || "per stay",
+    propertyReviewPropertyRating: property?.rating || "4.5",
+    propertyReviewNumberOfReviews: property?.review || "",
+    propertyListingsNumberOfGuest: property?.guests ? String(property.guests) : "2",
+    propertyListingsNumberOfBedrooms: property?.bedrooms ? String(property.bedrooms) : "2",
+    propertyListingsNumberOfBathrooms: property?.bathrooms ? String(property.bathrooms) : "2",
+    propertyImageImage1: images[0] || "/images/default_image.png",
+    propertyImageImage2: images[1] || "",
+    propertyImageImage3: images[2] || "",
+    propertyImageImage4: images[3] || "",
+    propertyImageImage5: images[4] || "",
+    hostAccoladesPropertyAccoladeVIsiblitOn: false,
+    hostAccoladesSuperHostOn: false,
+    hostAccoladesPlusHostVIsibility: false,
+    hostAccoladesVerifiedHostOn: false,
+    hostAccoladesPremiumHostOn: false,
+    propertyLinkPropertyLink: {
+      href: property?.slug ? `/listings/${property.slug}` : "#",
+    },
+  };
 };
 
 const SearchPropertiesPage = () => {
@@ -181,6 +159,84 @@ const SearchPropertiesPage = () => {
   }, [destination, userLocation]);
 
   const propertyCount = data?.results?.length ?? 0;
+  const propertyCountLabel = propertyCount === 1 ? "Property" : "Properties";
+  const propertyCountDisplay = data?.loading ? "..." : String(propertyCount);
+
+  const propertyFilterSlot = (
+    <div className="flex flex-col gap-4 w-full">
+      <SearchPanel
+        initialValues={infos}
+        variant="compact"
+        className="shadow-sm"
+        buttonLabel="Search"
+      />
+      <div className="flex items-center justify-between text-xs uppercase tracking-[0.35em] text-lightTextColor">
+        <span>
+          {data?.loading
+            ? "Loading retreats"
+            : `${propertyCount} retreat${propertyCount === 1 ? "" : "s"}`}
+        </span>
+        <button
+          type="button"
+          onClick={() => setFilterModal(true)}
+          className="btn-tertiary-normal !px-3 !py-1 text-[10px] tracking-[0.3em]"
+        >
+          Filters
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderPropertyCards = () => {
+    if (data?.error) {
+      return (
+        <div className="rounded-xl border border-lightBorderColor bg-surfaceMuted/60 p-6 text-center text-sm text-lightTextColor">
+          <p>{data.error}</p>
+          <p className="mt-2">Adjust the map or verify connectivity, then try again.</p>
+        </div>
+      );
+    }
+
+    if (data?.loading) {
+      return (
+        <div className="grid gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ListingsLoading key={index} divider={2} css="w-full h-max" />
+          ))}
+        </div>
+      );
+    }
+
+    if (!Array.isArray(data?.results) || data.results.length === 0) {
+      return (
+        <div className="rounded-xl border border-dashed border-lightBorderColor p-6 text-center text-sm text-lightTextColor">
+          <h2 className="text-xl font-semibold text-blackColor mb-3">No retreats found</h2>
+          <p>Adjust your filters or pan the map to explore more EasyStay experiences.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        {data.results.map((property) => {
+          const cardProps = toPropertyCardProps(property);
+          const isHovered = hoveredPlace === property._id;
+          return (
+            <div
+              key={property._id}
+              onMouseEnter={() => setHoveredPlace(property._id)}
+              onMouseLeave={() => setHoveredPlace(null)}
+              className={`rounded-2xl border transition-shadow duration-150 bg-white ${
+                isHovered ? "border-primaryColor shadow-lg" : "border-transparent shadow-sm"
+              }`}
+            >
+              <PropertyCard {...cardProps} />
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -198,19 +254,13 @@ const SearchPropertiesPage = () => {
       <EasyStayNav />
       <div className="flex flex-col xl:flex-row gap-4 w-full h-[calc(100vh-65px)] lg:h-[calc(100vh-80px)] px-4 py-6 bg-surfaceMuted/50">
         <PropertyDirectory
-          numberOfProperties={propertyCount.toString()}
+          numberOfProperties={propertyCountDisplay}
+          propertyCountLabel={propertyCountLabel}
           propertyFilter={false}
           directoryFeature={false}
           directoryFeaturreIconVisbility={false}
-          propertyCardSlot={
-            <PropertyListPanel
-              data={data}
-              hoveredPlace={hoveredPlace}
-              setHoveredPlace={setHoveredPlace}
-              searchDefaults={infos}
-              onOpenFilters={() => setFilterModal(true)}
-            />
-          }
+          propertyFilterSlot={propertyFilterSlot}
+          propertyCardSlot={renderPropertyCards()}
         />
         <div className="flex-1 min-h-[400px]">
           {location ? (
@@ -218,6 +268,7 @@ const SearchPropertiesPage = () => {
               mapSlot={
                 <div className="w-full h-full">
                   <LeafletMap
+                    key={location ? location.join(",") : "initial"}
                     setData={setData}
                     location={location}
                     places={places}

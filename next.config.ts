@@ -25,6 +25,14 @@ const nextConfig: NextConfig = {
     // Legacy codebase has outstanding lint issues; skip blocking the CI build.
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/pixl",
+        destination: "/api/pixl",
+      },
+    ];
+  },
 };
 
 if (

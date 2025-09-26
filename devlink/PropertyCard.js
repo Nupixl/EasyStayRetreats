@@ -52,6 +52,7 @@ export function PropertyCard({
   },
 
   onClick = {},
+  ratingVisibility = true,
 }) {
   const _styleVariantMap = {
     Base: "",
@@ -133,21 +134,6 @@ export function PropertyCard({
                 {hostAccoladesSuperHostOn ? (
                   <_Builtin.Block tag="div">
                     {hostAccoladesSuperHost}
-                  </_Builtin.Block>
-                ) : null}
-                {hostAccoladesPlusHostVIsibility ? (
-                  <_Builtin.Block tag="div">
-                    {hostAccoladesPlusHost}
-                  </_Builtin.Block>
-                ) : null}
-                {hostAccoladesVerifiedHostOn ? (
-                  <_Builtin.Block tag="div">
-                    {hostAccoladesVerifiedHost}
-                  </_Builtin.Block>
-                ) : null}
-                {hostAccoladesPremiumHostOn ? (
-                  <_Builtin.Block tag="div">
-                    {hostAccoladesVerifiedHost}
                   </_Builtin.Block>
                 ) : null}
               </_Builtin.DOM>
@@ -351,59 +337,61 @@ export function PropertyCard({
             >
               <_Builtin.Block tag="div">{locationPropertyTitle}</_Builtin.Block>
             </_Builtin.Block>
-            <_Builtin.Block
-              className={_utils.cx(
-                _styles,
-                "property-card-rating-wrapper",
-                _activeStyleVariant
-              )}
-              tag="div"
-            >
+            {ratingVisibility ? (
               <_Builtin.Block
                 className={_utils.cx(
                   _styles,
-                  "icon-wrapper",
-                  "small",
-                  "right-margin",
+                  "property-card-rating-wrapper",
                   _activeStyleVariant
                 )}
                 tag="div"
               >
-                <_Builtin.Image
-                  loading="lazy"
-                  width="auto"
-                  height="auto"
-                  alt=""
-                  src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.avif"
-                />
-              </_Builtin.Block>
-              <_Builtin.Block
-                className={_utils.cx(
-                  _styles,
-                  "property-card-rating",
-                  _activeStyleVariant
-                )}
-                tag="div"
-                data-field="card-rating"
-              >
-                <_Builtin.Block tag="div">
-                  {propertyReviewPropertyRating}
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "icon-wrapper",
+                    "small",
+                    "right-margin",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                >
+                  <_Builtin.Image
+                    loading="lazy"
+                    width="auto"
+                    height="auto"
+                    alt=""
+                    src="https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68c4557aaf8a8e4fa9168144_0f993e3910746ac8f0866441ed90893e_Star.avif"
+                  />
+                </_Builtin.Block>
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "property-card-rating",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                  data-field="card-rating"
+                >
+                  <_Builtin.Block tag="div">
+                    {propertyReviewPropertyRating}
+                  </_Builtin.Block>
+                </_Builtin.Block>
+                <_Builtin.Block
+                  className={_utils.cx(
+                    _styles,
+                    "proper-card-number-of-ratings",
+                    _activeStyleVariant
+                  )}
+                  tag="div"
+                  data-field="card-rating-count"
+                >
+                  <_Builtin.Block tag="div">
+                    {propertyReviewNumberOfReviews}
+                  </_Builtin.Block>
                 </_Builtin.Block>
               </_Builtin.Block>
-              <_Builtin.Block
-                className={_utils.cx(
-                  _styles,
-                  "proper-card-number-of-ratings",
-                  _activeStyleVariant
-                )}
-                tag="div"
-                data-field="card-rating-count"
-              >
-                <_Builtin.Block tag="div">
-                  {propertyReviewNumberOfReviews}
-                </_Builtin.Block>
-              </_Builtin.Block>
-            </_Builtin.Block>
+            ) : null}
           </_Builtin.Block>
           <_Builtin.Block
             className={_utils.cx(
