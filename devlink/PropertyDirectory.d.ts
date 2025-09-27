@@ -5,10 +5,7 @@ declare function PropertyDirectory(props: {
   as?: React.ElementType;
   /** This is the number of properties within the query*/
   numberOfProperties?: React.ReactNode;
-  propertyCountLabel?: React.ReactNode;
   propertyFilter?: Types.Visibility.VisibilityConditions;
-  propertyFilterSlot?: React.ReactNode;
-  propertyCardSlot?: React.ReactNode;
   _4thElementTag?: Types.Basic.TagType;
   _4thElementValue?: Types.Builtin.Text;
   _4thElementKey?: Types.Builtin.Text;

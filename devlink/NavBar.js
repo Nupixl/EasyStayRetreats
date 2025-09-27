@@ -548,8 +548,7 @@ export function NavBar({
                       button={false}
                       block="inline"
                       options={{
-                        href: "/guest/search-properties",
-                        preload: "none",
+                        href: "/pixl/search-properties",
                       }}
                     >
                       <_Builtin.Block
