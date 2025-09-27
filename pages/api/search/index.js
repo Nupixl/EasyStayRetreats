@@ -1,3 +1,5 @@
+import { withBasePath } from "../../../utils/basePath";
+
 // Redirect to new Supabase-based search endpoint
 
 const parseMarkers = (query) => {
@@ -77,6 +79,8 @@ const parseMarkers = (query) => {
 export default function handler(req, res) {
   if (req.method === "GET") {
     // Redirect to the new properties search endpoint
-    return res.redirect(307, '/api/properties/search');
+    return res.redirect(307, withBasePath("/api/properties/search"));
   }
+
+  return res.status(405).json({ success: false, error: "Method not allowed" });
 }

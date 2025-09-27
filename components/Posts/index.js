@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PostBody from "./body";
 import Categories from "./categories";
+import { withBasePath } from "../../utils/basePath";
 
 const Posts = () => {
   const [categories, setCategories] = useState({
@@ -22,14 +23,14 @@ const Posts = () => {
         setListings({ loading: true, data: [], error: null });
         setCategories({ loading: true, data: [], error: null });
 
-        const { data } = await axios("/api/properties");
+        const { data } = await axios(withBasePath("/api/properties"));
         if (data.success) {
           setListings({ loading: false, data: data.data, error: null });
         } else {
           setListings({ loading: false, data: [], error: data.error });
         }
 
-        const { data: categoryData } = await axios("/api/categories");
+        const { data: categoryData } = await axios(withBasePath("/api/categories"));
         setCategories({ loading: false, data: categoryData.data, error: null });
       } catch (error) {
         const message =

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import axios from "axios";
 import { obfuscateMarkerPositions } from "../../utils/spreadMarkers";
+import { withBasePath } from "../../utils/basePath";
 
 const WishlistListing = ({ data, setPlaces }) => {
   const [listings, setListings] = useState([]);
@@ -12,7 +13,7 @@ const WishlistListing = ({ data, setPlaces }) => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const { data: response } = await axios.get("/api/properties");
+        const { data: response } = await axios.get(withBasePath("/api/properties"));
         if (response.success) {
           setProperties(response.data);
         }

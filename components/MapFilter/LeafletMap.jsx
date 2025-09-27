@@ -8,6 +8,7 @@ import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import { escapeHtml } from "../../utils/sanitize";
 import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
+import { withBasePath } from "../../utils/basePath";
 
 // Debounce utility
 const debounce = (func, wait) => {
@@ -67,7 +68,7 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
 
   const fallbackToAllProperties = async () => {
     try {
-      const { data } = await axios.get("/api/properties");
+      const { data } = await axios.get(withBasePath("/api/properties"));
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         setData({ loading: false, results: data.data, error: null });
         pushPlaces(data.data);
@@ -102,7 +103,7 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
     setData({ loading: true, results: [], error: null });
     
     try {
-      const { data } = await axios.get("/api/properties/search", {
+      const { data } = await axios.get(withBasePath("/api/properties/search"), {
         params: {
           data: m,
         },
