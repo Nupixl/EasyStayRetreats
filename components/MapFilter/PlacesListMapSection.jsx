@@ -4,13 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import ListingsLoading from "../Loading/ListingsLoading";
 import { SearchPanel } from "../";
 
-const PlacesListMapSection = ({
-  data,
-  setFilterModal,
-  hoveredPlace,
-  setHoveredPlace,
-  searchDefaults,
-}) => {
+const PlacesListMapSection = ({ data, hoveredPlace, setHoveredPlace, searchDefaults }) => {
   const [places, setPlaces] = useState({ loading: true, results: [], error: null });
 
   useEffect(() => {
@@ -18,7 +12,7 @@ const PlacesListMapSection = ({
   }, [data]);
 
   return (
-    <div className="max-w-full xl:max-w-[720px] w-full h-full py-6 px-4 overflow-hidden bg-white/95 backdrop-blur border-r border-lightBorderColor">
+    <div className="max-w-full xl:max-w-[720px] w-full py-6 px-4 bg-white/95 backdrop-blur border-r border-lightBorderColor flex flex-col xl:h-full xl:min-h-0">
       <SearchPanel
         initialValues={searchDefaults}
         variant="compact"
@@ -30,17 +24,10 @@ const PlacesListMapSection = ({
         <span className="font-semibold text-blackColor">
           {places?.results?.length} retreats
         </span>
-        <button
-          onClick={() => {
-            setFilterModal(true);
-          }}
-          className="btn-tertiary-normal"
-        >
-          Filters
-        </button>
+        <span className="text-sm text-lightTextColor">Explore handpicked stays</span>
       </header>
 
-      <section className="py-4 h-full">
+      <section className="py-4 xl:flex-1 xl:min-h-0">
         {places.error ? (
           <div className="rounded-3xl border border-lightBorderColor bg-surfaceMuted/60 p-6 text-center text-sm text-lightTextColor">
             <p>{places.error}</p>
@@ -81,12 +68,12 @@ const PlacesListMapSection = ({
               No retreats found
             </h1>
             <p className="text-md mb-4 text-lightTextColor">
-              Adjust your filters to discover more EasyStay experiences.
+              Adjust the map or refine your search to discover more EasyStay experiences.
             </p>
           </div>
         ) : (
-          <div className="w-full h-full">
-            <ul className="overflow-auto hidden-scroll-bar flex flex-wrap gap-6 h-fit max-h-full">
+          <div className="w-full xl:h-full xl:min-h-0">
+            <ul className="overflow-auto hidden-scroll-bar flex flex-wrap gap-6 max-h-full pb-28 pr-1 xl:h-full xl:min-h-0">
               {places?.results?.map((post) => (
                 <li
                   className="w-full sm:w-[calc(100%/2-16px)] md:w-[calc(100%/3-16px)] xl:w-[calc(100%/2-1.2rem)] h-max"

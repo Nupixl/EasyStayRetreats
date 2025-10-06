@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import useWishlist from "../../../hooks/useWishlist";
 import { Context } from "../../../pages/_app";
 import Heart from "../../../public/_svgs/Heart";
 import Star from "../../../public/_svgs/star";
 import { textResizer } from "../../../utils/handlers";
+
+const WISHLIST_ENABLED = false;
 
 const Card = ({ post }) => {
   const { wishlist } = useContext(Context);
@@ -18,15 +20,17 @@ const Card = ({ post }) => {
 
   return (
     <div className="w-full cursor-pointer relative group" title={propertyTitle}>
-      <div className="absolute top-6 right-6 z-10" onClick={changeWishlist}>
-        <Heart
-          css={`h-[23px] w-[23px] stroke-white stroke-[3] transition-colors ${
-            isSaved
-              ? "fill-[#1f7a8c]"
-              : "fill-[rgba(16, 33, 45, 0.35)] group-hover:fill-[rgba(16,33,45,0.55)]"
-          }`}
-        />
-      </div>
+      {WISHLIST_ENABLED && (
+        <div className="absolute top-6 right-6 z-10" onClick={changeWishlist}>
+          <Heart
+            css={`h-[23px] w-[23px] stroke-white stroke-[3] transition-colors ${
+              isSaved
+                ? "fill-[#1f7a8c]"
+                : "fill-[rgba(16, 33, 45, 0.35)] group-hover:fill-[rgba(16,33,45,0.55)]"
+            }`}
+          />
+        </div>
+      )}
       <a
         className="block bg-white rounded-3xl border border-lightBorderColor/70 hover:border-primaryColor/50 shadow-sm hover:shadow-xl transition-all h-full"
         href={targetUrl}

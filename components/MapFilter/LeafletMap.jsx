@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useMemo, useState } from "react";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import { v4 as uuidv4 } from "uuid";
 import "leaflet/dist/leaflet.css";
@@ -9,6 +9,108 @@ import axios from "axios";
 import { escapeHtml } from "../../utils/sanitize";
 import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
 import { withBasePath } from "../../utils/basePath";
+
+const getPropertyLink = (property = {}, fallbackId) => {
+  if (property?.slug) {
+    return `https://www.easystayretreats.homes/properties/${property.slug}`;
+  }
+
+  if (property?._id || fallbackId) {
+    return `/listings/${property._id || fallbackId}`;
+  }
+
+  return "#";
+};
+
+const MarkerPreview = ({ place, onEnter, onLeave, onNavigate }) => {
+  const property = place?.data || {};
+  const images = Array.isArray(property.images) && property.images.length > 0
+    ? property.images
+    : [{ url: "/images/default_image.png" }];
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [property?._id]);
+
+  const showPrev = (event) => {
+    event.stopPropagation();
+    if (images.length <= 1) return;
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const showNext = (event) => {
+    event.stopPropagation();
+    if (images.length <= 1) return;
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handleNavigate = (event) => {
+    event.stopPropagation();
+    onNavigate();
+  };
+
+  const activeImage = images[currentIndex];
+
+  return (
+    <div
+      className="w-56 max-w-[220px] text-left"
+      onMouseEnter={() => onEnter(place._id)}
+      onMouseLeave={() => onLeave(place._id)}
+    >
+      <div className="relative w-full h-36 overflow-hidden rounded-2xl shadow-lg">
+        <img
+          src={activeImage?.url}
+          alt={property?.title || "Retreat preview"}
+          className="h-full w-full object-cover"
+        />
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={showPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 px-2 py-1 text-xs font-semibold text-white hover:bg-black/70"
+            >
+              {"<"}
+            </button>
+            <button
+              type="button"
+              onClick={showNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 px-2 py-1 text-xs font-semibold text-white hover:bg-black/70"
+            >
+              {">"}
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {images.map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    index === currentIndex ? "bg-white" : "bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <div className="mt-3 flex flex-col gap-1">
+        <div className="text-sm font-semibold text-blackColor overflow-hidden text-ellipsis">
+          {property?.title || "Untitled Retreat"}
+        </div>
+        <div className="text-xs text-lightTextColor">
+          {place?.price} {property?.priceLabel ? property.priceLabel : "per stay"}
+        </div>
+        <button
+          type="button"
+          onClick={handleNavigate}
+          className="mt-2 inline-flex h-8 items-center justify-center rounded-full bg-primaryColor px-3 text-xs font-semibold text-white hover:bg-primaryColor/90"
+        >
+          View property
+        </button>
+      </div>
+    </div>
+  );
+};
 
 // Debounce utility
 const debounce = (func, wait) => {
@@ -23,10 +125,48 @@ const debounce = (func, wait) => {
   };
 };
 
-const LeafletMap = ({ setData, location, places, setPlaces }) => {
+const LeafletMap = ({
+  setData,
+  location,
+  places,
+  setPlaces,
+  initialBounds,
+  hoveredPlace,
+  setHoveredPlace,
+}) => {
   const DEFAULT_CENTER = location || [37.4316, -78.6569];
   const mapRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const hasAppliedInitialBounds = useRef(false);
+  const [activeMarkerId, setActiveMarkerId] = useState(null);
+  const [selectedMarkerId, setSelectedMarkerId] = useState(null);
+  const [lockedMarkerId, setLockedMarkerId] = useState(null);
+  const lockedMarkerIdRef = useRef(null);
+  const selectedMarkerIdRef = useRef(null);
+
+  useEffect(() => {
+    lockedMarkerIdRef.current = lockedMarkerId;
+  }, [lockedMarkerId]);
+
+  useEffect(() => {
+    selectedMarkerIdRef.current = selectedMarkerId;
+  }, [selectedMarkerId]);
+
+  useEffect(() => {
+    const availableIds = new Set((places || []).map((place) => place?._id));
+
+    if (selectedMarkerIdRef.current && !availableIds.has(selectedMarkerIdRef.current)) {
+      setSelectedMarkerId(null);
+    }
+
+    if (lockedMarkerIdRef.current && !availableIds.has(lockedMarkerIdRef.current)) {
+      setLockedMarkerId(null);
+    }
+
+    if (activeMarkerId && !availableIds.has(activeMarkerId)) {
+      setActiveMarkerId(null);
+    }
+  }, [places, activeMarkerId]);
 
   useEffect(() => {
     if (mapRef.current && location) {
@@ -45,11 +185,14 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
         price: e.price,
         _id: e._id,
         hovered: false,
+        data: e,
       };
     });
 
     // Only process if we have valid coordinates
-    const validResults = formatted.filter(place => place.lat && place.lng);
+    const validResults = formatted.filter(
+      (place) => Number.isFinite(place.lat) && Number.isFinite(place.lng)
+    );
     
     if (validResults.length === 0) {
       setPlaces([]);
@@ -182,13 +325,35 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
 
   // Debounced version of GetLngAndLat to reduce API calls
   const debouncedGetLngAndLat = useMemo(
-    () => debounce(() => {
-      if (mapRef.current) {
-        getBounds(mapRef.current);
-      }
-    }, 500), // 500ms debounce
+    () =>
+      debounce(() => {
+        if (mapRef.current) {
+          getBounds(mapRef.current);
+        }
+      }, 500), // 500ms debounce
     [getBounds]
   );
+
+  useEffect(() => {
+    if (!initialBounds) {
+      hasAppliedInitialBounds.current = false;
+      return;
+    }
+
+    if (!mapRef.current || hasAppliedInitialBounds.current) return;
+
+    try {
+      const bounds = L.latLngBounds(initialBounds);
+      mapRef.current.fitBounds(bounds, {
+        padding: [30, 30],
+        maxZoom: 15,
+      });
+      hasAppliedInitialBounds.current = true;
+      getBounds(mapRef.current);
+    } catch (error) {
+      console.warn("Failed to apply initial map bounds", error);
+    }
+  }, [initialBounds, getBounds]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -213,27 +378,146 @@ const LeafletMap = ({ setData, location, places, setPlaces }) => {
   // }, [mapRef.current?.getBounds]);
   // console.log(mk);
 
+  const handlePreviewEnter = useCallback(
+    (placeId) => {
+      setLockedMarkerId(placeId);
+      setActiveMarkerId(placeId);
+      if (setHoveredPlace) {
+        setHoveredPlace(placeId);
+      }
+    },
+    [setHoveredPlace]
+  );
+
+  const handlePreviewLeave = useCallback(
+    (placeId) => {
+      setLockedMarkerId((current) => (current === placeId ? null : current));
+
+      if (selectedMarkerIdRef.current === placeId) {
+        setActiveMarkerId(placeId);
+        return;
+      }
+
+      const fallbackId = selectedMarkerIdRef.current || null;
+      setActiveMarkerId(fallbackId);
+
+      if (!fallbackId && setHoveredPlace) {
+        setHoveredPlace(null);
+      }
+    },
+    [setHoveredPlace]
+  );
+
+  const openPropertyPage = useCallback((place) => {
+    const url = getPropertyLink(place?.data, place?._id);
+    if (!url || url === "#") return;
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank", "noopener");
+    }
+  }, []);
+
   // Memoize markers to prevent unnecessary re-renders
   const memoizedMarkers = useMemo(() => {
-    return places.map((place) => {
-      if (!place?.lat || !place?.lng) return null;
-      
-      return (
-        <Marker
-          key={place._id || uuidv4()}
-          position={[place.lat, place.lng]}
-          icon={L.divIcon({
-            html: `<span class="easystay-price-marker ${
-              place?.hovered ? "is-active" : ""
-            }">${escapeHtml(place?.price)}</span>`,
-            className: 'custom-marker',
-            iconSize: [60, 30],
-            iconAnchor: [30, 15]
-          })}
-        />
-      );
-    }).filter(Boolean);
-  }, [places]);
+    return places
+      .map((place) => {
+        if (!Number.isFinite(place?.lat) || !Number.isFinite(place?.lng)) return null;
+
+        const isMarkerActive =
+          place?.hovered ||
+          hoveredPlace === place._id ||
+          activeMarkerId === place._id ||
+          lockedMarkerId === place._id ||
+          selectedMarkerId === place._id;
+
+        return (
+          <Marker
+            key={place._id || uuidv4()}
+            position={[place.lat, place.lng]}
+            icon={L.divIcon({
+              html: `<span class="easystay-price-marker ${
+                isMarkerActive ? "is-active" : ""
+              }">${escapeHtml(place?.price)}</span>`,
+              className: "custom-marker",
+              iconSize: [60, 30],
+              iconAnchor: [30, 15],
+            })}
+            eventHandlers={{
+              mouseover: () => {
+                setActiveMarkerId(place._id);
+                if (setHoveredPlace) {
+                  setHoveredPlace(place._id);
+                }
+              },
+              mouseout: () => {
+                const lockId = lockedMarkerIdRef.current;
+                const selectedId = selectedMarkerIdRef.current;
+
+                if (!selectedId && (!lockId || lockId !== place._id) && setHoveredPlace) {
+                  setHoveredPlace(null);
+                }
+
+                if (selectedId === place._id || lockId === place._id) {
+                  setActiveMarkerId(place._id);
+                  return;
+                }
+
+                if (selectedId) {
+                  setActiveMarkerId(selectedId);
+                } else if (lockId) {
+                  setActiveMarkerId(lockId);
+                } else {
+                  setActiveMarkerId(null);
+                }
+              },
+              click: () => {
+                if (selectedMarkerIdRef.current === place._id) {
+                  openPropertyPage(place);
+                  return;
+                }
+
+                setSelectedMarkerId(place._id);
+                setActiveMarkerId(place._id);
+                setLockedMarkerId(place._id);
+                if (setHoveredPlace) {
+                  setHoveredPlace(place._id);
+                }
+              },
+            }}
+          >
+            {(isMarkerActive || activeMarkerId === place._id) && (
+              <Tooltip
+                direction="top"
+                offset={[0, -10]}
+                opacity={1}
+                permanent
+                interactive
+                className="!bg-transparent !border-none !shadow-none"
+              >
+                <div className="rounded-2xl bg-white p-3 shadow-xl">
+                  <MarkerPreview
+                    place={place}
+                    onEnter={handlePreviewEnter}
+                    onLeave={handlePreviewLeave}
+                    onNavigate={() => openPropertyPage(place)}
+                  />
+                </div>
+              </Tooltip>
+            )}
+          </Marker>
+        );
+      })
+      .filter(Boolean);
+  }, [
+    places,
+    activeMarkerId,
+    lockedMarkerId,
+    selectedMarkerId,
+    handlePreviewEnter,
+    handlePreviewLeave,
+    openPropertyPage,
+    setHoveredPlace,
+    hoveredPlace,
+  ]);
 
   return (
     <MapContainer
