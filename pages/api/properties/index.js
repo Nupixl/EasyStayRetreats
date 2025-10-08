@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { supabaseAdmin, supabase, isSupabaseConfigured } from '../../../lib/supabase'
+import { asyncHandler, withTimeout, withRetry } from '../../../lib/errorHandler'
 import fallbackData from '../../../data.json'
 
 const buildImages = (property) => {
@@ -218,20 +219,16 @@ const transformPropertyShape = (property, availabilityDefaults = 'available') =>
   }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {
         console.log('Supabase not configured, using fallback data')
-        const time = Math.floor(Math.random() * 1000);
-        setTimeout(() => {
-          const transformed = fallbackData.map((property) =>
-            transformPropertyShape(property, 'available')
-          )
-          return res.json({ success: true, data: transformed });
-        }, time);
-        return;
+        const transformed = fallbackData.map((property) =>
+          transformPropertyShape(property, 'available')
+        )
+        return res.json({ success: true, data: transformed });
       }
 
       const client = supabaseAdmin ?? supabase
@@ -239,66 +236,108 @@ export default async function handler(req, res) {
         console.error('Supabase client unavailable on the server')
         return res.status(500).json({ success: false, error: 'Supabase client unavailable' })
       }
-      const { data: properties, error } = await client
-        .from('App-Properties')
-        .select('*')
-        .eq('webflow_status', 'Active')
-        .order('created', { ascending: false })
+      // Use timeout and retry for database operations
+      const fetchProperties = async () => {
+        const { data: properties, error } = await client
+          .from('App-Properties')
+          .select('*')
+          .eq('webflow_status', 'Active')
+          .order('created', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching properties:', error)
-        return res.status(500).json({ success: false, error: error.message })
+        if (error) {
+          throw new Error(`Database error: ${error.message}`)
+        }
+
+        return properties
       }
+
+      const properties = await withRetry(
+        () => withTimeout(fetchProperties(), 15000),
+        3,
+        1000
+      )
 
       // Transform the data to match the expected format
       const transformedProperties = await Promise.all(
         (properties || []).map(async (property) => {
-          const { amount, label } = resolvePrice(property)
-          const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
-          const { lat, lng } = await ensureCoordinates(property, client)
-          const transformed = transformPropertyShape(property)
-          const {
-            availabilityStatus,
-            availabilityNormalized,
-            isAvailable,
-            personCapacity,
-          } = transformed
+          try {
+            const { amount, label } = resolvePrice(property)
+            const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
+            const { lat, lng } = await ensureCoordinates(property, client)
+            const transformed = transformPropertyShape(property)
+            const {
+              availabilityStatus,
+              availabilityNormalized,
+              isAvailable,
+              personCapacity,
+            } = transformed
 
-          return {
-            _id: property.whalesync_postgres_id || property.id,
-            title: property.name || 'Untitled Property',
-            rating: property.property_rating ? property.property_rating.toString() : '4.5',
-            review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
-            lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address || 'United States',
-            images: buildImages(property),
-            price: formattedPrice,
-            priceLabel: label,
-            priceValue: amount,
-            slug: property.slug || null,
-            about: property.body_description,
-            bedrooms: Number.isFinite(Number(property.bedrooms))
-              ? Number(property.bedrooms)
-              : Number.isFinite(Number(property.number_of_room))
-              ? Number(property.number_of_room)
-              : null,
-            beds:
-              Number.isFinite(Number(property.beds))
-                ? Number(property.beds)
-                : Number.isFinite(Number(property.bed))
-                ? Number(property.bed)
+            return {
+              _id: property.whalesync_postgres_id || property.id,
+              title: property.name || 'Untitled Property',
+              rating: property.property_rating ? property.property_rating.toString() : '4.5',
+              review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
+              lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address || 'United States',
+              images: buildImages(property),
+              price: formattedPrice,
+              priceLabel: label,
+              priceValue: amount,
+              slug: property.slug || null,
+              about: property.body_description,
+              bedrooms: Number.isFinite(Number(property.bedrooms))
+                ? Number(property.bedrooms)
+                : Number.isFinite(Number(property.number_of_room))
+                ? Number(property.number_of_room)
                 : null,
-            baths: Number.isFinite(Number(property.baths)) ? Number(property.baths) : null,
-            user: null,
-            reviews: [],
-            availabilityStatus,
-            availabilityNormalized,
-            isAvailable,
-            personCapacity,
-            geolocation: {
-              lat,
-              lng,
-            },
-            amenities: [],
+              beds:
+                Number.isFinite(Number(property.beds))
+                  ? Number(property.beds)
+                  : Number.isFinite(Number(property.bed))
+                  ? Number(property.bed)
+                  : null,
+              baths: Number.isFinite(Number(property.baths)) ? Number(property.baths) : null,
+              user: null,
+              reviews: [],
+              availabilityStatus,
+              availabilityNormalized,
+              isAvailable,
+              personCapacity,
+              geolocation: {
+                lat,
+                lng,
+              },
+              amenities: [],
+            }
+          } catch (error) {
+            console.error(`Error transforming property ${property.id}:`, error)
+            // Return a minimal property object to prevent complete failure
+            return {
+              _id: property.whalesync_postgres_id || property.id,
+              title: property.name || 'Property',
+              rating: '4.5',
+              review: '0 reviews',
+              lt: property.street_address || 'United States',
+              images: [],
+              price: '$0',
+              priceLabel: 'per night',
+              priceValue: 0,
+              slug: property.slug || null,
+              about: property.body_description || '',
+              bedrooms: null,
+              beds: null,
+              baths: null,
+              user: null,
+              reviews: [],
+              availabilityStatus: 'unknown',
+              availabilityNormalized: 'unknown',
+              isAvailable: false,
+              personCapacity: property?.personCapacity ?? null,
+              geolocation: {
+                lat: property.latitude || 0,
+                lng: property.longitude || 0,
+              },
+              amenities: [],
+            }
           }
         })
       )
@@ -312,3 +351,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ success: false, error: 'Method not allowed' })
 }
+
+export default asyncHandler(handler)

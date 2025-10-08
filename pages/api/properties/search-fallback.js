@@ -101,30 +101,20 @@ export default function handler(req, res) {
       }
     };
 
-    let result;
-    const newP = new Promise((r) => {
-      if (true) {
-        setTimeout(() => {
-          r(
-            (result = postData
-              .map((post) => {
-                const res = calcLocation(
-                  post.geolocation.lat,
-                  post.geolocation.lng
-                );
-                if (res) {
-                  return post;
-                } else {
-                  return null;
-                }
-              })
-              .filter((e) => e !== null))
-          );
-        }, Math.floor(Math.random() * 800));
-      }
-    });
-    newP
-      .then((response) => res.json({ success: true, data: response }))
-      .catch((err) => res.json({ success: false, data: null }));
+    const result = postData
+      .map((post) => {
+        const res = calcLocation(
+          post.geolocation.lat,
+          post.geolocation.lng
+        );
+        if (res) {
+          return post;
+        } else {
+          return null;
+        }
+      })
+      .filter((e) => e !== null);
+    
+    return res.json({ success: true, data: result });
   }
 }
