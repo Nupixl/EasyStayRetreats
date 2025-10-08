@@ -378,7 +378,7 @@ const LeafletMap = ({
         return;
       }
 
-      const cityGroups = new Map();
+      const grouped = {};
 
       properties.forEach((property) => {
         if (property?.isAvailable === false) return;
@@ -397,23 +397,22 @@ const LeafletMap = ({
           [property?.data?.city, property?.data?.state].filter(Boolean).join(", ") ||
           "Unknown";
 
-        if (!cityGroups.has(cityKey)) {
-          cityGroups.set(cityKey, []);
+        if (!grouped[cityKey]) {
+          grouped[cityKey] = [];
         }
 
-        cityGroups.get(cityKey).push({ lat, lng });
+        grouped[cityKey].push({ lat, lng });
       });
 
-      if (cityGroups.size === 0) {
+      const cityKeys = Object.keys(grouped);
+      if (cityKeys.length === 0) {
         return;
       }
 
-      const sortedGroups = Array.from(cityGroups.entries()).sort(
-        (a, b) => b[1].length - a[1].length
-      );
+      cityKeys.sort((a, b) => grouped[b].length - grouped[a].length);
 
-      const multiPropertyGroup = sortedGroups.find(([, coords]) => coords.length > 1);
-      const targetCoordinates = multiPropertyGroup ? multiPropertyGroup[1] : sortedGroups[0][1];
+      const firstMulti = cityKeys.find((key) => grouped[key].length > 1);
+      const targetCoordinates = firstMulti ? grouped[firstMulti] : grouped[cityKeys[0]];
       const bounds = buildBoundsFromCoordinates(targetCoordinates);
 
       if (bounds) {
