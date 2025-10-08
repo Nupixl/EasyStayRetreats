@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { supabaseAdmin, supabase, isSupabaseConfigured } from '../../../lib/supabase'
 import { asyncHandler, withTimeout, withRetry } from '../../../lib/errorHandler'
+import DebugLogger, { traceRequest, generateCorrelationId } from '../../../lib/debugLogger'
+import { supabaseCircuitBreaker } from '../../../lib/circuitBreaker'
 import fallbackData from '../../../data.json'
 
 const buildImages = (property) => {
@@ -220,24 +222,45 @@ const transformPropertyShape = (property, availabilityDefaults = 'available') =>
 }
 
 async function handler(req, res) {
+  // Initialize debugging
+  const correlationId = generateCorrelationId();
+  const logger = new DebugLogger('properties-api');
+  logger.setCorrelationId(correlationId);
+  
+  // Add correlation ID to response headers
+  res.setHeader('X-Correlation-ID', correlationId);
+  
   if (req.method === 'GET') {
     try {
+      logger.info('Properties API request started', {
+        method: req.method,
+        url: req.url,
+        query: req.query
+      });
+
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {
-        console.log('Supabase not configured, using fallback data')
+        logger.warn('Supabase not configured, using fallback data');
         const transformed = fallbackData.map((property) =>
           transformPropertyShape(property, 'available')
         )
+        logger.info('Fallback data transformation completed', {
+          propertyCount: transformed.length
+        });
         return res.json({ success: true, data: transformed });
       }
 
       const client = supabaseAdmin ?? supabase
       if (!client) {
-        console.error('Supabase client unavailable on the server')
+        logger.error('Supabase client unavailable on the server');
         return res.status(500).json({ success: false, error: 'Supabase client unavailable' })
       }
-      // Use timeout and retry for database operations
+
+      logger.debug('Supabase client available, fetching properties');
+
+      // Use circuit breaker for database operations
       const fetchProperties = async () => {
+        logger.debug('Executing database query');
         const { data: properties, error } = await client
           .from('App-Properties')
           .select('*')
@@ -245,22 +268,44 @@ async function handler(req, res) {
           .order('created', { ascending: false })
 
         if (error) {
+          logger.error('Database query failed', error);
           throw new Error(`Database error: ${error.message}`)
         }
+
+        logger.info('Database query successful', {
+          propertyCount: properties?.length || 0
+        });
 
         return properties
       }
 
-      const properties = await withRetry(
-        () => withTimeout(fetchProperties(), 15000),
-        3,
-        1000
+      const properties = await supabaseCircuitBreaker.execute(
+        () => withRetry(
+          () => withTimeout(fetchProperties(), 15000),
+          3,
+          1000
+        ),
+        async () => {
+          logger.warn('Circuit breaker fallback: using fallback data');
+          return fallbackData.map((property) =>
+            transformPropertyShape(property, 'available')
+          );
+        }
       )
+
+      logger.debug('Starting property transformation', {
+        propertyCount: properties?.length || 0
+      });
 
       // Transform the data to match the expected format
       const transformedProperties = await Promise.all(
-        (properties || []).map(async (property) => {
+        (properties || []).map(async (property, index) => {
           try {
+            logger.trace(`Transforming property ${index + 1}/${properties.length}`, {
+              propertyId: property.id,
+              propertyName: property.name
+            });
+
             const { amount, label } = resolvePrice(property)
             const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
             const { lat, lng } = await ensureCoordinates(property, client)
@@ -272,7 +317,7 @@ async function handler(req, res) {
               personCapacity,
             } = transformed
 
-            return {
+            const result = {
               _id: property.whalesync_postgres_id || property.id,
               title: property.name || 'Untitled Property',
               rating: property.property_rating ? property.property_rating.toString() : '4.5',
@@ -308,8 +353,16 @@ async function handler(req, res) {
               },
               amenities: [],
             }
+
+            logger.trace(`Property ${index + 1} transformed successfully`);
+            return result;
           } catch (error) {
-            console.error(`Error transforming property ${property.id}:`, error)
+            logger.error(`Error transforming property ${property.id}`, error, {
+              propertyId: property.id,
+              propertyName: property.name,
+              errorType: error.name
+            });
+            
             // Return a minimal property object to prevent complete failure
             return {
               _id: property.whalesync_postgres_id || property.id,
@@ -342,13 +395,27 @@ async function handler(req, res) {
         })
       )
 
+      logger.info('Property transformation completed', {
+        transformedCount: transformedProperties.length,
+        circuitBreakerStats: supabaseCircuitBreaker.getStats()
+      });
+
       return res.json({ success: true, data: transformedProperties })
     } catch (error) {
-      console.error('Unexpected error:', error)
-      return res.status(500).json({ success: false, error: 'Internal server error' })
+      logger.error('Unexpected error in properties API', error, {
+        errorType: error.name,
+        errorMessage: error.message,
+        stack: error.stack
+      });
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Internal server error',
+        correlationId 
+      })
     }
   }
 
+  logger.warn('Method not allowed', { method: req.method });
   return res.status(405).json({ success: false, error: 'Method not allowed' })
 }
 
