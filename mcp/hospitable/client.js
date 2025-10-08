@@ -3,7 +3,20 @@
  * Wrapper for Hospitable Public API with authentication and rate limiting
  */
 
-const fetch = require('node-fetch');
+let fetchModulePromise = null;
+
+const resolveFetch = async () => {
+  if (typeof globalThis.fetch === 'function') {
+    return globalThis.fetch.bind(globalThis);
+  }
+  if (!fetchModulePromise) {
+    fetchModulePromise = import('node-fetch').then(({ default: nodeFetch }) => nodeFetch);
+  }
+  return fetchModulePromise;
+};
+
+const fetchWrapper = (...args) =>
+  resolveFetch().then((fetchFn) => fetchFn(...args));
 
 class HospitableClient {
   constructor(apiKey, baseUrl = 'https://public.api.hospitable.com/v2') {
@@ -43,7 +56,7 @@ class HospitableClient {
     };
 
     try {
-      const response = await fetch(url, {
+      const response = await fetchWrapper(url, {
         ...options,
         headers
       });
@@ -202,7 +215,7 @@ class HospitableClient {
    */
   async getRateLimitStatus() {
     try {
-      const response = await fetch(`${this.baseUrl}/rate-limit`, {
+      const response = await fetchWrapper(`${this.baseUrl}/rate-limit`, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`
         }

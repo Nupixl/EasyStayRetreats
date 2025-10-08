@@ -2,7 +2,20 @@
  * Direct test of Hospitable API using node-fetch
  */
 
-const fetch = require('node-fetch');
+let fetchModulePromise = null;
+
+const resolveFetch = async () => {
+  if (typeof globalThis.fetch === 'function') {
+    return globalThis.fetch.bind(globalThis);
+  }
+  if (!fetchModulePromise) {
+    fetchModulePromise = import('node-fetch').then(({ default: nodeFetch }) => nodeFetch);
+  }
+  return fetchModulePromise;
+};
+
+const fetchWrapper = (...args) =>
+  resolveFetch().then((fetchFn) => fetchFn(...args));
 
 async function testHospitableDirect() {
   console.log('🔍 Testing Hospitable API directly...\n');
@@ -14,7 +27,7 @@ async function testHospitableDirect() {
     console.log('📡 Making request to:', url);
     console.log('🔑 Using API key (first 20 chars):', apiKey.substring(0, 20) + '...');
 
-    const response = await fetch(url, {
+    const response = await fetchWrapper(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
