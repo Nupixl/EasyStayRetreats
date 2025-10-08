@@ -1,5 +1,8 @@
 import axios from 'axios'
 import { supabaseAdmin, supabase, isSupabaseConfigured } from '../../../lib/supabase'
+import { asyncHandler, withTimeout, withRetry } from '../../../lib/errorHandler'
+import DebugLogger, { generateCorrelationId } from '../../../lib/debugLogger'
+import { supabaseCircuitBreaker } from '../../../lib/circuitBreaker'
 import fallbackData from '../../../data.json'
 
 const buildImages = (property) => {
@@ -281,13 +284,18 @@ const parseMarkers = (query) => {
 }
 
 const handleFallbackSearch = (req, res) => {
+  const logger = new DebugLogger('fallback-search');
+  logger.warn('Using fallback search data');
+  
   const { markers, error: parseError } = parseMarkers(req.query)
 
   if (parseError) {
+    logger.warn('Invalid markers in fallback search', { parseError });
     return res.status(400).json({ success: false, error: parseError })
   }
 
   if (markers.length < 4) {
+    logger.warn('Incomplete bounds in fallback search', { markerCount: markers.length });
     return res
       .status(400)
       .json({ success: false, error: 'Incomplete bounds payload' })
@@ -313,35 +321,58 @@ const handleFallbackSearch = (req, res) => {
     transformPropertyShape(property, 'available')
   )
 
+  logger.info('Fallback search completed', {
+    resultCount: transformed.length,
+    totalFallbackData: fallbackData.length
+  });
+
   return res.json({ success: true, data: transformed })
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
+  // Initialize debugging
+  const correlationId = generateCorrelationId();
+  const logger = new DebugLogger('properties-search-api');
+  logger.setCorrelationId(correlationId);
+  
+  // Add correlation ID to response headers
+  res.setHeader('X-Correlation-ID', correlationId);
+  
   if (req.method === 'HEAD') {
     return res.status(200).end()
   }
 
   if (req.method !== 'GET') {
+    logger.warn('Method not allowed', { method: req.method });
     return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
   try {
+    logger.info('Properties search API request started', {
+      method: req.method,
+      url: req.url,
+      query: req.query
+    });
+
     if (!isSupabaseConfigured()) {
-      console.log('Supabase not configured, using fallback search')
+      logger.warn('Supabase not configured, using fallback search');
       return handleFallbackSearch(req, res)
     }
 
     const { markers, error: parseError } = parseMarkers(req.query)
     if (parseError) {
+      logger.warn('Invalid markers payload', { parseError });
       return res.status(400).json({ success: false, error: parseError })
     }
 
     if (markers.length < 4) {
+      logger.warn('Incomplete bounds payload', { markerCount: markers.length });
       return res.status(400).json({ success: false, error: 'Incomplete bounds payload' })
     }
 
     const client = supabaseAdmin ?? supabase
     if (!client) {
+      logger.error('Supabase client unavailable on the server');
       throw new Error('Supabase client unavailable on the server')
     }
 
@@ -350,73 +381,155 @@ export default async function handler(req, res) {
     const minLng = Math.min(...markers.map(m => m.longitude))
     const maxLng = Math.max(...markers.map(m => m.longitude))
 
-    const { data: properties, error } = await client
-      .from('App-Properties')
-      .select('*')
-      .eq('webflow_status', 'Active')
-      .gte('latitude', minLat)
-      .lte('latitude', maxLat)
-      .gte('longitude', minLng)
-      .lte('longitude', maxLng)
+    logger.debug('Search bounds calculated', {
+      minLat, maxLat, minLng, maxLng,
+      markerCount: markers.length
+    });
 
-    if (error) {
-      console.error('Error searching properties:', error)
-      return res.status(500).json({ success: false, error: error.message })
+    // Use circuit breaker for database operations
+    const searchProperties = async () => {
+      logger.debug('Executing search query');
+      const { data: properties, error } = await client
+        .from('App-Properties')
+        .select('*')
+        .eq('webflow_status', 'Active')
+        .gte('latitude', minLat)
+        .lte('latitude', maxLat)
+        .gte('longitude', minLng)
+        .lte('longitude', maxLng)
+
+      if (error) {
+        logger.error('Search query failed', error);
+        throw new Error(`Search error: ${error.message}`)
+      }
+
+      logger.info('Search query successful', {
+        propertyCount: properties?.length || 0
+      });
+
+      return properties
     }
 
-    const transformed = await Promise.all(
-      (properties || []).map(async (property) => {
-        const { amount, label } = resolvePrice(property)
-        const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
-        const { lat, lng } = await ensureCoordinates(property, client)
-        const enriched = transformPropertyShape(property)
-        const {
-          availabilityStatus,
-          availabilityNormalized,
-          isAvailable,
-          personCapacity,
-        } = enriched
+    const properties = await supabaseCircuitBreaker.execute(
+      () => withRetry(
+        () => withTimeout(searchProperties(), 15000),
+        3,
+        1000
+      ),
+      async () => {
+        logger.warn('Circuit breaker fallback: using fallback search');
+        return handleFallbackSearch(req, res);
+      }
+    )
 
-        return {
-          _id: property.whalesync_postgres_id || property.id,
-          title: property.name || 'Untitled Property',
-          rating: property.property_rating ? property.property_rating.toString() : '4.5',
-          review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
-          lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address,
-          images: buildImages(property),
-          price: formattedPrice,
-          priceLabel: label,
-          priceValue: amount,
-          slug: property.slug || null,
-          about: property.body_description,
-          bedrooms: Number.isFinite(Number(property.bedrooms))
-            ? Number(property.bedrooms)
-            : Number.isFinite(Number(property.number_of_room))
-            ? Number(property.number_of_room)
-            : null,
-          beds:
-            Number.isFinite(Number(property.beds))
-              ? Number(property.beds)
-              : Number.isFinite(Number(property.bed))
-              ? Number(property.bed)
+    logger.debug('Starting property transformation for search results', {
+      propertyCount: properties?.length || 0
+    });
+
+    const transformed = await Promise.all(
+      (properties || []).map(async (property, index) => {
+        try {
+          logger.trace(`Transforming search property ${index + 1}/${properties.length}`, {
+            propertyId: property.id,
+            propertyName: property.name
+          });
+
+          const { amount, label } = resolvePrice(property)
+          const formattedPrice = amount > 0 ? `$${amount.toLocaleString()}` : '$0'
+          const { lat, lng } = await ensureCoordinates(property, client)
+          const enriched = transformPropertyShape(property)
+          const {
+            availabilityStatus,
+            availabilityNormalized,
+            isAvailable,
+            personCapacity,
+          } = enriched
+
+          const result = {
+            _id: property.whalesync_postgres_id || property.id,
+            title: property.name || 'Untitled Property',
+            rating: property.property_rating ? property.property_rating.toString() : '4.5',
+            review: `${property.total_reviews || 0} review${property.total_reviews === 1 ? '' : 's'}`,
+            lt: [property.city, property.state].filter(Boolean).join(', ') || property.street_address,
+            images: buildImages(property),
+            price: formattedPrice,
+            priceLabel: label,
+            priceValue: amount,
+            slug: property.slug || null,
+            about: property.body_description,
+            bedrooms: Number.isFinite(Number(property.bedrooms))
+              ? Number(property.bedrooms)
+              : Number.isFinite(Number(property.number_of_room))
+              ? Number(property.number_of_room)
               : null,
-          baths: Number.isFinite(Number(property.baths)) ? Number(property.baths) : null,
-          user: null,
-          reviews: [],
-          availabilityStatus,
-          availabilityNormalized,
-          isAvailable,
-          personCapacity,
-          geolocation: {
-            lat,
-            lng,
-          },
-          amenities: [],
+            beds:
+              Number.isFinite(Number(property.beds))
+                ? Number(property.beds)
+                : Number.isFinite(Number(property.bed))
+                ? Number(property.bed)
+                : null,
+            baths: Number.isFinite(Number(property.baths)) ? Number(property.baths) : null,
+            user: null,
+            reviews: [],
+            availabilityStatus,
+            availabilityNormalized,
+            isAvailable,
+            personCapacity,
+            geolocation: {
+              lat,
+              lng,
+            },
+            amenities: [],
+          }
+
+          logger.trace(`Search property ${index + 1} transformed successfully`);
+          return result;
+        } catch (error) {
+          logger.error(`Error transforming search property ${property.id}`, error, {
+            propertyId: property.id,
+            propertyName: property.name,
+            errorType: error.name
+          });
+          
+          // Return a minimal property object to prevent complete failure
+          return {
+            _id: property.whalesync_postgres_id || property.id,
+            title: property.name || 'Property',
+            rating: '4.5',
+            review: '0 reviews',
+            lt: property.street_address || 'United States',
+            images: [],
+            price: '$0',
+            priceLabel: 'per night',
+            priceValue: 0,
+            slug: property.slug || null,
+            about: property.body_description || '',
+            bedrooms: null,
+            beds: null,
+            baths: null,
+            user: null,
+            reviews: [],
+            availabilityStatus: 'unknown',
+            availabilityNormalized: 'unknown',
+            isAvailable: false,
+            personCapacity: property?.personCapacity ?? null,
+            geolocation: {
+              lat: property.latitude || 0,
+              lng: property.longitude || 0,
+            },
+            amenities: [],
+          }
         }
       })
     )
 
+    logger.info('Search property transformation completed', {
+      transformedCount: transformed.length,
+      circuitBreakerStats: supabaseCircuitBreaker.getStats()
+    });
+
     if (transformed.length === 0) {
+      logger.info('No properties found in search area');
       return res.json({
         success: true,
         data: [],
@@ -424,9 +537,23 @@ export default async function handler(req, res) {
       })
     }
 
+    logger.info('Search completed successfully', {
+      resultCount: transformed.length
+    });
+
     return res.json({ success: true, data: transformed })
   } catch (error) {
-    console.error('Unexpected error:', error)
-    return res.status(500).json({ success: false, error: error.message || 'Internal server error' })
+    logger.error('Unexpected error in search API', error, {
+      errorType: error.name,
+      errorMessage: error.message,
+      stack: error.stack
+    });
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Internal server error',
+      correlationId 
+    })
   }
 }
+
+export default asyncHandler(handler)

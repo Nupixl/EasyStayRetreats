@@ -16,7 +16,8 @@
     "setup-webflow-rtf": "node scripts/setup-webflow-cms-rtf.js",
     "setup-webflow-env": "node scripts/setup-webflow-env.js",
     "smoke": "node scripts/smoke-obfuscation.js",
-    "monitor-errors": "node scripts/monitor-errors.js"
+    "monitor-errors": "node scripts/monitor-errors.js",
+    "test-search": "node scripts/test-search-endpoint.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.1",
