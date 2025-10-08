@@ -7,8 +7,72 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import axios from "axios";
 import { escapeHtml } from "../../utils/sanitize";
-import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
 import { withBasePath } from "../../utils/basePath";
+import { obfuscateMarkerPositions, spreadOverlappingMarkers } from "../../utils/spreadMarkers";
+
+const PRIMARY_RADIUS = 0.01;
+const CLUSTER_PADDING = 0.005;
+const SINGLE_FALLBACK_RADIUS = 0.003;
+
+const clampLatitude = (value) => Math.max(-90, Math.min(90, value));
+const clampLongitude = (value) => Math.max(-180, Math.min(180, value));
+
+const buildBoundsFromCoordinates = (coordinates = []) => {
+  if (!Array.isArray(coordinates) || coordinates.length === 0) {
+    return null;
+  }
+
+  let bestCluster = null;
+
+  coordinates.forEach((origin) => {
+    const members = coordinates.filter((candidate) => {
+      return (
+        Math.abs(candidate.lat - origin.lat) <= PRIMARY_RADIUS &&
+        Math.abs(candidate.lng - origin.lng) <= PRIMARY_RADIUS
+      );
+    });
+
+    if (!bestCluster || members.length > bestCluster.count) {
+      bestCluster = {
+        count: members.length,
+        members,
+        origin,
+      };
+    }
+  });
+
+  if (!bestCluster) {
+    return null;
+  }
+
+  if (bestCluster.count > 1) {
+    const clusterLatitudes = bestCluster.members.map(({ lat }) => lat);
+    const clusterLongitudes = bestCluster.members.map(({ lng }) => lng);
+
+    const minLat = Math.min(...clusterLatitudes) - CLUSTER_PADDING;
+    const maxLat = Math.max(...clusterLatitudes) + CLUSTER_PADDING;
+    const minLng = Math.min(...clusterLongitudes) - CLUSTER_PADDING;
+    const maxLng = Math.max(...clusterLongitudes) + CLUSTER_PADDING;
+
+    return [
+      [clampLatitude(minLat), clampLongitude(minLng)],
+      [clampLatitude(maxLat), clampLongitude(maxLng)],
+    ];
+  }
+
+  const { origin } = bestCluster;
+
+  return [
+    [
+      clampLatitude(origin.lat - SINGLE_FALLBACK_RADIUS),
+      clampLongitude(origin.lng - SINGLE_FALLBACK_RADIUS),
+    ],
+    [
+      clampLatitude(origin.lat + SINGLE_FALLBACK_RADIUS),
+      clampLongitude(origin.lng + SINGLE_FALLBACK_RADIUS),
+    ],
+  ];
+};
 
 const getPropertyLink = (property = {}, fallbackId) => {
   if (property?.slug) {
@@ -22,12 +86,169 @@ const getPropertyLink = (property = {}, fallbackId) => {
   return "#";
 };
 
+const toTitleCase = (value = "") =>
+  value
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+
+const normalizePropertyMeta = (property = {}) => {
+  if (!property || typeof property !== "object") {
+    return {
+      availabilityStatus: "Available",
+      availabilityNormalized: "available",
+      isAvailable: true,
+      personCapacity: null,
+    };
+  }
+
+  const baseNormalized =
+    typeof property.availabilityNormalized === "string"
+      ? property.availabilityNormalized.trim().toLowerCase()
+      : null;
+
+  let normalized = baseNormalized;
+
+  if (!normalized && typeof property.availabilityStatus === "string") {
+    normalized = property.availabilityStatus.trim().toLowerCase();
+  }
+
+  if (!normalized) {
+    if (property.isAvailable === true) normalized = "available";
+    else if (property.isAvailable === false) normalized = "unavailable";
+  }
+
+  if (!normalized) {
+    const fallback = property.availability ?? property.status;
+    if (typeof fallback === "boolean") {
+      normalized = fallback ? "available" : "unavailable";
+    } else if (typeof fallback === "string") {
+      normalized = fallback.trim().toLowerCase();
+    }
+  }
+
+  if (!normalized) {
+    normalized = "available";
+  }
+
+  const personCapacity = Number(
+    property.personCapacity ??
+      property.person_capacity ??
+      property.guests ??
+      property.max_guests ??
+      property?.data?.personCapacity ??
+      property?.data?.person_capacity
+  );
+
+  return {
+    ...property,
+    availabilityNormalized: normalized,
+    availabilityStatus: property.availabilityStatus || toTitleCase(normalized),
+    isAvailable:
+      property.isAvailable !== undefined ? property.isAvailable : normalized === "available",
+    personCapacity: Number.isFinite(personCapacity) ? personCapacity : null,
+  };
+};
+
+const filterAndSortResults = (results = [], activeFilters = {}) => {
+  if (!Array.isArray(results) || results.length === 0) {
+    return [];
+  }
+
+  const withIndex = results.map((property, index) => ({
+    ...normalizePropertyMeta(property),
+    __order: index,
+  }));
+
+  const totalGuests = Number(activeFilters.totalGuests || 0);
+
+  const sorted = withIndex
+    .map((property) => {
+      const capacity = Number(property.personCapacity);
+      const hasCapacity = Number.isFinite(capacity);
+      const canAccommodate = totalGuests
+        ? hasCapacity
+          ? capacity >= totalGuests
+          : true
+        : true;
+      const capacityDiff = totalGuests
+        ? hasCapacity
+          ? Math.max(0, capacity - totalGuests)
+          : Number.MAX_SAFE_INTEGER
+        : 0;
+      const availabilityScore = property.availabilityNormalized === "available" ? 2 : 1;
+
+      return {
+        property,
+        availabilityScore,
+        accommodateScore: canAccommodate ? 1 : 0,
+        capacityDiff,
+        order: property.__order,
+      };
+    })
+    .sort((a, b) => {
+      if (b.availabilityScore !== a.availabilityScore) {
+        return b.availabilityScore - a.availabilityScore;
+      }
+
+      if (b.accommodateScore !== a.accommodateScore) {
+        return b.accommodateScore - a.accommodateScore;
+      }
+
+      if (a.capacityDiff !== b.capacityDiff) {
+        return a.capacityDiff - b.capacityDiff;
+      }
+
+      return a.order - b.order;
+    })
+    .map(({ property }) => property);
+
+  return sorted.map(({ __order, ...rest }) => rest);
+};
+
 const MarkerPreview = ({ place, onEnter, onLeave, onNavigate }) => {
   const property = place?.data || {};
   const images = Array.isArray(property.images) && property.images.length > 0
     ? property.images
     : [{ url: "/images/default_image.png" }];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const availabilityRaw =
+    property?.availabilityStatus ||
+    property?.availability_status ||
+    property?.availability?.status ||
+    "available";
+  const availabilityStatus =
+    typeof availabilityRaw === "string"
+      ? availabilityRaw
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (char) => char.toUpperCase())
+      : "Available";
+  const availabilityTone = (() => {
+    const normalized =
+      typeof availabilityRaw === "string" ? availabilityRaw.toLowerCase() : "available";
+    if (normalized === "available") {
+      return {
+        badge: "bg-emerald-50",
+        text: "text-emerald-600",
+        dot: "bg-emerald-500",
+      };
+    }
+
+    if (normalized === "booked" || normalized === "unavailable" || normalized === "blocked") {
+      return {
+        badge: "bg-rose-50",
+        text: "text-rose-600",
+        dot: "bg-rose-500",
+      };
+    }
+
+    return {
+      badge: "bg-amber-50",
+      text: "text-amber-600",
+      dot: "bg-amber-500",
+    };
+  })();
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -97,16 +318,21 @@ const MarkerPreview = ({ place, onEnter, onLeave, onNavigate }) => {
         <div className="text-sm font-semibold text-blackColor overflow-hidden text-ellipsis">
           {property?.title || "Untitled Retreat"}
         </div>
-        <div className="text-xs text-lightTextColor">
-          {place?.price} {property?.priceLabel ? property.priceLabel : "per stay"}
+        <div className="mt-1 flex items-center justify-between text-xs font-semibold text-lightTextColor">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${availabilityTone.badge} ${availabilityTone.text}`}
+          >
+            <span className={`h-2 w-2 rounded-full ${availabilityTone.dot}`} />
+            {availabilityStatus}
+          </span>
+          <button
+            type="button"
+            onClick={handleNavigate}
+            className="inline-flex items-center justify-center rounded-full border border-primaryColor px-3 py-1 text-[11px] font-semibold text-primaryColor hover:bg-primaryColor hover:text-white"
+          >
+            View details
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleNavigate}
-          className="mt-2 inline-flex h-8 items-center justify-center rounded-full bg-primaryColor px-3 text-xs font-semibold text-white hover:bg-primaryColor/90"
-        >
-          View property
-        </button>
       </div>
     </div>
   );
@@ -133,6 +359,7 @@ const LeafletMap = ({
   initialBounds,
   hoveredPlace,
   setHoveredPlace,
+  filters = {},
 }) => {
   const DEFAULT_CENTER = location || [37.4316, -78.6569];
   const mapRef = useRef(null);
@@ -143,6 +370,66 @@ const LeafletMap = ({
   const [lockedMarkerId, setLockedMarkerId] = useState(null);
   const lockedMarkerIdRef = useRef(null);
   const selectedMarkerIdRef = useRef(null);
+  const filtersRef = useRef(filters);
+
+  const focusMapOnAvailableProperties = useCallback(
+    (properties = []) => {
+      if (!mapRef.current || !Array.isArray(properties) || properties.length === 0) {
+        return;
+      }
+
+      const cityGroups = new Map();
+
+      properties.forEach((property) => {
+        if (property?.isAvailable === false) return;
+
+        const source = property?.geolocation || property?.data?.geolocation;
+        const lat = Number(source?.lat);
+        const lng = Number(source?.lng);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return;
+        }
+
+        const cityKey =
+          property?.lt ||
+          property?.data?.lt ||
+          [property?.data?.city, property?.data?.state].filter(Boolean).join(", ") ||
+          "Unknown";
+
+        if (!cityGroups.has(cityKey)) {
+          cityGroups.set(cityKey, []);
+        }
+
+        cityGroups.get(cityKey).push({ lat, lng });
+      });
+
+      if (cityGroups.size === 0) {
+        return;
+      }
+
+      const sortedGroups = Array.from(cityGroups.entries()).sort(
+        (a, b) => b[1].length - a[1].length
+      );
+
+      const multiPropertyGroup = sortedGroups.find(([, coords]) => coords.length > 1);
+      const targetCoordinates = multiPropertyGroup ? multiPropertyGroup[1] : sortedGroups[0][1];
+      const bounds = buildBoundsFromCoordinates(targetCoordinates);
+
+      if (bounds) {
+        mapRef.current.fitBounds(bounds, {
+          padding: [40, 40],
+          maxZoom: 14,
+        });
+      }
+    },
+    []
+  );
+  const abortControllerRef = useRef(null);
+  const lastRequestTimeRef = useRef(0);
+  const requestQueueRef = useRef(null);
+  const isRequestInProgressRef = useRef(false);
+  const pendingRequestRef = useRef(null);
 
   useEffect(() => {
     lockedMarkerIdRef.current = lockedMarkerId;
@@ -151,6 +438,10 @@ const LeafletMap = ({
   useEffect(() => {
     selectedMarkerIdRef.current = selectedMarkerId;
   }, [selectedMarkerId]);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   useEffect(() => {
     const availableIds = new Set((places || []).map((place) => place?._id));
@@ -176,16 +467,23 @@ const LeafletMap = ({
 
   // Memoize the pushPlaces function to prevent unnecessary re-renders
   const pushPlaces = useCallback((results = []) => {
-    const formatted = results.map((e) => {
-      const lat = Number(e?.geolocation?.lat);
-      const lng = Number(e?.geolocation?.lng);
+    const formatted = results.map((property) => {
+      const meta = normalizePropertyMeta(property);
+      const lat = Number(meta?.geolocation?.lat);
+      const lng = Number(meta?.geolocation?.lng);
       return {
         lat: Number.isFinite(lat) ? lat : null,
         lng: Number.isFinite(lng) ? lng : null,
-        price: e.price,
-        _id: e._id,
+        price: meta.price,
+        _id: meta._id,
         hovered: false,
-        data: e,
+        data: meta,
+        availabilityStatus: meta.availabilityStatus,
+        availabilityNormalized: meta.availabilityNormalized,
+        isAvailable: meta.isAvailable,
+        personCapacity: meta.personCapacity,
+        originalLat: Number.isFinite(lat) ? lat : null,
+        originalLng: Number.isFinite(lng) ? lng : null,
       };
     });
 
@@ -199,30 +497,30 @@ const LeafletMap = ({
       return;
     }
 
-    // Simplified marker processing for better performance
     const obfuscated = obfuscateMarkerPositions(validResults, {
-      maxOffsetKm: 2, // Reduced from 3
-      minOffsetKm: 0.3, // Reduced from 0.5
-      minSeparationKm: 0.5, // Reduced from 1
+      maxOffsetKm: 0.3, // ~3 city blocks (~300m)
+      minOffsetKm: 0.05,
+      minSeparationKm: 0.12,
     });
-    const spaced = spreadOverlappingMarkers(obfuscated, { radius: 0 });
+
+    const spaced = spreadOverlappingMarkers(obfuscated, {
+      radius: 0.0002,
+      precision: 6,
+    });
+
     setPlaces(spaced);
   }, [setPlaces]);
 
-  const fallbackToAllProperties = async () => {
+  const fallbackToAllProperties = useCallback(async (shouldRefocus = false) => {
     try {
       const { data } = await axios.get(withBasePath("/api/properties"));
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setData({ loading: false, results: data.data, error: null });
-        pushPlaces(data.data);
-        if (mapRef.current) {
-          const [first] = data.data;
-          if (first?.geolocation?.lat && first?.geolocation?.lng) {
-            mapRef.current.setView(
-              [first.geolocation.lat, first.geolocation.lng],
-              6
-            );
-          }
+        const activeFilters = filtersRef.current || {};
+        const processed = filterAndSortResults(data.data, activeFilters);
+        setData({ loading: false, results: processed, error: null });
+        pushPlaces(processed);
+        if (shouldRefocus) {
+          focusMapOnAvailableProperties(processed);
         }
         return true;
       }
@@ -233,75 +531,146 @@ const LeafletMap = ({
     setData({
       loading: false,
       results: [],
-      error: "No retreats match the current map area. Try panning or zooming out.",
+      error:
+        "No retreats match the current filters or map area. Adjust your dates or guest count, or try panning/zooming out.",
     });
     setPlaces([]);
     return false;
-  };
+  }, [focusMapOnAvailableProperties, pushPlaces, setData, setPlaces]);
 
-  const getData = useCallback(async (m) => {
-    if (isLoading) return; // Prevent multiple simultaneous requests
-    
-    setIsLoading(true);
-    setData({ loading: true, results: [], error: null });
-    
-    try {
-      const { data } = await axios.get(withBasePath("/api/properties/search"), {
-        params: {
-          data: m,
-        },
-      });
+  const getData = useCallback(
+    async (m, options = { shouldRefocus: false, bypassThrottle: false }) => {
+      const now = Date.now();
+      const timeSinceLastRequest = now - lastRequestTimeRef.current;
+      const shouldBypassThrottle = Boolean(options?.bypassThrottle);
 
-      if (data.success) {
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          setData({ loading: false, results: data.data, error: null });
-          pushPlaces(data.data);
+      // Throttle rapid successive requests, but keep the UI responsive for filter changes
+      if (!shouldBypassThrottle && timeSinceLastRequest < 800) {
+        console.log("Request throttled, too soon since last request");
+        return;
+      }
+
+      // Check if request is already in progress
+      if (isRequestInProgressRef.current && !shouldBypassThrottle) {
+        console.log("Request already in progress, storing pending request...");
+        pendingRequestRef.current = { m, options };
+        return;
+      }
+
+      // Cancel any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Set request in progress flag
+      isRequestInProgressRef.current = true;
+      abortControllerRef.current = new AbortController();
+      lastRequestTimeRef.current = now;
+
+      console.log("Making API request for bounds:", m);
+      setIsLoading(true);
+      setData((prev) => ({
+        ...prev,
+        loading: true,
+        error: null,
+      }));
+
+      const activeFilters = filtersRef.current || {};
+
+      try {
+        const { data } = await axios.get(withBasePath("/api/properties/search"), {
+          params: {
+            data: m,
+            checkin: activeFilters.checkin || undefined,
+            checkout: activeFilters.checkout || undefined,
+            numberOfAdults: activeFilters.numberOfAdults || undefined,
+            numberOfChildren: activeFilters.numberOfChildren || undefined,
+            numberOfInfants: activeFilters.numberOfInfants || undefined,
+            numberOfPets: activeFilters.numberOfPets || undefined,
+            totalGuests: activeFilters.totalGuests || undefined,
+          },
+          signal: abortControllerRef.current.signal,
+        });
+
+        if (data.success) {
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            const processed = filterAndSortResults(data.data, activeFilters);
+            setData({ loading: false, results: processed, error: null });
+            pushPlaces(processed);
+            if (options.shouldRefocus) {
+              focusMapOnAvailableProperties(processed);
+            }
+          } else {
+            const recovered = await fallbackToAllProperties(options.shouldRefocus);
+            if (!recovered) {
+              setData({
+                loading: false,
+                results: [],
+                error:
+                  data.message ||
+                  "No retreats match the current filters or map area. Adjust your dates or guest count, or try panning/zooming out.",
+              });
+              setPlaces([]);
+            }
+          }
         } else {
-          setData({
-            loading: false,
-            results: [],
-            error: data.message || 'No retreats match the current map area. Try panning or zooming out.',
-          });
-          setPlaces([]);
+          const message = data.error || "Unable to load retreats at the moment.";
+          console.error("Map search failed:", message);
+          const recovered = await fallbackToAllProperties(options.shouldRefocus);
+          if (!recovered) {
+            setData({
+              loading: false,
+              results: [],
+              error: message,
+            });
+          }
         }
-      } else {
-        const message = data.error || "Unable to load retreats at the moment.";
+      } catch (error) {
+        // Don't handle aborted requests as errors
+        if (error.name === 'AbortError') {
+          console.log("Request was aborted");
+          return;
+        }
+
+        const message =
+          error.response?.data?.error ||
+          error.message ||
+          "Unexpected error loading retreats.";
         console.error("Map search failed:", message);
-        const recovered = await fallbackToAllProperties();
+        const recovered = await fallbackToAllProperties(options.shouldRefocus);
         if (!recovered) {
           setData({
             loading: false,
             results: [],
             error: message,
           });
+          setPlaces([]);
+        }
+      } finally {
+        setIsLoading(false);
+        isRequestInProgressRef.current = false;
+        
+        // Process pending request if any
+        if (pendingRequestRef.current) {
+          const pendingRequest = pendingRequestRef.current;
+          pendingRequestRef.current = null;
+          // Longer delay to prevent rapid-fire requests
+          setTimeout(() => {
+            getData(pendingRequest.m, pendingRequest.options);
+          }, 1000);
         }
       }
-    } catch (error) {
-      const message =
-        error.response?.data?.error ||
-        error.message ||
-        "Unexpected error loading retreats.";
-      console.error("Map search failed:", message);
-      const recovered = await fallbackToAllProperties();
-      if (!recovered) {
-        setData({
-          loading: false,
-          results: [],
-          error: message,
-        });
-        setPlaces([]);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, pushPlaces, setData, setPlaces]);
+    },
+    [fallbackToAllProperties, focusMapOnAvailableProperties, pushPlaces, setData, setPlaces]
+  );
 
-  const getBounds = useCallback((map) => {
-    const bounds = map?.getBounds();
-    const northWest = bounds?.getNorthWest(),
-      northEast = bounds?.getNorthEast(),
-      southWest = bounds?.getSouthWest(),
-      southEast = bounds?.getSouthEast();
+  const getBounds = useCallback(
+    (map, options = { shouldRefocus: false, bypassThrottle: false }) => {
+      const bounds = map?.getBounds();
+      const northWest = bounds?.getNorthWest(),
+        northEast = bounds?.getNorthEast(),
+        southWest = bounds?.getSouthWest(),
+        southEast = bounds?.getSouthEast();
     const markers = [
       {
         lat: northWest?.lat,
@@ -320,7 +689,7 @@ const LeafletMap = ({
         lng: southEast?.lng,
       },
     ];
-    getData(markers);
+    getData(markers, options);
   }, [getData]);
 
   // Debounced version of GetLngAndLat to reduce API calls
@@ -328,9 +697,9 @@ const LeafletMap = ({
     () =>
       debounce(() => {
         if (mapRef.current) {
-          getBounds(mapRef.current);
+          getBounds(mapRef.current, { shouldRefocus: false });
         }
-      }, 500), // 500ms debounce
+      }, 3000), // 3 second debounce for map movements
     [getBounds]
   );
 
@@ -349,7 +718,7 @@ const LeafletMap = ({
         maxZoom: 15,
       });
       hasAppliedInitialBounds.current = true;
-      getBounds(mapRef.current);
+      getBounds(mapRef.current, { shouldRefocus: true, bypassThrottle: true });
     } catch (error) {
       console.warn("Failed to apply initial map bounds", error);
     }
@@ -364,6 +733,34 @@ const LeafletMap = ({
       };
     }
   }, [debouncedGetLngAndLat]);
+
+  // Debounced version for filter changes
+  const debouncedFilterSearch = useMemo(
+    () =>
+      debounce(() => {
+        if (mapRef.current) {
+          getBounds(mapRef.current, { shouldRefocus: true, bypassThrottle: true });
+        }
+      }, 5000), // 5 second debounce for filter changes
+    [getBounds]
+  );
+
+  useEffect(() => {
+    if (mapRef.current) {
+      debouncedFilterSearch();
+    }
+  }, [filters, debouncedFilterSearch]);
+
+  // Cleanup effect to cancel any pending requests
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      isRequestInProgressRef.current = false;
+      pendingRequestRef.current = null;
+    };
+  }, []);
 
   // const [mk, setMk] = useState([]);
 
@@ -429,17 +826,29 @@ const LeafletMap = ({
           lockedMarkerId === place._id ||
           selectedMarkerId === place._id;
 
+        const availabilityNormalized =
+          (place.availabilityNormalized ||
+            place.data?.availabilityNormalized ||
+            "available"
+          ).toString().toLowerCase();
+        const availabilityStatus =
+          place.availabilityStatus ||
+          place.data?.availabilityStatus ||
+          toTitleCase(availabilityNormalized);
+        const statusClass =
+          availabilityNormalized === "available" ? "is-available" : "is-unavailable";
+
         return (
           <Marker
             key={place._id || uuidv4()}
             position={[place.lat, place.lng]}
             icon={L.divIcon({
-              html: `<span class="easystay-price-marker ${
+              html: `<span class="easystay-price-marker ${statusClass} ${
                 isMarkerActive ? "is-active" : ""
-              }">${escapeHtml(place?.price)}</span>`,
+              }">${escapeHtml(availabilityStatus)}</span>`,
               className: "custom-marker",
-              iconSize: [60, 30],
-              iconAnchor: [30, 15],
+              iconSize: [90, 32],
+              iconAnchor: [45, 16],
             })}
             eventHandlers={{
               mouseover: () => {
@@ -527,7 +936,7 @@ const LeafletMap = ({
       zoom={8}
       simpleLayerControl={true}
       whenReady={(map) => {
-        getBounds(map.target);
+        getBounds(map.target, { shouldRefocus: true, bypassThrottle: true });
       }}
       // Performance optimizations
       preferCanvas={true}

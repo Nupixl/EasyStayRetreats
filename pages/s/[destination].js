@@ -278,6 +278,7 @@ const SearchPropertiesByDestinationPage = () => {
                     location={location}
                     places={places}
                     setPlaces={setPlaces}
+                    filters={{}}
                   />
                 </div>
               }

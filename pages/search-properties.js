@@ -27,7 +27,15 @@ const SearchMapPage = () => {
     return "all";
   }, [router.query]);
 
-  const [infos, setInfos] = useState({});
+  const [filters, setFilters] = useState(() => ({
+    destination: "",
+    checkin: null,
+    checkout: null,
+    numberOfAdults: 0,
+    numberOfChildren: 0,
+    numberOfInfants: 0,
+    numberOfPets: 0,
+  }));
   const [data, setData] = useState({
     loading: true,
     results: [],
@@ -46,9 +54,9 @@ const SearchMapPage = () => {
     const clampLatitude = (value) => Math.max(-90, Math.min(90, value));
     const clampLongitude = (value) => Math.max(-180, Math.min(180, value));
 
-    const PRIMARY_RADIUS = 0.2; // ~22km window for tighter framing
-    const CLUSTER_PADDING = 0.04;
-    const SINGLE_FALLBACK_RADIUS = 0.15;
+    const PRIMARY_RADIUS = 0.01; // ~1.1km window to stay within the same neighborhood
+    const CLUSTER_PADDING = 0.005;
+    const SINGLE_FALLBACK_RADIUS = 0.003; // ~300m fallback radius (≈3 city blocks)
 
     let bestCluster = null;
 
@@ -118,7 +126,19 @@ const SearchMapPage = () => {
   }, [hoveredPlace]);
 
   useEffect(() => {
-    setInfos({ ...getParams(), destination });
+    if (typeof window === "undefined") return;
+
+    const params = getParams();
+    setFilters((prev) => ({
+      ...prev,
+      destination,
+      checkin: params.checkin && params.checkin !== "null" ? params.checkin : null,
+      checkout: params.checkout && params.checkout !== "null" ? params.checkout : null,
+      numberOfAdults: Number(params.numberOfAdults) || 0,
+      numberOfChildren: Number(params.numberOfChildren) || 0,
+      numberOfInfants: Number(params.numberOfInfants) || 0,
+      numberOfPets: Number(params.numberOfPets) || 0,
+    }));
   }, [destination]);
 
   useEffect(() => {
@@ -167,14 +187,59 @@ const SearchMapPage = () => {
           return;
         }
 
-        const coordinates = response.data
-          .map((property) => ({
-            lat: Number(property?.geolocation?.lat),
-            lng: Number(property?.geolocation?.lng),
-          }))
-          .filter(({ lat, lng }) => Number.isFinite(lat) && Number.isFinite(lng));
+        const getCoordinates = (property) => {
+          const lat = Number(property?.geolocation?.lat);
+          const lng = Number(property?.geolocation?.lng);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+          return { lat, lng };
+        };
 
-        if (coordinates.length === 0) {
+        const selectCityCoordinates = (properties = []) => {
+          const cityGroups = new Map();
+
+          properties.forEach((property) => {
+            const coords = getCoordinates(property);
+            if (!coords) return;
+
+            const cityKey =
+              property?.lt ||
+              [property?.city, property?.state].filter(Boolean).join(", ") ||
+              "Unknown";
+
+            if (!cityGroups.has(cityKey)) {
+              cityGroups.set(cityKey, []);
+            }
+
+            cityGroups.get(cityKey).push(coords);
+          });
+
+          if (cityGroups.size === 0) {
+            return [];
+          }
+
+          const sortedGroups = Array.from(cityGroups.entries()).sort(
+            (a, b) => b[1].length - a[1].length
+          );
+
+          const multiPropertyGroup = sortedGroups.find(([, coords]) => coords.length > 1);
+
+          if (multiPropertyGroup) {
+            return multiPropertyGroup[1];
+          }
+
+          const [firstKey, firstCoords] = sortedGroups[0];
+          return firstCoords || [];
+        };
+
+        const availableCoordinates = selectCityCoordinates(
+          response.data.filter((property) => property?.isAvailable !== false)
+        );
+
+        const fallbackCoordinates = availableCoordinates.length
+          ? availableCoordinates
+          : selectCityCoordinates(response.data);
+
+        if (fallbackCoordinates.length === 0) {
           if (!cancelled) {
             setInitialBounds(null);
             setInitialBoundsLoaded(true);
@@ -182,7 +247,7 @@ const SearchMapPage = () => {
           return;
         }
 
-        const bounds = createCityBounds(coordinates);
+        const bounds = createCityBounds(fallbackCoordinates);
 
         if (!cancelled) {
           setInitialBounds(bounds);
@@ -260,6 +325,43 @@ const SearchMapPage = () => {
     };
   }, [destination, initialBounds, initialBoundsLoaded, userLocation]);
 
+  const searchDefaults = useMemo(
+    () => ({
+      ...filters,
+      destination,
+    }),
+    [filters, destination]
+  );
+
+  const mapFilters = useMemo(() => {
+    const totalGuests =
+      Number(filters.numberOfAdults || 0) +
+      Number(filters.numberOfChildren || 0) +
+      Number(filters.numberOfInfants || 0);
+
+    return {
+      ...filters,
+      destination,
+      totalGuests,
+    };
+  }, [filters, destination]);
+
+  const handleApplyFilters = useCallback(
+    (payload) => {
+      setData((prev) => ({
+        ...prev,
+        loading: true,
+        error: null,
+      }));
+      setFilters((prev) => ({
+        ...prev,
+        ...payload,
+      }));
+      return Promise.resolve();
+    },
+    []
+  );
+
   return (
     <>
       <Head>
@@ -273,7 +375,8 @@ const SearchMapPage = () => {
           data={data}
           hoveredPlace={hoveredPlace}
           setHoveredPlace={setHoveredPlace}
-          searchDefaults={infos}
+          searchDefaults={searchDefaults}
+          onApplyFilters={handleApplyFilters}
         />
         <div className="flex-1 h-full min-h-[360px] w-full min-w-0">
           {location ? (
@@ -285,6 +388,7 @@ const SearchMapPage = () => {
               initialBounds={initialBounds}
               hoveredPlace={hoveredPlace}
               setHoveredPlace={setHoveredPlace}
+              filters={mapFilters}
             />
           ) : (
             <div className="w-full h-full bg-[#e1e1e1] flex items-center justify-center rounded-xl">

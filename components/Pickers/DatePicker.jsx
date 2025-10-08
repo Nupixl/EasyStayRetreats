@@ -22,6 +22,8 @@ const DatePicker = ({
   css,
   footer = false,
   datePickerFunction = null,
+  activeField = "dates",
+  onFieldAdvance,
 }) => {
   const today = startOfToday();
   const [hoveredDate, setHoveredDate] = useState(null);
@@ -108,6 +110,8 @@ const DatePicker = ({
                   dayIdx={dayIdx}
                   setHoveredDate={setHoveredDate}
                   hoveredDate={hoveredDate}
+                  activeField={activeField}
+                  onFieldAdvance={onFieldAdvance}
                   // setButtonClicked={setButtonClicked}
                 />
               );
@@ -157,6 +161,8 @@ const DatePicker = ({
                   dayIdx={dayIdx}
                   setHoveredDate={setHoveredDate}
                   hoveredDate={hoveredDate}
+                  activeField={activeField}
+                  onFieldAdvance={onFieldAdvance}
                 />
               );
             })}

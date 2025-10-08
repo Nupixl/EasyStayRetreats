@@ -82,16 +82,25 @@ body {
   border: 1px solid #d5e0e6;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #1d2a30;
+  color: #000000;
   box-shadow: 0 12px 24px rgba(15, 67, 86, 0.1);
   transition: all 180ms ease;
 }
 
+.easystay-price-marker.is-available {
+  border-color: #047857;
+}
+
+.easystay-price-marker.is-unavailable {
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+
 .easystay-price-marker.is-active {
-  background: linear-gradient(135deg, #1f7a8c 0%, #134e6f 100%);
-  border-color: #134e6f;
-  color: #ffffff;
-  box-shadow: 0 18px 28px rgba(19, 78, 111, 0.35);
+  background: #ffffff;
+  border-color: #047857;
+  color: #047857;
+  box-shadow: 0 18px 28px rgba(4, 120, 87, 0.35);
 }
 
 .hidden-scroll-bar::-webkit-scrollbar {

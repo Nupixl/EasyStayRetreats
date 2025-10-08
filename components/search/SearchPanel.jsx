@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
 import DatePicker from "../Pickers/DatePicker";
@@ -35,6 +35,8 @@ const SearchPanel = ({
   buttonLabel = "Search retreats",
   className = "",
   variant = "default",
+  onSearch,
+  fields,
 }) => {
   const router = useRouter();
   const containerRef = useRef(null);
@@ -43,6 +45,7 @@ const SearchPanel = ({
   const [selectedDay, setSelectedDay] = useState(parseDate(initialValues.checkin));
   const [selectEnd, setSelectEnd] = useState(parseDate(initialValues.checkout));
   const [guests, setGuests] = useState(() => buildGuestsState(initialValues));
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const result = useLabeling(guests);
 
@@ -83,17 +86,35 @@ const SearchPanel = ({
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  const submit = () => {
-    router.push(
-      `/s/${destination || "_"}?numberOfAdults=${
-        guests.adults.value
-      }&numberOfChildren=${guests.children.value}&numberOfInfants=${
-        guests.infants.value
-      }&numberOfPets=${guests.pets.value}&checkin=${
-        selectedDay ? format(selectedDay, "yyyy-MM-dd") : null
-      }&checkout=${selectEnd ? format(selectEnd, "yyyy-MM-dd") : null}`
-    );
+  const submit = async () => {
+    if (isSubmitting) return;
+    const payload = {
+      destination: destination || "",
+      numberOfAdults: guests.adults.value,
+      numberOfChildren: guests.children.value,
+      numberOfInfants: guests.infants.value,
+      numberOfPets: guests.pets.value,
+      checkin: selectedDay ? format(selectedDay, "yyyy-MM-dd") : null,
+      checkout: selectEnd ? format(selectEnd, "yyyy-MM-dd") : null,
+    };
+
+    if (typeof onSearch === "function") {
+      setIsSubmitting(true);
+      await Promise.resolve(onSearch(payload));
+      setIsSubmitting(false);
+      setSelection(null);
+      return;
+    }
+
+    setIsSubmitting(true);
     setSelection(null);
+    try {
+      await router.push(
+        `/s/${payload.destination || "_"}?numberOfAdults=${payload.numberOfAdults}&numberOfChildren=${payload.numberOfChildren}&numberOfInfants=${payload.numberOfInfants}&numberOfPets=${payload.numberOfPets}&checkin=${payload.checkin}&checkout=${payload.checkout}`
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const panelClasses = useMemo(() => {
@@ -121,53 +142,146 @@ const SearchPanel = ({
     <span className="hidden h-10 w-px self-center border-l border-lightBorderColor sm:block" />
   );
 
+  const segmentOrder = useMemo(() => {
+    if (Array.isArray(fields) && fields.length > 0) {
+      return fields;
+    }
+    return ["destination", "dates", "guests"];
+  }, [fields]);
+
+  const openSegment = useCallback(
+    (segment, allowToggle = true) => {
+      setSelection((prev) => {
+        if (allowToggle && prev === segment) {
+          return null;
+        }
+        return segment;
+      });
+    },
+    []
+  );
+
+  const renderSegment = (segment) => {
+    switch (segment) {
+      case "destination":
+        return (
+          <button
+            type="button"
+            className={segmentClasses(selection === "destination")}
+            onClick={() => openSegment("destination")}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
+              Where
+            </span>
+            <span className="truncate text-left text-sm font-semibold text-blackColor">
+              {destination || "Search destinations"}
+            </span>
+          </button>
+        );
+      case "dates":
+        return (
+          <button
+            type="button"
+            className={segmentClasses(selection === "dates")}
+            onClick={() => openSegment("dates")}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
+              When
+            </span>
+            <span className="text-left text-sm font-semibold text-blackColor">
+              {selectedDay && selectEnd
+                ? `${format(selectedDay, "MMM dd")} - ${format(selectEnd, "MMM dd")}`
+                : "Add dates"}
+            </span>
+          </button>
+        );
+      case "checkin":
+        return (
+          <button
+            type="button"
+            className={segmentClasses(selection === "checkin")}
+            onClick={() => openSegment("checkin", false)}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
+              Check in
+            </span>
+            <span className="text-left text-sm font-semibold text-blackColor">
+              {selectedDay ? format(selectedDay, "MMM dd") : "Add date"}
+            </span>
+          </button>
+        );
+      case "checkout":
+        return (
+          <button
+            type="button"
+            className={segmentClasses(selection === "checkout")}
+            onClick={() => openSegment("checkout", false)}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
+              Check out
+            </span>
+            <span className="text-left text-sm font-semibold text-blackColor">
+              {selectEnd ? format(selectEnd, "MMM dd") : "Add date"}
+            </span>
+          </button>
+        );
+      case "guests":
+      default:
+        return (
+          <button
+            type="button"
+            className={segmentClasses(selection === "guests")}
+            onClick={() => openSegment("guests")}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
+              Who
+            </span>
+            <span className="text-left text-sm font-semibold text-blackColor">
+              {result || "Add guests"}
+            </span>
+          </button>
+        );
+    }
+  };
+
+  const shouldShowDatePicker =
+    selection === "dates" || selection === "checkin" || selection === "checkout";
+
+  const handleDateFieldAdvance = useCallback(
+    (nextField) => {
+      const hasSplitDates =
+        segmentOrder.includes("checkin") && segmentOrder.includes("checkout");
+
+      if (!hasSplitDates) {
+        return;
+      }
+
+      if (nextField && segmentOrder.includes(nextField)) {
+        openSegment(nextField, false);
+      } else if (nextField === null) {
+        setSelection(null);
+      }
+    },
+    [openSegment, segmentOrder]
+  );
+
+  const hasSplitDateSegments =
+    segmentOrder.includes("checkin") && segmentOrder.includes("checkout");
+
+  const activeDateField =
+    hasSplitDateSegments && (selection === "checkin" || selection === "checkout")
+      ? selection
+      : "dates";
+
   return (
     <div ref={containerRef} className={classNames("relative", className)}>
       <div className={panelClasses}>
-        <button
-          type="button"
-          className={segmentClasses(selection === "destination")}
-          onClick={() => setSelection((prev) => (prev === "destination" ? null : "destination"))}
-        >
-          <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
-            Where
-          </span>
-          <span className="truncate text-left text-sm font-semibold text-blackColor">
-            {destination || "Search destinations"}
-          </span>
-        </button>
-
-        {separator}
-
-        <button
-          type="button"
-          className={segmentClasses(selection === "dates")}
-          onClick={() => setSelection((prev) => (prev === "dates" ? null : "dates"))}
-        >
-          <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
-            When
-          </span>
-          <span className="text-left text-sm font-semibold text-blackColor">
-            {selectedDay && selectEnd
-              ? `${format(selectedDay, "MMM dd")} - ${format(selectEnd, "MMM dd")}`
-              : "Add dates"}
-          </span>
-        </button>
-
-        {separator}
-
-        <button
-          type="button"
-          className={segmentClasses(selection === "guests")}
-          onClick={() => setSelection((prev) => (prev === "guests" ? null : "guests"))}
-        >
-          <span className="text-xs font-semibold uppercase tracking-wide text-lightTextColor">
-            Who
-          </span>
-          <span className="text-left text-sm font-semibold text-blackColor">
-            {result || "Add guests"}
-          </span>
-        </button>
+        {segmentOrder.map((segment, index) => (
+          <Fragment key={segment}>
+            {renderSegment(segment)}
+            {index < segmentOrder.length - 1 && separator}
+          </Fragment>
+        ))}
 
         <div className="flex w-full items-center justify-end sm:w-auto sm:flex-none">
           <BtnPrimary
@@ -175,8 +289,16 @@ const SearchPanel = ({
             rounded
             dark={false}
             style={{ background: "#1f7a8c", backgroundImage: "none" }}
+            className="inline-flex items-center gap-2"
+            disabled={isSubmitting}
           >
-            {buttonLabel}
+            {isSubmitting && (
+              <span
+                aria-hidden="true"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent"
+              />
+            )}
+            <span>{isSubmitting ? "Applying..." : buttonLabel}</span>
           </BtnPrimary>
         </div>
       </div>
@@ -198,13 +320,15 @@ const SearchPanel = ({
         </div>
       )}
 
-      {selection === "dates" && (
+      {shouldShowDatePicker && (
         <div className="absolute z-40 mt-4 w-full max-w-3xl -translate-x-1/2 rounded-3xl border border-lightBorderColor bg-white p-6 shadow-2xl sm:left-1/2">
           <DatePicker
             selectedDay={selectedDay}
             setSelectedDay={setSelectedDay}
             selectEnd={selectEnd}
             setSelectEnd={setSelectEnd}
+            activeField={activeDateField}
+            onFieldAdvance={handleDateFieldAdvance}
           />
         </div>
       )}

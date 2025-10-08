@@ -10,7 +10,62 @@ const Button = ({
   dayIdx,
   hoveredDate,
   setHoveredDate,
+  activeField = "dates",
+  onFieldAdvance,
 }) => {
+  const handleFieldAdvance = (nextField) => {
+    if (typeof onFieldAdvance === "function") {
+      onFieldAdvance(nextField);
+    }
+  };
+
+  const handleDayClick = async () => {
+    if (activeField === "checkin") {
+      await setSelectedDay(day);
+
+      if (selectEnd && (isBefore(selectEnd, day) || isEqual(selectEnd, day))) {
+        await setSelectEnd(null);
+      }
+
+      handleFieldAdvance("checkout");
+      return;
+    }
+
+    if (activeField === "checkout") {
+      if (!selectedDay) {
+        await setSelectedDay(day);
+        await setSelectEnd(null);
+        handleFieldAdvance("checkout");
+        return;
+      }
+
+      if (isBefore(day, selectedDay)) {
+        await setSelectedDay(day);
+        await setSelectEnd(null);
+        handleFieldAdvance("checkout");
+        return;
+      }
+
+      if (!isEqual(day, selectedDay)) {
+        await setSelectEnd(day);
+        handleFieldAdvance(null);
+      }
+      return;
+    }
+
+    if (!selectedDay) {
+      await setSelectedDay(day);
+      return;
+    }
+
+    if (isBefore(day, selectedDay)) {
+      await setSelectedDay(day);
+      await setSelectEnd(null);
+    } else if (!isEqual(day, selectedDay)) {
+      await setSelectEnd(day);
+    }
+  };
+
   return (
     <div
       key={day.toString()}
@@ -26,18 +81,7 @@ const Button = ({
         type="button"
         onMouseMove={() => setHoveredDate(day)}
         disabled={isPast(day) && !isToday(day) ? true : false}
-        onClick={async () => {
-          selectedDay === null && setSelectedDay(day);
-
-          if (isBefore(day, selectedDay)) {
-            await setSelectedDay(day);
-            await setSelectEnd(null);
-          } else {
-            if (selectedDay && !isEqual(day, selectedDay)) {
-              await setSelectEnd(day);
-            }
-          }
-        }}
+        onClick={handleDayClick}
         className={classNames(
           selectEnd !== null &&
             isEqual(day, selectEnd) &&
