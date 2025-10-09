@@ -426,9 +426,6 @@ const LeafletMap = ({
   );
   const abortControllerRef = useRef(null);
   const lastRequestTimeRef = useRef(0);
-  const requestQueueRef = useRef(null);
-  const isRequestInProgressRef = useRef(false);
-  const pendingRequestRef = useRef(null);
 
   useEffect(() => {
     lockedMarkerIdRef.current = lockedMarkerId;
@@ -543,16 +540,8 @@ const LeafletMap = ({
       const timeSinceLastRequest = now - lastRequestTimeRef.current;
       const shouldBypassThrottle = Boolean(options?.bypassThrottle);
 
-      // Throttle rapid successive requests, but keep the UI responsive for filter changes
-      if (!shouldBypassThrottle && timeSinceLastRequest < 800) {
+      if (!shouldBypassThrottle && timeSinceLastRequest < 300) {
         console.log("Request throttled, too soon since last request");
-        return;
-      }
-
-      // Check if request is already in progress
-      if (isRequestInProgressRef.current && !shouldBypassThrottle) {
-        console.log("Request already in progress, storing pending request...");
-        pendingRequestRef.current = { m, options };
         return;
       }
 
@@ -561,9 +550,8 @@ const LeafletMap = ({
         abortControllerRef.current.abort();
       }
 
-      // Set request in progress flag
-      isRequestInProgressRef.current = true;
-      abortControllerRef.current = new AbortController();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
       lastRequestTimeRef.current = now;
 
       console.log("Making API request for bounds:", m);
@@ -588,7 +576,7 @@ const LeafletMap = ({
             numberOfPets: activeFilters.numberOfPets || undefined,
             totalGuests: activeFilters.totalGuests || undefined,
           },
-          signal: abortControllerRef.current.signal,
+          signal: controller.signal,
         });
 
         if (data.success) {
@@ -625,8 +613,9 @@ const LeafletMap = ({
           }
         }
       } catch (error) {
-        // Don't handle aborted requests as errors
-        if (error.name === 'AbortError') {
+        // Ignore cancelled requests
+        const errorCode = error?.code || error?.name;
+        if (errorCode === 'ERR_CANCELED' || errorCode === 'CanceledError' || errorCode === 'AbortError') {
           console.log("Request was aborted");
           return;
         }
@@ -646,18 +635,10 @@ const LeafletMap = ({
           setPlaces([]);
         }
       } finally {
-        setIsLoading(false);
-        isRequestInProgressRef.current = false;
-        
-        // Process pending request if any
-        if (pendingRequestRef.current) {
-          const pendingRequest = pendingRequestRef.current;
-          pendingRequestRef.current = null;
-          // Longer delay to prevent rapid-fire requests
-          setTimeout(() => {
-            getData(pendingRequest.m, pendingRequest.options);
-          }, 1000);
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
         }
+        setIsLoading(false);
       }
     },
     [fallbackToAllProperties, focusMapOnAvailableProperties, pushPlaces, setData, setPlaces]
@@ -698,7 +679,7 @@ const LeafletMap = ({
         if (mapRef.current) {
           getBounds(mapRef.current, { shouldRefocus: false });
         }
-      }, 3000), // 3 second debounce for map movements
+      }, 400),
     [getBounds]
   );
 
@@ -733,22 +714,11 @@ const LeafletMap = ({
     }
   }, [debouncedGetLngAndLat]);
 
-  // Debounced version for filter changes
-  const debouncedFilterSearch = useMemo(
-    () =>
-      debounce(() => {
-        if (mapRef.current) {
-          getBounds(mapRef.current, { shouldRefocus: true, bypassThrottle: true });
-        }
-      }, 5000), // 5 second debounce for filter changes
-    [getBounds]
-  );
-
   useEffect(() => {
     if (mapRef.current) {
-      debouncedFilterSearch();
+      getBounds(mapRef.current, { shouldRefocus: true, bypassThrottle: true });
     }
-  }, [filters, debouncedFilterSearch]);
+  }, [filters, getBounds]);
 
   // Cleanup effect to cancel any pending requests
   useEffect(() => {
@@ -756,8 +726,6 @@ const LeafletMap = ({
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      isRequestInProgressRef.current = false;
-      pendingRequestRef.current = null;
     };
   }, []);
 

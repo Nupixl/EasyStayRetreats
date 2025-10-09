@@ -274,10 +274,6 @@ const SearchMapPage = () => {
     let cancelled = false;
 
     const determineLocation = async () => {
-      if (destination === "all" && !initialBoundsLoaded) {
-        return;
-      }
-
       let nextLocation = null;
 
       if (destination && destination !== "all") {
@@ -318,6 +314,21 @@ const SearchMapPage = () => {
         setLocation(nextLocation);
       }
     };
+
+    // For "all" destination, wait a bit for initial bounds, but don't wait forever
+    if (destination === "all" && !initialBoundsLoaded) {
+      const timeout = setTimeout(() => {
+        if (!cancelled) {
+          console.log("Initial bounds loading timeout, proceeding with fallback location");
+          determineLocation();
+        }
+      }, 3000);
+      
+      return () => {
+        cancelled = true;
+        clearTimeout(timeout);
+      };
+    }
 
     determineLocation();
 
