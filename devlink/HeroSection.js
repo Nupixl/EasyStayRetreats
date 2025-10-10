@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import * as _Builtin from "./_Builtin";
 import * as _interactions from "./interactions";
 import * as _utils from "./utils";
@@ -14,14 +14,27 @@ export function HeroSection({
   metaTag = "h1",
   textTitle = "Making travel simple and hosting stress-free.",
   textSubtitleText = "About Easy Stay",
-  textBody = "At Easy Stay, we believe great travel experiences start with trusted hospitality. That’s why we’ve built a service that delivers peace of mind to guests and property owners alike.",
+  textBody = "At Easy Stay, we believe great travel experiences start with trusted hospitality. That's why we've built a service that delivers peace of mind to guests and property owners alike.",
   body = true,
   title = true,
   subtitle = true,
   backgroundImage = "https://cdn.prod.website-files.com/609dfa12a141dd6e70976d48/68bb2e583330bc028114577f_b7zyphz0_Io.avif",
   imageAltText = "__wf_reserved_inherit",
+  showSearchForm = false,
 }) {
   _interactions.useInteractions(_interactionsData, _styles);
+
+  // Initialize search form handler
+  useEffect(() => {
+    if (showSearchForm && typeof window !== 'undefined') {
+          import('../lib/heroSearchForm.js').then(({ HeroSearchForm }) => {
+        const searchForm = document.querySelector('.guest-hero-search');
+        if (searchForm) {
+          new HeroSearchForm(searchForm);
+        }
+      });
+    }
+  }, [showSearchForm]);
 
   return (
     <_Component
@@ -64,18 +77,83 @@ export function HeroSection({
                 {textTitle}
               </_Builtin.Heading>
             ) : null}
-            {body ? (
-              <_Builtin.Block
-                className={_utils.cx(_styles, "body-display", "white")}
-                id={_utils.cx(
-                  _styles,
-                  "w-node-e6a726e2-1f5b-36e8-4f0e-42e5cc664045-cc66403d"
+                {body ? (
+                  <_Builtin.Block
+                    className={_utils.cx(_styles, "body-display", "white")}
+                    id={_utils.cx(
+                      _styles,
+                      "w-node-e6a726e2-1f5b-36e8-4f0e-42e5cc664045-cc66403d"
+                    )}
+                    tag="div"
+                  >
+                    {textBody}
+                  </_Builtin.Block>
+                ) : null}
+                
+                {/* Search Form */}
+                {showSearchForm && (
+                  <_Builtin.Block className={_utils.cx(_styles, "w-form")} tag="div">
+                    <form
+                      id="wf-form-Vacation-Location"
+                      name="wf-form-Vacation-Location"
+                      data-name="Vacation Location"
+                      action="/search-properties"
+                      method="get"
+                      className="guest-hero-search"
+                      data-wf-page-id="68bf2bda93c9381ef9e6ed91"
+                      data-wf-element-id="7c665164-066c-88c6-ab71-3c4c86d52afa"
+                    >
+                      <input
+                        id="es-location"
+                        type="text"
+                        name="location"
+                        placeholder="Search location"
+                        className="search-input-catetgory start"
+                      />
+                      <input
+                        id="es-checkin"
+                        type="date"
+                        name="checkin"
+                        aria-label="Check in"
+                        className="search-input-catetgory second"
+                      />
+                      <input
+                        id="es-checkout"
+                        type="date"
+                        name="checkout"
+                        aria-label="Check out"
+                        className="search-input-catetgory"
+                      />
+                      <input
+                        id="es-guests"
+                        type="number"
+                        name="guests"
+                        min="1"
+                        step="1"
+                        aria-label="Number of guests"
+                        className="search-input-catetgory"
+                        defaultValue="1"
+                      />
+                      <button
+                        id="es-search-btn"
+                        type="submit"
+                        className="search-input-enter-button"
+                      >
+                        Search
+                      </button>
+                    </form>
+                    <_Builtin.Block className={_utils.cx(_styles, "w-form-done")} tag="div">
+                      <_Builtin.Block tag="div">
+                        {"Thank you! Your submission has been received!"}
+                      </_Builtin.Block>
+                    </_Builtin.Block>
+                    <_Builtin.Block className={_utils.cx(_styles, "w-form-fail")} tag="div">
+                      <_Builtin.Block tag="div">
+                        {"Oops! Something went wrong while submitting the form."}
+                      </_Builtin.Block>
+                    </_Builtin.Block>
+                  </_Builtin.Block>
                 )}
-                tag="div"
-              >
-                {textBody}
-              </_Builtin.Block>
-            ) : null}
           </_Builtin.Block>
         </_Builtin.Block>
       </_Builtin.Block>

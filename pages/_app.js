@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/globals.css";
 import "../devlink/global.css";
 import "../styles/animations.css";
+import "../styles/hero-search.css";
 import { DevLinkProvider } from "../devlink/DevLinkProvider";
 
 export const Context = React.createContext();

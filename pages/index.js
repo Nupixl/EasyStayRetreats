@@ -49,6 +49,7 @@ export default function Homepage() {
           searchPlaceholder="Search location"
           features="24/7 Guest Support • Hotel-Grade Cleaning • Secure Payments"
           backgroundImage="/webflow-images/claire-rendall-rqckazRfbCs-unsplash-p-1600.jpg"
+          showSearchForm={true}
         />
         
         {/* Hero Links */}
