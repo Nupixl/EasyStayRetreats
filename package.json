@@ -32,7 +32,7 @@
     "gsap": "^3.11.1",
     "leaflet": "^1.9.2",
     "leaflet-defaulticon-compatibility": "^0.1.1",
-    "next": "^15.5.3",
+    "next": "^14.2.33",
     "node-fetch": "^3.3.0",
     "puppeteer": "^23.0.0",
     "puppeteer-autoscroll-down": "^1.1.1",

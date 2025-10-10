@@ -363,6 +363,14 @@ const LeafletMap = ({
 }) => {
   const DEFAULT_CENTER = location || [37.4316, -78.6569];
   const mapRef = useRef(null);
+  const [mapInstance, setMapInstance] = useState(null);
+  const handleMapRef = useCallback(
+    (map) => {
+      mapRef.current = map || null;
+      setMapInstance(map || null);
+    },
+    [setMapInstance]
+  );
   const [isLoading, setIsLoading] = useState(false);
   const hasAppliedInitialBounds = useRef(false);
   const [activeMarkerId, setActiveMarkerId] = useState(null);
@@ -459,7 +467,7 @@ const LeafletMap = ({
     if (mapRef.current && location) {
       mapRef.current.setView(location);
     }
-  }, [location]);
+  }, [location, mapInstance]);
 
   // Memoize the pushPlaces function to prevent unnecessary re-renders
   const pushPlaces = useCallback((results = []) => {
@@ -712,13 +720,18 @@ const LeafletMap = ({
         map.off("moveend", debouncedGetLngAndLat);
       };
     }
-  }, [debouncedGetLngAndLat]);
+  }, [debouncedGetLngAndLat, mapInstance]);
 
   useEffect(() => {
     if (mapRef.current) {
       getBounds(mapRef.current, { shouldRefocus: true, bypassThrottle: true });
     }
-  }, [filters, getBounds]);
+  }, [filters, getBounds, mapInstance]);
+
+  useEffect(() => {
+    if (!mapInstance) return;
+    getBounds(mapInstance, { shouldRefocus: true, bypassThrottle: true });
+  }, [mapInstance, getBounds]);
 
   // Cleanup effect to cancel any pending requests
   useEffect(() => {
@@ -897,14 +910,11 @@ const LeafletMap = ({
 
   return (
     <MapContainer
-      ref={mapRef}
+      ref={handleMapRef}
       style={{ width: "100%", height: "100%" }}
       center={DEFAULT_CENTER}
       zoom={8}
       simpleLayerControl={true}
-      whenReady={(map) => {
-        getBounds(map.target, { shouldRefocus: true, bypassThrottle: true });
-      }}
       // Performance optimizations
       preferCanvas={true}
       zoomControl={true}

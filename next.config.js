@@ -1,4 +1,3 @@
-import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 // Values injected by Webflow Cloud at build/deploy time.
@@ -12,7 +11,7 @@ const assetPrefix =
     ? `${cosmicDeployUrl}${normalizedBasePath}`
     : undefined;
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   basePath: normalizedBasePath,
   assetPrefix,
   reactStrictMode: true,
