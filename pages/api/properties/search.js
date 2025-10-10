@@ -410,6 +410,8 @@ async function handler(req, res) {
       return properties
     }
 
+    let fallbackHandled = false
+
     const properties = await supabaseCircuitBreaker.execute(
       () => withRetry(
         () => withTimeout(searchProperties(), 15000),
@@ -418,25 +420,27 @@ async function handler(req, res) {
       ),
       async () => {
         logger.warn('Circuit breaker fallback: using fallback search');
+        fallbackHandled = true;
         await handleFallbackSearch(req, res);
         return null;
       }
     )
 
-    if (res.headersSent || res.writableEnded) {
-      // Fallback responded directly; avoid double responses
-      logger.debug('Response already sent by fallback handler, exiting early');
+    if (fallbackHandled) {
+      logger.debug('Fallback handler already produced a response; skipping transformation');
       return
     }
 
+    const propertyList = Array.isArray(properties) ? properties : []
+
     logger.debug('Starting property transformation for search results', {
-      propertyCount: properties?.length || 0
+      propertyCount: propertyList.length
     });
 
     const transformed = await Promise.all(
-      (properties || []).map(async (property, index) => {
+      propertyList.map(async (property, index) => {
         try {
-          logger.trace(`Transforming search property ${index + 1}/${properties.length}`, {
+          logger.trace(`Transforming search property ${index + 1}/${propertyList.length}`, {
             propertyId: property.id,
             propertyName: property.name
           });
@@ -564,3 +568,9 @@ async function handler(req, res) {
 }
 
 export default asyncHandler(handler)
+
+// Force Node runtime; Webflow Cloud runs this route on the edge by default, which
+// lacks the optional react-dom/server.edge dependency and native Node APIs.
+export const config = {
+  runtime: 'nodejs',
+}
