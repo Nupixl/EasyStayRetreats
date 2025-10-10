@@ -5,6 +5,10 @@ import DebugLogger, { generateCorrelationId } from '../../../lib/debugLogger'
 import { supabaseCircuitBreaker } from '../../../lib/circuitBreaker'
 import fallbackData from '../../../data.json'
 
+// Force Node runtime; Webflow Cloud defaults API routes to edge workers which require
+// optional React edge bundles that aren't installed in this project.
+export const runtime = 'nodejs'
+
 const buildImages = (property) => {
   const sources = [
     property.card_image,
