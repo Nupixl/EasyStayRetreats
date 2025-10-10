@@ -418,9 +418,16 @@ async function handler(req, res) {
       ),
       async () => {
         logger.warn('Circuit breaker fallback: using fallback search');
-        return handleFallbackSearch(req, res);
+        await handleFallbackSearch(req, res);
+        return null;
       }
     )
+
+    if (res.headersSent || res.writableEnded) {
+      // Fallback responded directly; avoid double responses
+      logger.debug('Response already sent by fallback handler, exiting early');
+      return
+    }
 
     logger.debug('Starting property transformation for search results', {
       propertyCount: properties?.length || 0
