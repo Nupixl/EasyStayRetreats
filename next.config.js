@@ -1,6 +1,3 @@
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-
-// Values injected by Webflow Cloud at build/deploy time.
 const cloudMountPath = process.env.CLOUD_MOUNT_PATH?.trim();
 const normalizedBasePath =
   cloudMountPath && cloudMountPath !== "/" ? cloudMountPath : undefined;
@@ -11,6 +8,7 @@ const assetPrefix =
     ? `${cosmicDeployUrl}${normalizedBasePath}`
     : undefined;
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath: normalizedBasePath,
   assetPrefix,
@@ -42,7 +40,18 @@ if (
   process.env.NODE_ENV === "development" &&
   process.env.WEBFLOW_USE_CLOUDFLARE_DEV === "true"
 ) {
-  initOpenNextCloudflareForDev();
+  // Defer the ESM-only import to keep this config in CommonJS.
+  (async () => {
+    const { initOpenNextCloudflareForDev } = await import(
+      "@opennextjs/cloudflare"
+    );
+    initOpenNextCloudflareForDev();
+  })().catch((error) => {
+    console.warn(
+      "Failed to enable OpenNext Cloudflare dev integration:",
+      error
+    );
+  });
 }
 
-export default nextConfig;
+module.exports = nextConfig;
