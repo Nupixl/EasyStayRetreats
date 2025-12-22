@@ -32,6 +32,7 @@ export async function POST(req: Request) {
         phone,
         role,
         propertiesCount,
+        properties, // NEW: Array of property objects
         listingLinks,
         // Tracking fields
         companySource = 'EasyStay',
@@ -93,6 +94,7 @@ export async function POST(req: Request) {
                     phone: phone,
                     role: role,
                     properties_count: normalizedPropertiesCount,
+                    properties: properties || null, // NEW: Store properties array
                     listing_links: listingLinks,
                     status: 'new',
                     // Tracking fields
@@ -112,7 +114,42 @@ export async function POST(req: Request) {
         const { error: updateError } = await supabase.rpc('increment_referral_count', { link_id: linkId });
         if (updateError) console.error('Error incrementing referral count:', updateError);
 
-        // 3. Trigger GHL Opportunity Creation (Mocked for now)
+        // 3. Send to Airtable Webhook
+        try {
+            const airtablePayload = {
+                firstName,
+                lastName,
+                email,
+                phone,
+                propertiesCount: normalizedPropertiesCount,
+                properties: properties || [],
+                listingLinks,
+                companySource,
+                submittedAt: completedAt || new Date().toISOString(),
+                timeToComplete,
+                referralId: referral.id
+            };
+
+            const airtableResponse = await fetch(
+                'https://hooks.airtable.com/workflows/v1/genericWebhook/appgCDGkSJ1XpodGS/wflvULnylMNWY17o3/wtrfGQ2D49embpvMR',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(airtablePayload)
+                }
+            );
+
+            if (!airtableResponse.ok) {
+                console.error('Airtable webhook failed:', await airtableResponse.text());
+            } else {
+                console.log('Successfully sent to Airtable webhook');
+            }
+        } catch (airtableError) {
+            // Don't fail the whole request if Airtable fails
+            console.error('Error sending to Airtable:', airtableError);
+        }
+
+        // 4. Trigger GHL Opportunity Creation (Mocked for now)
         console.log('Would create GHL Opportunity for:', referral.id);
         console.log('Tracking data:', { companySource, formEngagement, timeToComplete });
 
