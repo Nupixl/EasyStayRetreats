@@ -341,11 +341,14 @@ function SectionListItem({
             </div>
             
             {isActive && isExpanded && (
-                <div className="border-t border-[#e5e7eb] px-3 py-4">
+                <div className={`border-t px-3 py-4 ${
+                    theme === 'dark' ? 'border-[#475569]' : 'border-[#e5e7eb]'
+                }`}>
                     <SectionInspector
                         section={section}
                         onUpdate={onUpdate}
                         onCardUpdate={onCardUpdate}
+                        theme={theme}
                     />
                 </div>
             )}
@@ -359,12 +362,14 @@ function BackgroundSelector({
     backgroundImage,
     onUpdate,
     onReset,
+    theme,
 }: {
     backgroundType: 'color' | 'image';
     backgroundColor: string;
     backgroundImage: string;
     onUpdate: (updates: { backgroundType?: 'color' | 'image'; backgroundColor?: string; backgroundImage?: string }) => void;
     onReset: () => void;
+    theme: 'dark' | 'light';
 }) {
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -379,8 +384,14 @@ function BackgroundSelector({
     };
 
     return (
-        <div className="space-y-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">Background</p>
+        <div className={`space-y-3 rounded-2xl border px-3 py-3 ${
+            theme === 'dark'
+                ? 'border-[#475569] bg-[#1e293b]'
+                : 'border-[#e5e7eb] bg-white'
+        }`}>
+            <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${
+                theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+            }`}>Background</p>
             
             {/* Background Type Selector */}
             <div className="flex gap-2">
@@ -390,7 +401,9 @@ function BackgroundSelector({
                     className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition-all ${
                         backgroundType === 'color'
                             ? 'bg-[#667eea] text-white'
-                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
+                            : theme === 'dark'
+                                ? 'bg-[#334155] text-[#94a3b8] hover:bg-[#475569] hover:text-white'
+                                : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
                     }`}
                 >
                     Color
@@ -401,7 +414,9 @@ function BackgroundSelector({
                     className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition-all ${
                         backgroundType === 'image'
                             ? 'bg-[#667eea] text-white'
-                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
+                            : theme === 'dark'
+                                ? 'bg-[#334155] text-[#94a3b8] hover:bg-[#475569] hover:text-white'
+                                : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
                     }`}
                 >
                     Image
@@ -411,18 +426,28 @@ function BackgroundSelector({
             {/* Color Picker */}
             {backgroundType === 'color' && (
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">Color</p>
+                    <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${
+                        theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+                    }`}>Color</p>
                     <input
                         type="color"
                         value={backgroundColor}
                         onChange={(e) => onUpdate({ backgroundColor: e.target.value })}
-                        className="h-10 w-full rounded-xl border border-[#d1d5db] cursor-pointer"
+                        className={`h-10 w-full rounded-xl border cursor-pointer ${
+                            theme === 'dark'
+                                ? 'border-[#475569] bg-[#334155]'
+                                : 'border-[#d1d5db]'
+                        }`}
                     />
                     <input
                         type="text"
                         value={backgroundColor}
                         onChange={(e) => onUpdate({ backgroundColor: e.target.value })}
-                        className="w-full rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#0f172a] focus:border-[#667eea] focus:outline-none"
+                        className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-[#667eea] focus:outline-none ${
+                            theme === 'dark'
+                                ? 'border-[#475569] bg-[#334155] text-white'
+                                : 'border-[#d1d5db] text-[#0f172a]'
+                        }`}
                         placeholder="#000000"
                     />
                 </div>
@@ -431,22 +456,34 @@ function BackgroundSelector({
             {/* Image Upload */}
             {backgroundType === 'image' && (
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">Upload Image</p>
+                    <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${
+                        theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+                    }`}>Upload Image</p>
                     <input
                         type="file"
                         accept="image/*"
                         onChange={handleImageUpload}
-                        className="w-full rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#0f172a] file:mr-4 file:rounded-lg file:border-0 file:bg-[#667eea] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#5568d3] focus:border-[#667eea] focus:outline-none"
+                        className={`w-full rounded-xl border px-3 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-[#667eea] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#5568d3] focus:border-[#667eea] focus:outline-none ${
+                            theme === 'dark'
+                                ? 'border-[#475569] bg-[#334155] text-white'
+                                : 'border-[#d1d5db] text-[#0f172a]'
+                        }`}
                     />
                     {backgroundImage && (
                         <div className="space-y-2">
-                            <div className="relative mt-2 h-20 w-full overflow-hidden rounded-lg border border-[#e5e7eb]">
+                            <div className={`relative mt-2 h-20 w-full overflow-hidden rounded-lg border ${
+                                theme === 'dark' ? 'border-[#475569]' : 'border-[#e5e7eb]'
+                            }`}>
                                 <Image src={backgroundImage} alt="Background preview" fill className="object-cover" />
                             </div>
                             <button
                                 type="button"
                                 onClick={onReset}
-                                className="w-full rounded-lg border border-[#ef4444] bg-[#fef2f2] px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#ef4444] transition-all hover:bg-[#fee2e2]"
+                                className={`w-full rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition-all ${
+                                    theme === 'dark'
+                                        ? 'border-[#dc2626] bg-[#7f1d1d] text-[#fca5a5] hover:bg-[#991b1b]'
+                                        : 'border-[#ef4444] bg-[#fef2f2] text-[#ef4444] hover:bg-[#fee2e2]'
+                                }`}
                             >
                                 Reset to Template
                             </button>
@@ -462,24 +499,27 @@ function SectionInspector({
     section,
     onUpdate,
     onCardUpdate,
+    theme,
 }: {
     section: SectionCard;
     onUpdate: (updates: SectionCard['data']) => void;
     onCardUpdate: (cardIndex: number, field: keyof BenefitCard, value: string) => void;
+    theme: 'dark' | 'light';
 }) {
     switch (section.type) {
         case 'hero':
             return (
                 <div className="space-y-3">
-                    <InputField label="Headline" value={section.data.headline} onChange={(value) => onUpdate({ ...section.data, headline: value })} />
-                    <InputField label="Subheadline" value={section.data.subheadline} onChange={(value) => onUpdate({ ...section.data, subheadline: value })} />
-                    <InputField label="CTA text" value={section.data.ctaText} onChange={(value) => onUpdate({ ...section.data, ctaText: value })} />
+                    <InputField label="Headline" value={section.data.headline} onChange={(value) => onUpdate({ ...section.data, headline: value })} theme={theme} />
+                    <InputField label="Subheadline" value={section.data.subheadline} onChange={(value) => onUpdate({ ...section.data, subheadline: value })} theme={theme} />
+                    <InputField label="CTA text" value={section.data.ctaText} onChange={(value) => onUpdate({ ...section.data, ctaText: value })} theme={theme} />
                     <BackgroundSelector
                         backgroundType={section.data.backgroundType || 'image'}
                         backgroundColor={section.data.backgroundColor}
                         backgroundImage={section.data.backgroundImage}
                         onUpdate={(updates) => onUpdate({ ...section.data, ...updates })}
                         onReset={() => onUpdate(createDefaultSection('hero').data as HeroSectionData)}
+                        theme={theme}
                     />
                 </div>
             );
@@ -487,11 +527,15 @@ function SectionInspector({
             return (
                 <div className="space-y-3">
                     {section.data.cards.map((card, index) => (
-                        <div key={index} className="space-y-2 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-3 text-xs uppercase tracking-[0.3em] text-[#94a3b8]">
+                        <div key={index} className={`space-y-2 rounded-2xl border px-3 py-3 text-xs uppercase tracking-[0.3em] ${
+                            theme === 'dark'
+                                ? 'border-[#475569] bg-[#1e293b] text-white'
+                                : 'border-[#e5e7eb] bg-white text-[#94a3b8]'
+                        }`}>
                             <span>Card {index + 1}</span>
-                            <InputField label="Title" value={card.title} onChange={(value) => onCardUpdate(index, 'title', value)} />
-                            <InputField label="Body" value={card.body} onChange={(value) => onCardUpdate(index, 'body', value)} />
-                            <InputField label="Icon" value={card.icon} onChange={(value) => onCardUpdate(index, 'icon', value)} />
+                            <InputField label="Title" value={card.title} onChange={(value) => onCardUpdate(index, 'title', value)} theme={theme} />
+                            <InputField label="Body" value={card.body} onChange={(value) => onCardUpdate(index, 'body', value)} theme={theme} />
+                            <InputField label="Icon" value={card.icon} onChange={(value) => onCardUpdate(index, 'icon', value)} theme={theme} />
                         </div>
                     ))}
                     <BackgroundSelector
@@ -500,34 +544,39 @@ function SectionInspector({
                         backgroundImage={section.data.backgroundImage || ''}
                         onUpdate={(updates) => onUpdate({ ...section.data, ...updates })}
                         onReset={() => onUpdate(createDefaultSection('benefits').data as BenefitsSectionData)}
+                        theme={theme}
                     />
                 </div>
             );
         case 'testimonial':
             return (
                 <div className="space-y-3">
-                    <TextareaField label="Quote" value={section.data.quote} onChange={(value) => onUpdate({ ...section.data, quote: value })} />
-                    <InputField label="Author" value={section.data.author} onChange={(value) => onUpdate({ ...section.data, author: value })} />
+                    <TextareaField label="Quote" value={section.data.quote} onChange={(value) => onUpdate({ ...section.data, quote: value })} theme={theme} />
+                    <InputField label="Author" value={section.data.author} onChange={(value) => onUpdate({ ...section.data, author: value })} theme={theme} />
                     <BackgroundSelector
                         backgroundType={section.data.backgroundType || 'image'}
                         backgroundColor={section.data.backgroundColor || '#1e3a5f'}
                         backgroundImage={section.data.backgroundImage || ''}
                         onUpdate={(updates) => onUpdate({ ...section.data, ...updates })}
                         onReset={() => onUpdate(createDefaultSection('testimonial').data as TestimonialSectionData)}
+                        theme={theme}
                     />
                 </div>
             );
         case 'form':
             return (
                 <div className="space-y-3">
-                    <InputField label="Headline" value={section.data.headline} onChange={(value) => onUpdate({ ...section.data, headline: value })} />
-                    <InputField label="Subheadline" value={section.data.subheadline} onChange={(value) => onUpdate({ ...section.data, subheadline: value })} />
+                    <InputField label="Headline" value={section.data.headline} onChange={(value) => onUpdate({ ...section.data, headline: value })} theme={theme} />
+                    <InputField label="Subheadline" value={section.data.subheadline} onChange={(value) => onUpdate({ ...section.data, subheadline: value })} theme={theme} />
                     <InputField 
                         label="Company Source" 
                         value={section.data.companySource || 'EasyStay'} 
-                        onChange={(value) => onUpdate({ ...section.data, companySource: value })} 
+                        onChange={(value) => onUpdate({ ...section.data, companySource: value })}
+                        theme={theme}
                     />
-                    <p className="text-[10px] text-[#94a3b8] italic">
+                    <p className={`text-[10px] italic ${
+                        theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'
+                    }`}>
                         Hidden field to track which company/brand this form is for (e.g., EasyStay, PartnerCo)
                     </p>
                     <BackgroundSelector
@@ -536,17 +585,20 @@ function SectionInspector({
                         backgroundImage={section.data.backgroundImage || ''}
                         onUpdate={(updates) => onUpdate({ ...section.data, ...updates })}
                         onReset={() => onUpdate(createDefaultSection('form').data as FormSectionData)}
+                        theme={theme}
                     />
                 </div>
             );
         case 'feature':
             return (
                 <div className="space-y-3">
-                    <InputField label="Title" value={section.data.title} onChange={(value) => onUpdate({ ...section.data, title: value })} />
-                    <TextareaField label="Description" value={section.data.description} onChange={(value) => onUpdate({ ...section.data, description: value })} />
-                    <InputField label="Image URL" value={section.data.imageUrl} onChange={(value) => onUpdate({ ...section.data, imageUrl: value })} />
+                    <InputField label="Title" value={section.data.title} onChange={(value) => onUpdate({ ...section.data, title: value })} theme={theme} />
+                    <TextareaField label="Description" value={section.data.description} onChange={(value) => onUpdate({ ...section.data, description: value })} theme={theme} />
+                    <InputField label="Image URL" value={section.data.imageUrl} onChange={(value) => onUpdate({ ...section.data, imageUrl: value })} theme={theme} />
                     <div className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">Image Position</p>
+                        <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${
+                            theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+                        }`}>Image Position</p>
                         <div className="flex gap-2">
                             <button
                                 type="button"
@@ -554,7 +606,9 @@ function SectionInspector({
                                 className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition-all ${
                                     section.data.imagePosition === 'left'
                                         ? 'bg-[#667eea] text-white'
-                                        : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
+                                        : theme === 'dark'
+                                            ? 'bg-[#334155] text-[#94a3b8] hover:bg-[#475569] hover:text-white'
+                                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
                                 }`}
                             >
                                 Left
@@ -565,7 +619,9 @@ function SectionInspector({
                                 className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition-all ${
                                     section.data.imagePosition === 'right'
                                         ? 'bg-[#667eea] text-white'
-                                        : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
+                                        : theme === 'dark'
+                                            ? 'bg-[#334155] text-[#94a3b8] hover:bg-[#475569] hover:text-white'
+                                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
                                 }`}
                             >
                                 Right
@@ -578,6 +634,7 @@ function SectionInspector({
                         backgroundImage={section.data.backgroundImage || ''}
                         onUpdate={(updates) => onUpdate({ ...section.data, ...updates })}
                         onReset={() => onUpdate(createDefaultSection('feature').data as FeatureSectionData)}
+                        theme={theme}
                     />
                 </div>
             );
@@ -590,19 +647,27 @@ function InputField({
     label,
     value,
     onChange,
+    theme,
 }: {
     label: string;
     value: string;
     onChange: (value: string) => void;
+    theme: 'dark' | 'light';
 }) {
     return (
-        <div className="space-y-1 text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">
+        <div className={`space-y-1 text-xs font-semibold uppercase tracking-[0.3em] ${
+            theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+        }`}>
             <p>{label}</p>
             <input
                 type="text"
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
-                className="w-full rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#0f172a] focus:border-[#667eea] focus:outline-none"
+                className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-[#667eea] focus:outline-none ${
+                    theme === 'dark'
+                        ? 'border-[#475569] bg-[#334155] text-white placeholder-[#94a3b8]'
+                        : 'border-[#d1d5db] bg-white text-[#0f172a]'
+                }`}
             />
         </div>
     );
@@ -612,19 +677,27 @@ function TextareaField({
     label,
     value,
     onChange,
+    theme,
 }: {
     label: string;
     value: string;
     onChange: (value: string) => void;
+    theme: 'dark' | 'light';
 }) {
     return (
-        <div className="space-y-1 text-xs font-semibold uppercase tracking-[0.3em] text-[#94a3b8]">
+        <div className={`space-y-1 text-xs font-semibold uppercase tracking-[0.3em] ${
+            theme === 'dark' ? 'text-white' : 'text-[#94a3b8]'
+        }`}>
             <p>{label}</p>
             <textarea
                 rows={3}
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
-                className="w-full rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#0f172a] focus:border-[#667eea] focus:outline-none"
+                className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-[#667eea] focus:outline-none ${
+                    theme === 'dark'
+                        ? 'border-[#475569] bg-[#334155] text-white placeholder-[#94a3b8]'
+                        : 'border-[#d1d5db] bg-white text-[#0f172a]'
+                }`}
             />
         </div>
     );
