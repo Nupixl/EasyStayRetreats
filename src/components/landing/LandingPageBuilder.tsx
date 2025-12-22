@@ -208,6 +208,7 @@ function SectionListItem({
     onRemove,
     onUpdate,
     onCardUpdate,
+    theme,
 }: {
     section: SectionCard;
     isActive: boolean;
@@ -215,6 +216,7 @@ function SectionListItem({
     onRemove: () => void;
     onUpdate: (updates: SectionCard['data']) => void;
     onCardUpdate: (cardIndex: number, field: keyof BenefitCard, value: string) => void;
+    theme: 'dark' | 'light';
 }) {
     const [isExpanded, setIsExpanded] = useState(true);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -253,7 +255,13 @@ function SectionListItem({
             }}
             style={style}
             className={`rounded-2xl border text-sm transition-all ${
-                isActive ? 'border-[#667eea] bg-indigo-50 shadow-lg' : 'border-[#e5e7eb] bg-white'
+                isActive 
+                    ? theme === 'dark'
+                        ? 'border-[#667eea] bg-[#334155] shadow-lg'
+                        : 'border-[#667eea] bg-indigo-50 shadow-lg'
+                    : theme === 'dark'
+                        ? 'border-[#334155] bg-[#1e293b]'
+                        : 'border-[#e5e7eb] bg-white'
             } ${isDragging ? 'shadow-2xl scale-105' : 'hover:shadow-md'}`}
         >
             <div className="flex items-center justify-between px-3 py-3">
@@ -262,7 +270,11 @@ function SectionListItem({
                         type="button"
                         {...attributes}
                         {...listeners}
-                        className="flex h-8 w-8 cursor-grab items-center justify-center rounded-lg text-lg text-[#94a3b8] transition-all hover:bg-[#f1f5f9] hover:text-[#475569] active:cursor-grabbing active:bg-[#e2e8f0]"
+                        className={`flex h-8 w-8 cursor-grab items-center justify-center rounded-lg text-lg transition-all active:cursor-grabbing ${
+                            theme === 'dark'
+                                ? 'text-[#94a3b8] hover:bg-[#475569] hover:text-white active:bg-[#64748b]'
+                                : 'text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#475569] active:bg-[#e2e8f0]'
+                        }`}
                         aria-label="Drag to reorder"
                     >
                         ⋮⋮
@@ -275,7 +287,11 @@ function SectionListItem({
                                 e.stopPropagation();
                                 setIsExpanded(!isExpanded);
                             }}
-                            className="flex h-8 w-8 items-center justify-center text-[#94a3b8] transition-all hover:text-[#475569]"
+                            className={`flex h-8 w-8 items-center justify-center transition-all ${
+                                theme === 'dark'
+                                    ? 'text-[#94a3b8] hover:text-white'
+                                    : 'text-[#94a3b8] hover:text-[#475569]'
+                            }`}
                             aria-label={isExpanded ? 'Collapse' : 'Expand'}
                             title={isExpanded ? 'Collapse' : 'Expand'}
                         >
@@ -285,7 +301,11 @@ function SectionListItem({
                         <button 
                             type="button" 
                             onClick={onSelect} 
-                            className="flex h-8 w-8 items-center justify-center text-[#94a3b8] transition-all hover:text-[#475569]"
+                            className={`flex h-8 w-8 items-center justify-center transition-all ${
+                                theme === 'dark'
+                                    ? 'text-[#94a3b8] hover:text-white'
+                                    : 'text-[#94a3b8] hover:text-[#475569]'
+                            }`}
                         >
                             <span className="text-base">▶</span>
                         </button>
@@ -295,7 +315,9 @@ function SectionListItem({
                         onClick={onSelect} 
                         className="flex-1 text-left"
                     >
-                        <span className="block text-xs uppercase tracking-[0.3em] text-[#94a3b8]">
+                        <span className={`block text-xs uppercase tracking-[0.3em] ${
+                            theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'
+                        }`}>
                             {labelMap[section.type]}
                         </span>
                     </button>
@@ -306,7 +328,11 @@ function SectionListItem({
                         e.stopPropagation();
                         onRemove();
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] transition-all hover:bg-[#fef2f2] hover:text-[#ef4444]"
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+                        theme === 'dark'
+                            ? 'text-[#94a3b8] hover:bg-[#7f1d1d] hover:text-[#fca5a5]'
+                            : 'text-[#94a3b8] hover:bg-[#fef2f2] hover:text-[#ef4444]'
+                    }`}
                     aria-label="Remove section"
                     title="Remove"
                 >
@@ -925,6 +951,7 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [showComponentLibrary, setShowComponentLibrary] = useState(false);
+    const [theme, setTheme] = useState<'dark' | 'light'>('dark');
     const hasFormSection = useMemo(() => sections.some((section) => section.type === 'form'), [sections]);
 
     const sensors = useSensors(
@@ -1048,22 +1075,46 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
     const canPublish = hasFormSection;
 
     return (
-        <div className="flex min-h-screen bg-[#f4f6fb]">
-            <aside className="sticky top-0 flex h-screen w-72 flex-col border-r border-[#e5e7eb] bg-white px-4 py-6">
+        <div className={`flex min-h-screen transition-colors ${theme === 'dark' ? 'bg-[#0f172a]' : 'bg-[#f4f6fb]'}`}>
+            <aside className={`sticky top-0 flex h-screen w-72 flex-col border-r px-4 py-6 transition-colors ${
+                theme === 'dark' 
+                    ? 'border-[#1e293b] bg-[#1e293b]' 
+                    : 'border-[#e5e7eb] bg-white'
+            }`}>
                 <div className="flex items-center justify-between">
-                    <p className="text-xs uppercase tracking-[0.4em] text-[#94a3b8]">Blocks</p>
-                    <button
-                        type="button"
-                        onClick={() => setActiveSectionId(sections[0]?.id ?? '')}
-                        className="text-xs font-semibold uppercase tracking-[0.4em] text-[#94a3b8]"
-                    >
-                        Reset
-                    </button>
+                    <p className={`text-xs uppercase tracking-[0.4em] ${theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'}`}>Blocks</p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${
+                                theme === 'dark'
+                                    ? 'bg-[#334155] text-yellow-400 hover:bg-[#475569]'
+                                    : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
+                            }`}
+                            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveSectionId(sections[0]?.id ?? '')}
+                            className={`text-xs font-semibold uppercase tracking-[0.4em] ${
+                                theme === 'dark' ? 'text-[#94a3b8] hover:text-white' : 'text-[#94a3b8] hover:text-[#475569]'
+                            }`}
+                        >
+                            Reset
+                        </button>
+                    </div>
                 </div>
                 <button
                     type="button"
                     onClick={() => setShowComponentLibrary(true)}
-                    className="mt-4 w-full rounded-xl border border-dashed border-[#cbd5f5] px-3 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-[#475569] hover:border-[#667eea] hover:bg-[#f8fafc] transition-all"
+                    className={`mt-4 w-full rounded-xl border border-dashed px-3 py-2 text-xs font-semibold uppercase tracking-[0.4em] transition-all ${
+                        theme === 'dark'
+                            ? 'border-[#475569] text-[#94a3b8] hover:border-[#667eea] hover:bg-[#334155]'
+                            : 'border-[#cbd5f5] text-[#475569] hover:border-[#667eea] hover:bg-[#f8fafc]'
+                    }`}
                 >
                     + Add component
                 </button>
@@ -1089,6 +1140,7 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                                         onRemove={() => removeSection(section.id)}
                                         onUpdate={(updates) => updateSection(section.id, updates)}
                                         onCardUpdate={(index, field, value) => updateBenefitCard(section.id, index, field, value)}
+                                        theme={theme}
                                     />
                                 ))}
                             </div>
@@ -1105,32 +1157,58 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                     </DndContext>
                 </div>
                 {toastMessage && (
-                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-900">
+                    <div className={`mt-4 rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] ${
+                        theme === 'dark'
+                            ? 'border-amber-700 bg-amber-900/30 text-amber-300'
+                            : 'border-amber-200 bg-amber-50 text-amber-900'
+                    }`}>
                         {toastMessage}
                     </div>
                 )}
                 {!hasFormSection && (
-                    <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">
+                    <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] ${
+                        theme === 'dark'
+                            ? 'border-rose-700 bg-rose-900/30 text-rose-300'
+                            : 'border-rose-200 bg-rose-50 text-rose-700'
+                    }`}>
                         Form required before publishing.
                     </p>
                 )}
             </aside>
 
             <main className="flex flex-1 flex-col">
-                <div className="flex items-center justify-between border-b border-[#e5e7eb] bg-white px-6 py-4">
+                <div className={`flex items-center justify-between border-b px-6 py-4 transition-colors ${
+                    theme === 'dark'
+                        ? 'border-[#1e293b] bg-[#1e293b]'
+                        : 'border-[#e5e7eb] bg-white'
+                }`}>
                     <div>
-                        <p className="text-xs uppercase tracking-[0.4em] text-[#94a3b8]">Live preview</p>
-                        <h2 className="text-base font-semibold text-[#0f172a]">{link.name}</h2>
+                        <p className={`text-xs uppercase tracking-[0.4em] ${
+                            theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'
+                        }`}>Live preview</p>
+                        <h2 className={`text-base font-semibold ${
+                            theme === 'dark' ? 'text-white' : 'text-[#0f172a]'
+                        }`}>{link.name}</h2>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex gap-2 rounded-full border border-[#E0E7FF] bg-white p-1">
+                        <div className={`flex gap-2 rounded-full border p-1 ${
+                            theme === 'dark'
+                                ? 'border-[#334155] bg-[#1e293b]'
+                                : 'border-[#E0E7FF] bg-white'
+                        }`}>
                             {(['desktop', 'mobile'] as const).map((mode) => (
                                 <button
                                     key={mode}
                                     type="button"
                                     onClick={() => setPreviewMode(mode)}
                                     className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.3em] transition ${
-                                        previewMode === mode ? 'bg-[#0f172a] text-white' : 'text-[#94a3b8]'
+                                        previewMode === mode 
+                                            ? theme === 'dark'
+                                                ? 'bg-[#667eea] text-white'
+                                                : 'bg-[#0f172a] text-white'
+                                            : theme === 'dark'
+                                                ? 'text-[#94a3b8] hover:text-white'
+                                                : 'text-[#94a3b8]'
                                     }`}
                                 >
                                     {mode}
@@ -1143,8 +1221,12 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                             disabled={!canPublish || savingState === 'saving'}
                             className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.3em] ${
                                 canPublish
-                                    ? 'bg-[#0f172a] text-white enabled:hover:bg-[#0d1a36]'
-                                    : 'bg-[#a6adbc] text-white'
+                                    ? theme === 'dark'
+                                        ? 'bg-[#667eea] text-white enabled:hover:bg-[#5a67d8]'
+                                        : 'bg-[#0f172a] text-white enabled:hover:bg-[#0d1a36]'
+                                    : theme === 'dark'
+                                        ? 'bg-[#64748b] text-white'
+                                        : 'bg-[#a6adbc] text-white'
                             }`}
                         >
                             Publish
@@ -1152,7 +1234,9 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto bg-[#f4f6fb] p-8">
+                <div className={`flex-1 overflow-y-auto p-8 transition-colors ${
+                    theme === 'dark' ? 'bg-[#0f172a]' : 'bg-[#f4f6fb]'
+                }`}>
                     <div className={`transition-all duration-300 ${previewMode === 'mobile' ? 'mx-auto max-w-[440px]' : 'w-full'}`}>
                         <LandingPreview sections={sections} link={link} activeSectionId={activeSectionId} previewMode={previewMode} />
                     </div>
