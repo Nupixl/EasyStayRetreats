@@ -36,11 +36,10 @@ export default async function ReferralPage({ params }: { params: { slug: string 
         const formSection = sections.find(s => s.type === 'form');
         const formLink = formSection ? `#form-${formSection.id}` : '#';
         
-        const ctaSection = sections.find(s => s.type === 'cta');
         const heroSection = sections.find(s => s.type === 'hero');
         
         // Determine CTA button text
-        const mobileCTAText = ctaSection?.data.buttonText || heroSection?.data.ctaText || 'Get Started';
+        const mobileCTAText = heroSection?.data.ctaText || 'Get Started';
 
         return (
             <div className="min-h-screen bg-[#f4f6fb]">
@@ -248,40 +247,6 @@ export default async function ReferralPage({ params }: { params: { slug: string 
                                             </div>
                                         </div>
                                     </section>
-                                );
-                            case 'cta':
-                                return (
-                                    <div
-                                        key={section.id}
-                                        className="relative overflow-hidden rounded-lg shadow-2xl"
-                                        style={{
-                                            minHeight: '400px',
-                                        }}
-                                    >
-                                        <div
-                                            className="absolute inset-0"
-                                            style={{
-                                                backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1400&q=80)',
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center',
-                                                backgroundColor: section.data.backgroundColor || '#1e3a5f',
-                                            }}
-                                        />
-                                        <div className="relative z-10 flex h-full min-h-[400px] flex-col items-center justify-center px-6 py-12 text-center sm:px-8 sm:py-16 md:min-h-[500px]">
-                                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] sm:mb-6 sm:text-xs sm:tracking-[0.3em]" style={{ color: section.data.textColor || '#fff' }}>
-                                                OWN A PROPERTY?
-                                            </p>
-                                            <h2 className="mb-6 w-full max-w-[90%] text-lg font-bold leading-[1.2] sm:mb-8 sm:max-w-4xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl" style={{ color: section.data.textColor || '#fff', wordWrap: 'break-word', whiteSpace: 'normal' }}>
-                                                {section.data.text}
-                                            </h2>
-                                            <a
-                                                href={formLink}
-                                                className="hidden sm:inline-flex rounded-md bg-[#5a8f7b] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all hover:bg-[#4a7f6b] sm:px-8 sm:py-4 sm:text-sm sm:tracking-[0.2em]"
-                                            >
-                                                {section.data.buttonText}
-                                            </a>
-                                        </div>
-                                    </div>
                                 );
                             default:
                                 return null;

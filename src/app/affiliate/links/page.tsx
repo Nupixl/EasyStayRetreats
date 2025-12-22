@@ -153,7 +153,7 @@ export default function LinksPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs text-secondary font-medium uppercase tracking-wider">Created</p>
-                                            <p className="text-base font-medium mt-1">{new Date(link.created_at).toLocaleDateString()}</p>
+                                            <p className="text-base font-medium mt-1">{link.created_at ? new Date(link.created_at).toLocaleDateString() : 'N/A'}</p>
                                         </div>
                                     </div>
                                     {link.headline && (

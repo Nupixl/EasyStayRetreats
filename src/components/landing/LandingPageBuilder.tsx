@@ -176,6 +176,20 @@ const createDefaultSection = (type: SectionType): SectionCard => {
                     backgroundImage: '',
                 },
             };
+        default:
+            // Fallback to hero section if unknown type
+            return {
+                id: generateId(),
+                type: 'hero',
+                data: {
+                    headline: 'Unlock Your Property&apos;s Full Potential',
+                    subheadline: 'Experience increased bookings with our expert services.',
+                    ctaText: 'SEE HOW',
+                    backgroundImage: '',
+                    backgroundColor: '#1e3a5f',
+                    backgroundType: 'color',
+                },
+            };
     }
 };
 
