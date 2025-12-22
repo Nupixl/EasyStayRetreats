@@ -1017,13 +1017,16 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                 }),
             });
 
-            if (!response.ok) throw new Error('Unable to save layout.');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(errorData.error || 'Unable to save layout.');
+            }
 
             setSavingState('saved');
             setTimeout(() => setSavingState('idle'), 2500);
         } catch (error) {
             setSavingState('error');
-            console.error(error);
+            console.error('Save error:', error);
             setTimeout(() => setSavingState('idle'), 2500);
         }
     };
