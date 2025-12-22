@@ -3,7 +3,7 @@
 import { DashboardShell } from '@/components/ui/DashboardShell';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Users, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Users, FileText, CheckCircle, Clock, MoreVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
