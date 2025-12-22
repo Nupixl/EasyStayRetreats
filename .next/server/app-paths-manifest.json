@@ -1,9 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/book/page": "app/book/page.js",
-  "/about-us/page": "app/about-us/page.js",
-  "/contact/page": "app/contact/page.js",
-  "/page": "app/page.js",
-  "/search-properties/page": "app/search-properties/page.js",
-  "/api/retreats/route": "app/api/retreats/route.js"
-}
