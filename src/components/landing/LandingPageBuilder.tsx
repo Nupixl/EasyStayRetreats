@@ -90,6 +90,7 @@ interface LandingPageBuilderProps {
     };
     initialSections: SectionCard[];
     isPublished: boolean;
+    onNavigateBack?: () => void;
 }
 
 const generateId = () => (typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2));
@@ -1007,7 +1008,7 @@ function LandingPreview({
     );
 }
 
-export function LandingPageBuilder({ link, initialSections }: LandingPageBuilderProps) {
+export function LandingPageBuilder({ link, initialSections, onNavigateBack }: LandingPageBuilderProps) {
     const resolvedInitialSections: SectionCard[] =
         initialSections && initialSections.length > 0
             ? (initialSections.map((section) => ({
@@ -1154,13 +1155,38 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                     ? 'border-[#1e293b] bg-[#1e293b]' 
                     : 'border-[#e5e7eb] bg-white'
             }`}>
-                <div className="flex items-center justify-between">
-                    <p className={`text-xs uppercase tracking-[0.4em] ${theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'}`}>Blocks</p>
+                {/* Header Section */}
+                <div className={`space-y-3 pb-4 border-b ${
+                    theme === 'dark' ? 'border-[#334155]' : 'border-[#e5e7eb]'
+                }`}>
+                    <div>
+                        <p className={`text-xs uppercase tracking-[0.3em] ${
+                            theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'
+                        }`}>Landing editor</p>
+                        <h1 className={`text-lg font-semibold ${
+                            theme === 'dark' ? 'text-white' : 'text-[#0f172a]'
+                        }`}>
+                            {link.name}
+                        </h1>
+                    </div>
                     <div className="flex items-center gap-2">
+                        {onNavigateBack && (
+                            <button
+                                type="button"
+                                onClick={onNavigateBack}
+                                className={`flex-1 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] transition ${
+                                    theme === 'dark'
+                                        ? 'border-[#475569] text-[#94a3b8] hover:border-[#667eea] hover:text-white'
+                                        : 'border-[#CBD5F5] text-[#475569] hover:border-[#667eea] hover:text-[#0f172a]'
+                                }`}
+                            >
+                                ← Back
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${
+                            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all ${
                                 theme === 'dark'
                                     ? 'bg-[#334155] text-yellow-400 hover:bg-[#475569]'
                                     : 'bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0]'
@@ -1169,16 +1195,21 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                         >
                             {theme === 'dark' ? '☀️' : '🌙'}
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveSectionId(sections[0]?.id ?? '')}
-                            className={`text-xs font-semibold uppercase tracking-[0.4em] ${
-                                theme === 'dark' ? 'text-[#94a3b8] hover:text-white' : 'text-[#94a3b8] hover:text-[#475569]'
-                            }`}
-                        >
-                            Reset
-                        </button>
                     </div>
+                </div>
+
+                {/* Blocks Section */}
+                <div className="flex items-center justify-between mt-4">
+                    <p className={`text-xs uppercase tracking-[0.4em] ${theme === 'dark' ? 'text-[#94a3b8]' : 'text-[#94a3b8]'}`}>Blocks</p>
+                    <button
+                        type="button"
+                        onClick={() => setActiveSectionId(sections[0]?.id ?? '')}
+                        className={`text-xs font-semibold uppercase tracking-[0.4em] ${
+                            theme === 'dark' ? 'text-[#94a3b8] hover:text-white' : 'text-[#94a3b8] hover:text-[#475569]'
+                        }`}
+                    >
+                        Reset
+                    </button>
                 </div>
                 <button
                     type="button"
@@ -1308,7 +1339,7 @@ export function LandingPageBuilder({ link, initialSections }: LandingPageBuilder
                 </div>
 
                 <div className={`flex-1 overflow-y-auto p-8 transition-colors ${
-                    theme === 'dark' ? 'bg-[#0f172a]' : 'bg-[#f4f6fb]'
+                    theme === 'dark' ? 'bg-[#0f172a] text-[#f4f7fa]' : 'bg-[#f5f5f5] text-[#0f172a]'
                 }`}>
                     <div className={`transition-all duration-300 ${previewMode === 'mobile' ? 'mx-auto max-w-[440px]' : 'w-full'}`}>
                         <LandingPreview sections={sections} link={link} activeSectionId={activeSectionId} previewMode={previewMode} />
