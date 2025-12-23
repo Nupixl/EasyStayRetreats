@@ -121,6 +121,7 @@
 - **Tokens:** `space-16` (responsive base padding), `space-12` (compact spacing), `type-body`, `color-card`, `color-card-foreground`, `color-border`, `color-muted`, `radius-xl`.
 - **HTML structure:**  
   `div.c-card` > optional `h3`, `p`, etc. Designed to wrap `CardHeader`, `CardContent`, `CardFooter` helpers for consistent typography and spacing.
+- **Notes:** Supports a forwarded DOM ref (e.g., `setNodeRef`) for drag-and-drop/measurement use cases.
 - **Responsive behavior:** Sidebar view and dashboard cards stay `w-full min-w-0` to prevent overflow, pads with `px-4 py-5` on mobile and `px-6 py-6` on `sm`+ breakpoints, and leverages `break-words` so long copy flows within the layout.
 - **Usage example:**  
   ```tsx

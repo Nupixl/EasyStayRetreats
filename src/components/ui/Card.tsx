@@ -1,15 +1,16 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { forwardRef, type HTMLAttributes } from 'react';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
     variant?: 'default' | 'glass' | 'outline';
 }
 
-export function Card({ className, variant = 'default', children, ...props }: CardProps) {
+export const Card = forwardRef<HTMLDivElement, CardProps>(function Card({ className, variant = 'default', children, ...props }, ref) {
     const baseStyles = 'w-full min-w-0 rounded-2xl transition-all duration-200 break-words';
     const responsivePadding = 'px-4 py-5 sm:px-6 sm:py-6';
 
@@ -20,11 +21,13 @@ export function Card({ className, variant = 'default', children, ...props }: Car
     };
 
     return (
-        <div className={cn(baseStyles, variants[variant], className)} {...props}>
+        <div ref={ref} className={cn(baseStyles, variants[variant], className)} {...props}>
             {children}
         </div>
     );
-}
+});
+
+Card.displayName = 'Card';
 
 export function CardHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
