@@ -10,12 +10,13 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Card({ className, variant = 'default', children, ...props }: CardProps) {
-    const baseStyles = 'rounded-2xl p-6 transition-all duration-200';
+    const baseStyles = 'w-full min-w-0 rounded-2xl transition-all duration-200 break-words';
+    const responsivePadding = 'px-4 py-5 sm:px-6 sm:py-6';
 
     const variants = {
-        default: 'bg-card text-card-foreground shadow-xl shadow-black/5 border border-border',
-        glass: 'glass text-foreground',
-        outline: 'border-2 border-border bg-transparent',
+        default: `bg-card text-card-foreground shadow-xl shadow-black/5 border border-border ${responsivePadding}`,
+        glass: `glass text-foreground ${responsivePadding}`,
+        outline: `border-2 border-border bg-transparent ${responsivePadding}`,
     };
 
     return (

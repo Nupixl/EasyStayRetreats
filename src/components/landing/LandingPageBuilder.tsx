@@ -1148,6 +1148,10 @@ export function LandingPageBuilder({ link, initialSections, onNavigateBack }: La
                     ? '✅ Landing page published! Redirecting...' 
                     : '📝 Landing page saved as draft.'
             );
+
+            if (publish) {
+                window.dispatchEvent(new Event('landingPageStatusUpdated'));
+            }
             
             // Navigate back immediately after publishing to refresh the status
             if (publish && onNavigateBack) {

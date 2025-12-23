@@ -3,8 +3,8 @@
 import { DashboardShell } from '@/components/ui/DashboardShell';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Copy, Plus, ExternalLink, Link as LinkIcon, Edit2, Check, X, BarChart3, Eye, EyeOff, Trash2, GripVertical } from 'lucide-react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { Copy, Plus, ExternalLink, Link as LinkIcon, Edit2, Check, X, BarChart3, Eye, EyeOff, Trash2, GripVertical, ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import {
@@ -71,6 +71,45 @@ function SortableLinkCard({
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: link.id,
     });
+    const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+    const actionMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isActionMenuOpen) return;
+        const handleClickOutside = (event: MouseEvent) => {
+            if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
+                setIsActionMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isActionMenuOpen]);
+
+    const getNextStatus = (currentStatus: 'draft' | 'paused' | 'published') => {
+        if (currentStatus === 'draft') return 'paused';
+        if (currentStatus === 'paused') return 'published';
+        return 'draft';
+    };
+
+    const closeActionMenu = () => setIsActionMenuOpen(false);
+    const handleTogglePublishStatus = () => {
+        const currentStatus = link.landing_page?.status || 'draft';
+        const nextStatus = getNextStatus(currentStatus);
+        onTogglePublishStatus(link, nextStatus);
+        closeActionMenu();
+    };
+
+    const handleOpenLandingPage = () => {
+        window.open(`/refer/${link.slug}`, '_blank');
+        closeActionMenu();
+    };
+
+    const statusLabel =
+        link.landing_page?.status === 'published'
+            ? 'Published'
+            : link.landing_page?.status === 'paused'
+            ? 'Paused'
+            : 'Draft';
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -123,30 +162,21 @@ function SortableLinkCard({
                                 </button>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3 group/name">
-                                <h4 className="font-semibold text-lg">{link.name}</h4>
-                                <select
-                                    value={link.landing_page?.status || 'draft'}
-                                    onChange={(e) => {
-                                        const newStatus = e.target.value as 'draft' | 'paused' | 'published';
-                                        if (newStatus !== link.landing_page?.status) {
-                                            onTogglePublishStatus(link, newStatus);
-                                        }
-                                    }}
-                                    disabled={!link.landing_page}
-                                    className={`min-w-[130px] px-3 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+                            <div className="flex flex-wrap items-center gap-3 group/name">
+                                <span
+                                    className={`min-w-[130px] inline-flex items-center justify-center px-3 py-1 text-xs font-semibold rounded-full border ${
                                         link.landing_page?.status === 'published'
-                                            ? 'bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20' 
+                                            ? 'border-green-500/20 bg-green-500/10 text-green-600'
                                             : link.landing_page?.status === 'paused'
-                                            ? 'bg-orange-500/10 text-orange-600 border-orange-500/20 hover:bg-orange-500/20'
-                                            : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20 hover:bg-yellow-500/20'
+                                            ? 'border-orange-500/20 bg-orange-500/10 text-orange-600'
+                                            : 'border-yellow-500/20 bg-yellow-500/10 text-yellow-600'
                                     }`}
-                                    title={!link.landing_page ? 'Create a landing page first' : 'Change publish status'}
                                 >
-                                    <option value="draft">📝 Draft</option>
-                                    <option value="paused">⏸️ Paused</option>
-                                    <option value="published">✓ Published</option>
-                                </select>
+                                    {link.landing_page?.status === 'published' && '✓ Published'}
+                                    {link.landing_page?.status === 'paused' && '⏸️ Paused'}
+                                    {(!link.landing_page || link.landing_page?.status === 'draft') && '📝 Draft'}
+                                </span>
+                                <h4 className="font-semibold text-lg">{link.name}</h4>
                                 <button
                                     onClick={() => onStartEditing(link)}
                                     className="opacity-0 group-hover/name:opacity-100 p-1 hover:bg-muted rounded transition-all"
@@ -168,7 +198,7 @@ function SortableLinkCard({
                         </a>
                     </div>
 
-                    <div className="flex gap-2">
+                <div className="hidden gap-2 md:flex">
                         <Button
                             variant="outline"
                             size="sm"
@@ -230,6 +260,82 @@ function SortableLinkCard({
                         >
                             <Trash2 className="w-4 h-4" />
                         </Button>
+                    </div>
+
+                    {/* Mobile action menu */}
+                    <div className="md:hidden relative w-full" ref={actionMenuRef}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-between"
+                            aria-haspopup="menu"
+                            aria-expanded={isActionMenuOpen}
+                            onClick={() => setIsActionMenuOpen((prev) => !prev)}
+                        >
+                            Actions
+                            <ChevronDown className="w-4 h-4" />
+                        </Button>
+                        {isActionMenuOpen && (
+                            <div className="absolute right-0 z-10 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/10">
+                                <button
+                                    onClick={() => {
+                                        onNavigateToBuilder(link.id);
+                                        closeActionMenu();
+                                    }}
+                                    className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-muted"
+                                >
+                                    <span>Landing Builder</span>
+                                    <LinkIcon className="w-4 h-4" />
+                                </button>
+                                {link.landing_page && (
+                                    <button
+                                        onClick={handleTogglePublishStatus}
+                                        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-muted"
+                                    >
+                                        <span>Cycle status ({statusLabel})</span>
+                                        <span className="text-xs uppercase">{statusLabel}</span>
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        onToggleAnalytics(link.id);
+                                        closeActionMenu();
+                                    }}
+                                    className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-muted"
+                                    title="View Analytics"
+                                >
+                                    <span>Analytics</span>
+                                    <BarChart3 className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        onCopyToClipboard(link.slug);
+                                        closeActionMenu();
+                                    }}
+                                    className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-muted"
+                                >
+                                    <span>Copy Link</span>
+                                    <Copy className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={handleOpenLandingPage}
+                                    className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-muted"
+                                >
+                                    <span>Open Landing</span>
+                                    <ExternalLink className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        onDeleteLink(link);
+                                        closeActionMenu();
+                                    }}
+                                    className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-500/10"
+                                >
+                                    <span>Delete</span>
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -445,6 +551,17 @@ export default function LinksPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        const handleWindowFocus = () => {
+            console.log('Window focused, refetching links...');
+            fetchLinks();
+        };
+
+        window.addEventListener('focus', handleWindowFocus);
+        return () => window.removeEventListener('focus', handleWindowFocus);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Refetch links when page becomes visible (e.g., navigating back from builder)
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -456,6 +573,17 @@ export default function LinksPage() {
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        const handleStatusUpdate = () => {
+            console.log('Landing page status updated, refetching links...');
+            fetchLinks();
+        };
+
+        window.addEventListener('landingPageStatusUpdated', handleStatusUpdate);
+        return () => window.removeEventListener('landingPageStatusUpdated', handleStatusUpdate);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

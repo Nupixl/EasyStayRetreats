@@ -115,3 +115,74 @@
   }
   ```
 
+## c-card
+
+- **Purpose:** Reusable content container used for dashboards, forms, and link cards that adapts to narrow screens without extra wrappers.
+- **Tokens:** `space-16` (responsive base padding), `space-12` (compact spacing), `type-body`, `color-card`, `color-card-foreground`, `color-border`, `color-muted`, `radius-xl`.
+- **HTML structure:**  
+  `div.c-card` > optional `h3`, `p`, etc. Designed to wrap `CardHeader`, `CardContent`, `CardFooter` helpers for consistent typography and spacing.
+- **Responsive behavior:** Sidebar view and dashboard cards stay `w-full min-w-0` to prevent overflow, pads with `px-4 py-5` on mobile and `px-6 py-6` on `sm`+ breakpoints, and leverages `break-words` so long copy flows within the layout.
+- **Usage example:**  
+  ```tsx
+  <Card className="hover:shadow-2xl">
+    <CardHeader>
+      <CardTitle>Title</CardTitle>
+      <CardDescription>Short summary.</CardDescription>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      ...content...
+    </CardContent>
+  </Card>
+  ```
+
+## c-sortable-link-card
+
+- **Purpose:** Listing item for affiliate links that doubles as a drag-and-drop card, quick stats summary, and multi-action toolbar—with a collapsible dropdown on narrow screens.
+- **Tokens:** `space-16`, `space-12`, `space-8`, `type-body`, `type-mono`, `color-card`, `color-card-foreground`, `color-border`, `color-muted`, `color-primary`, `color-secondary`, `radius-xl`.
+- **HTML structure:**  
+  `Card` wrapper > `CardContent` >  
+  - `div.flex` header row with drag handle, title/status badge, slug/link anchor, and an action group that turns into a dropdown on mobile.  
+  - Stats grid (`grid-cols-3`) showing clicks/referrals/created.  
+  - Optional analytics section that expands below the stats grid when toggled.
+- **Responsive behavior:** Standard action buttons (`Landing Builder`, `Toggle status`, `Analytics`, `Copy`, `Open`, `Delete`) remain visible on `md`+, while a single "Actions" dropdown (with the same list) replaces them on smaller viewports; outside clicks and action selection close the menu automatically.
+- **Usage example:**  
+  ```tsx
+  <SortableLinkCard
+    link={link}
+    editingId={editingId}
+    editName={editName}
+    expandedAnalytics={expandedAnalytics}
+    onStartEditing={startEditing}
+    onCancelEditing={cancelEdit}
+    onSaveEdit={saveEdit}
+    onSetEditName={setEditName}
+    onToggleAnalytics={toggleAnalytics}
+    onTogglePublishStatus={togglePublishStatus}
+    onCopyToClipboard={copyToClipboard}
+    onDeleteLink={deleteLink}
+    onNavigateToBuilder={openBuilder}
+  />
+  ```
+
+## c-dashboard-shell
+
+- **Purpose:** Full-height dashboard shell that wraps admin/affiliate views with a collapsible icon-first navigation column plus persistent logout action.
+- **Tokens:** `space-24` (main padding), `space-16` (sidebar gutter), `space-12` (button padding), `space-6` (gap between links), `type-heading-lg`, `type-body`, `color-card`, `color-border`, `color-muted`, `color-gradient`, `color-text-secondary`, `radius-xl`.
+- **HTML structure:**  
+  `div` outer flex container (`flex h-screen bg-background overflow-hidden`) >  
+  - `aside` navigation column (`border-r border-border bg-card flex flex-col transition-[width] duration-200`) with collapse toggle header, `nav` list of `Link` elements, and logout `Button` anchored at the bottom.  
+  - `main` content area (`flex-1 overflow-y-auto p-8`) that receives the page body and displays the current `userRole`.
+- **Behavior:** Sidebar width toggles between 64px and 20px via a `Button` that swaps between `ChevronLeft`/`ChevronRight` icons, updates `aria-expanded`, and adds `sr-only` text so collapsed state shows icon-only nav while remaining accessible. Logout button also adapts its alignment/text visibility with the collapse state.
+- **Usage example:**  
+  ```tsx
+  import { DashboardShell } from '@/components/ui/DashboardShell';
+
+  export default function AffiliateDashboard() {
+    return (
+      <DashboardShell userRole="affiliate">
+        <AffiliateDashboardContent />
+      </DashboardShell>
+    );
+  }
+  ```
+
