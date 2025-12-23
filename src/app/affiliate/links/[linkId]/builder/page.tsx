@@ -71,6 +71,13 @@ export default function LandingBuilderPage() {
                     return;
                 }
 
+                console.log('🔍 Builder loaded:', {
+                    linkName: data.link.name,
+                    hasLandingPage: Boolean(data.landingPage),
+                    sectionCount: data.landingPage?.sections?.length ?? 0,
+                    isPublished: data.landingPage?.is_published ?? false
+                });
+
                 setPayload(data);
                 setStatus('idle');
             } catch (error) {
@@ -112,7 +119,11 @@ export default function LandingBuilderPage() {
             link={payload.link}
             initialSections={(payload.landingPage?.sections ?? []) as SectionCard[]}
             isPublished={payload.landingPage?.is_published ?? false}
-            onNavigateBack={() => router.push('/affiliate/links')}
+            onNavigateBack={() => {
+                router.push('/affiliate/links');
+                // Force refresh to get latest data
+                router.refresh();
+            }}
         />
     );
 }

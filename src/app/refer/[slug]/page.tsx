@@ -1,16 +1,26 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { ReferralForm } from '@/components/referral/ReferralForm';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import type { SectionCard } from '@/components/landing/LandingPageBuilder';
 
-export default async function ReferralPage({ params }: { params: { slug: string } }) {
-    const { slug } = params;
+// Disable caching for this page to always show latest published version
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-    // Fetch link and increment clicks server-side
+export default async function ReferralPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+
+    // Create server-side Supabase client
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Fetch link with affiliate_id to check ownership
     const { data: link, error } = await supabase
         .from('affiliate_links')
-        .select('id, name, headline, subheadline, hero_image_url')
+        .select('id, name, headline, subheadline, hero_image_url, affiliate_id')
         .eq('slug', slug)
         .single();
 
@@ -18,18 +28,40 @@ export default async function ReferralPage({ params }: { params: { slug: string 
         notFound();
     }
 
-    // Fetch landing page if it exists
-    const { data: landingPage } = await supabase
+    // Fetch landing page if it exists (use maybeSingle to handle 0 rows gracefully)
+    const { data: landingPage, error: landingError } = await supabase
         .from('landing_pages')
-        .select('sections, is_published')
+        .select('sections, is_published, status')
         .eq('affiliate_link_id', link.id)
-        .single();
+        .maybeSingle();
 
-    // Increment click count (fire and forget for performance)
-    supabase.rpc('increment_link_clicks', { link_id: link.id }).then();
+    // Debug logging
+    console.log('🔍 Landing page fetch result:', {
+        slug,
+        linkId: link.id,
+        hasLandingPage: !!landingPage,
+        status: landingPage?.status,
+        isPublished: landingPage?.is_published,
+        hasSections: !!landingPage?.sections,
+        sectionCount: Array.isArray(landingPage?.sections) ? landingPage.sections.length : 0,
+        firstSectionType: Array.isArray(landingPage?.sections) && landingPage.sections.length > 0 
+            ? (landingPage.sections[0] as any)?.type 
+            : 'none',
+        error: landingError?.message,
+        willRenderCustom: landingPage?.status === 'published' && !!landingPage?.sections
+    });
 
-    // If landing page exists and is published, render it
-    if (landingPage?.is_published && landingPage.sections) {
+    // Only increment click count if visitor is NOT the owner
+    const { data: { user } } = await supabase.auth.getUser();
+    const isOwner = user && user.id === link.affiliate_id;
+    
+    if (!isOwner) {
+        // Increment click count (fire and forget for performance)
+        supabase.rpc('increment_link_clicks', { link_id: link.id }).then();
+    }
+
+    // If landing page exists and is published (not paused), render it
+    if (landingPage?.status === 'published' && landingPage?.sections && Array.isArray(landingPage.sections) && landingPage.sections.length > 0) {
         const sections = landingPage.sections as SectionCard[];
         
         // Find first form section - all buttons should link to it

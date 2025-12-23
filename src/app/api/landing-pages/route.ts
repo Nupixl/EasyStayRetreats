@@ -71,21 +71,39 @@ export async function POST(req: Request) {
             affiliate_link_id: linkId,
             sections: sections ?? [],
             is_published: Boolean(publish),
+            status: publish ? 'published' : 'draft',
             updated_at: new Date().toISOString(),
         };
 
-        const { error: landingError } = await supabase
+        const { error: landingError, data: landingData } = await supabase
             .from('landing_pages')
-            .upsert(upsertPayload, { onConflict: 'affiliate_link_id' });
+            .upsert(upsertPayload, { onConflict: 'affiliate_link_id' })
+            .select();
 
         if (landingError) {
-            throw landingError;
+            console.error('Landing page upsert error:', landingError);
+            return NextResponse.json({ 
+                error: `Failed to save landing page: ${landingError.message}`,
+                details: landingError 
+            }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true });
+        console.log('Landing page saved successfully:', {
+            id: landingData[0]?.id,
+            linkId,
+            status: landingData[0]?.status,
+            sectionCount: landingData[0]?.sections?.length,
+            publish
+        });
+        return NextResponse.json({ success: true, data: landingData });
     } catch (error) {
+        console.error('Unexpected error in landing-pages API:', error);
         const message = error instanceof Error ? error.message : 'Unexpected error saving landing page';
-        return NextResponse.json({ error: message }, { status: 500 });
+        const details = error instanceof Error ? error.stack : String(error);
+        return NextResponse.json({ 
+            error: message,
+            details: details
+        }, { status: 500 });
     }
 }
 

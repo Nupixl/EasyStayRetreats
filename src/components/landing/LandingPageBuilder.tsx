@@ -1134,11 +1134,29 @@ export function LandingPageBuilder({ link, initialSections, onNavigateBack }: La
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                throw new Error(errorData.error || 'Unable to save layout.');
+                console.error('API Error Response:', errorData);
+                const errorMessage = errorData.error || 'Unable to save layout.';
+                setToastMessage(`Error: ${errorMessage}`);
+                throw new Error(errorMessage);
             }
 
+            const result = await response.json();
+            console.log('Save successful:', result);
             setSavingState('saved');
-            setTimeout(() => setSavingState('idle'), 2500);
+            setToastMessage(
+                publish 
+                    ? '✅ Landing page published! Redirecting...' 
+                    : '📝 Landing page saved as draft.'
+            );
+            
+            // Navigate back immediately after publishing to refresh the status
+            if (publish && onNavigateBack) {
+                setTimeout(() => {
+                    onNavigateBack();
+                }, 800);
+            } else {
+                setTimeout(() => setSavingState('idle'), 2500);
+            }
         } catch (error) {
             setSavingState('error');
             console.error('Save error:', error);
