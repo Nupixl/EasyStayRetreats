@@ -234,3 +234,5 @@ const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => 
 4. Test on real mobile devices
 5. Add loading states for image upload
 
+
+

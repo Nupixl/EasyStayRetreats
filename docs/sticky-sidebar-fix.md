@@ -177,3 +177,5 @@ User reported that when clicking on a block component, the section list would sc
 - Works seamlessly with existing scroll-to-section functionality
 - No JavaScript required - pure CSS solution
 
+
+

@@ -1,5 +1,15 @@
 Agent name: Antigravity
 IDE: Google Deepmind Agentic Coding
+Change Header: Project Started Successfully
+Change Notes:
+- Successfully started the development server via `npm run dev`.
+- Verified the application is running on http://localhost:3000.
+- Homepage loading confirmed with screenshot.
+
+---
+
+Agent name: Antigravity
+IDE: Google Deepmind Agentic Coding
 Change Header: Application Started
 Change Notes: 
 - Fixed corrupted node_modules by reinstalling dependencies.
@@ -528,3 +538,114 @@ QA:
 - ✓ Logo and text remain centered
 - ✓ Responsive behavior maintained
 - ✓ All existing functionality preserved
+
+Agent name: Antigravity
+IDE: VS Code (Simulated)
+Change Header: Refined Role-Specific Dashboards & Interaction
+Change Notes:
+- Integrated `PermissionSelector` into `DashboardShell` with state-driven navigation and content.
+- Implemented specific views for `admin` including Property Manager mapping and Affiliate network overview.
+- Created a `property_manager` view featuring a "Deal Flow" tracker with a visual progress system.
+- Enhanced mobile responsiveness with a sliding sidebar, hamburger menu, and backdrop effects.
+- Verified all role transitions and UI states via automated browser testing.
+
+---
+
+Date: 2025-12-26
+Agent: Antigravity
+IDE: VS Code (Simulated)
+Change Header: Premium Dashboard Polishing & Mobile Verification
+Change Notes:
+- Enhanced `DashboardShell.tsx` with premium visual effects: glass-morphism cards, entrance animations (`fade-in`, `slide-in-from-bottom`), and consistent visual hierarchy.
+- Refactored role-specific views to use the unified `Card` component for professional data presentation.
+- Optimized "Deal Flow Tracker" for Property Managers with high-contrast status indicators and pulsing animations for active states.
+- Verified full mobile responsiveness across all roles:
+  - Sidebar correctly collapses into a drawer.
+  - Hamburger menu integration in the mobile header.
+  - Interactive role-switching functionality maintained within the mobile drawer.
+- [x] Refine dark mode aesthetics for specific views
+    - [x] Identify and replace hardcoded light-mode classes for Admin view
+    - [x] Refine "Deal Flow" tracker for Property Managers
+    - [x] Standardize cards and tables for dark mode consistency
+- [x] Verify visual parity and premium aesthetic across all roles in both themes
+- [x] Log progress in `ai_notes/progress_log.md`
+- Completed comprehensive verification via browser subagent, confirming functional correctness and visual fidelity across all simulated roles.
+
+---
+
+Date: 2025-12-26
+Agent: Antigravity
+IDE: VS Code (Simulated)
+Change Header: Theme Toggle Integration & Dark Mode Refinement
+Change Notes:
+- Implemented a manual light/dark mode toggle component (`ThemeToggle.tsx`) with state persistence in `localStorage`.
+- Updated `globals.css` to support manual theme switching using the `.dark` class, eliminating issues with inconsistent background colors.
+- Integrated `ThemeToggle` into the `DashboardShell` sidebar for easy access.
+- Refined `Card.tsx` and `DashboardShell.tsx` styles for better dark mode aesthetics:
+  - Replaced hardcoded light backgrounds with theme-aware `bg-background/50`.
+  - Adjusted card borders and shadows in dark mode for a more premium look.
+- Verified smooth theme transitions and layout consistency using the browser subagent.
+
+---
+
+Date: 2025-12-26
+Agent: Antigravity
+IDE: Google Deepmind Agentic Coding
+Change Header: Refined Dark Mode Dashboard Aesthetics
+Change Notes:
+- Identified and replaced lingering hardcoded light-mode classes in `DashboardShell.tsx` for Admin and Property Manager views.
+- Standardized Admin overview cards with theme-aware gradients (`from-white to-blue-50/30` -> `dark:from-slate-900 dark:to-blue-900/20`) and text colors.
+- Refined Admin tables (Property Managers & Affiliate Network) by replacing `slate` backgrounds and borders with `bg-muted` and `border-border`.
+- Updated Property Manager status indicators and "Deal Flow Tracker" progress bars for consistent dark mode appearance.
+- Fixed JSX syntax errors in `DashboardShell.tsx` related to missing `<tr>` tags and mismatched `div` closures.
+- Verified structural integrity of the dashboard layout after role-switching refactoring.
+### Property Manager Dashboard Enhancements
+- Agent name: Antigravity
+- IDE: VS Code
+- Change Header: PM Dashboard Metrics & Management Tools
+- Change Notes: Implemented detailed stats cards, performance graphs, affiliate management modals (permissions, profile), and a comprehensive settings page with Stripe integration UI. Consolidated all PM navigation and sub-views in `DashboardShell.tsx`.
+
+---
+
+Date: 2025-12-26
+Agent: Antigravity
+IDE: Google Deepmind Agentic Coding
+Change Header: Light Mode Aesthetic Refinements & Admin Privilege Fixes
+Change Notes:
+- Resolved light mode visibility issues in `PermissionSelector.tsx` by replacing hardcoded `text-white` on hover with theme-aware `text-foreground`.
+- Standardized `PermissionSelector` container and track backgrounds for better contrast in light mode.
+- Improved Admin overview cards in `DashboardShell.tsx` with subtle borders and enhanced shadow depths for better definition in light mode.
+- Redesigned the "Manage Map" button in the Property Managers view for high contrast and better legibility.
+- Updated the `glass` card variant in `Card.tsx` for better light/dark mode performance.
+- Verified all changes via browser subagent with automated light/dark mode testing.
+
+---
+
+Date: 2025-12-26
+Agent: Antigravity
+IDE: Google Deepmind Agentic Coding
+Change Header: Refining Role Hierarchy & Management Tools
+Change Notes:
+## Refining Role Hierarchy & Management Tools
+- [x] Reorder roles in `PermissionSelector.tsx` (Admin -> PM -> Affiliate) <!-- id: 11 -->
+- [x] Implement enhanced "Deal Details" view in `DashboardShell.tsx` <!-- id: 12 -->
+- [x] Add Affiliate Management actions for Property Managers <!-- id: 13 -->
+- [x] Update role descriptions and logic in `PermissionSelector` <!-- id: 14 -->
+
+## Verification
+- [x] Verify role hierarchy order <!-- id: 15 -->
+- [x] Test "View Details" modal/expansion for deals <!-- id: 16 -->
+- [x] Test PM affiliate management actions <!-- id: 17 -->
+- [x] Update walkthrough and progress log <!-- id: 18 -->
+
+Agent name: Antigravity
+IDE: VS Code / Web Browser
+Change Header: Payouts and Dispute Resolution UI Implementation
+Change Notes:
+- Implemented 'Payouts' and 'Disputes' sub-views in DashboardShell.tsx.
+- Added summary cards (Total Earned, Pending Clear, Next Payout) for financial tracking.
+- Created 'Payout History' and 'Resolution Center' tables with mock data and status indicators.
+- Updated sidebar navigation for both Property Manager and Affiliate Partner roles.
+- Fixed a bug where Affiliate sub-views would not render correctly when navigating from the sidebar.
+- Added 'Disputes' view to Property Manager role for handling partner issues.
+- Verified all views across roles and themes (light/dark) using browser subagent.

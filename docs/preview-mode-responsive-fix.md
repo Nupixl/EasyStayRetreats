@@ -86,3 +86,5 @@ If other sections need similar preview mode handling, apply the same pattern:
 3. Force mobile styles when `previewMode === 'mobile'`
 4. Use responsive classes when `previewMode === 'desktop'`
 
+
+

@@ -19,3 +19,5 @@ CREATE POLICY "Affiliates manage their own landing pages." ON public.landing_pag
     );
 
 
+
+

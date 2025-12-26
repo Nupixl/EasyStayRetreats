@@ -15,9 +15,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card({ classN
     const responsivePadding = 'px-4 py-5 sm:px-6 sm:py-6';
 
     const variants = {
-        default: `bg-card text-card-foreground shadow-xl shadow-black/5 border border-border ${responsivePadding}`,
-        glass: `glass text-foreground ${responsivePadding}`,
-        outline: `border-2 border-border bg-transparent ${responsivePadding}`,
+        default: `bg-card text-card-foreground shadow-xl shadow-black/5 dark:shadow-black/20 border border-border dark:border-white/5 ${responsivePadding}`,
+        glass: `bg-white/70 dark:bg-black/40 backdrop-blur-md text-foreground border border-border/50 dark:border-white/10 ${responsivePadding}`,
+        outline: `border-2 border-border dark:border-white/10 bg-transparent ${responsivePadding}`,
     };
 
     return (

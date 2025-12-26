@@ -109,3 +109,5 @@ function BackgroundSelector({
 - [ ] Add "Undo" functionality after reset
 - [ ] Track reset analytics to understand user behavior
 
+
+

@@ -38,3 +38,5 @@ COMMENT ON COLUMN public.referrals.form_engagement IS 'Tracks if form was partia
 COMMENT ON COLUMN public.referrals.time_to_complete IS 'Time taken to complete form in seconds';
 COMMENT ON VIEW public.referral_conversion_metrics IS 'Analytics view for form conversion rates and engagement metrics';
 
+
+
